@@ -55,6 +55,7 @@ import {
 } from "../../icons";
 
 import { IoEyeOutline } from "react-icons/io5";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import { ContractTypesAPI, type ContractType } from "../../api/endpoints/contractTypes";
 import { ContractsAPI, type ContractCreatePayload, type ContractFullView } from "../../api/endpoints/contracts";
@@ -3278,19 +3279,21 @@ export default function Catalogue() {
                 </Badge>
               </div>
               <dl className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Période
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                    {contractDateRange
-                      ? `${contractDateRange[0].toLocaleDateString("fr-FR", { dateStyle: "medium" })} → ${contractDateRange[1].toLocaleDateString("fr-FR", { dateStyle: "medium" })}`
-                      : "À définir"}
-                    {rentalDays
-                      ? ` • ${rentalDays} jour${rentalDays > 1 ? "s" : ""}`
-                      : ""}
-                  </dd>
-                </div>
+                {contractDrawer.mode !== "package" && (
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Période
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
+                      {contractDateRange
+                        ? `${contractDateRange[0].toLocaleDateString("fr-FR", { dateStyle: "medium" })} → ${contractDateRange[1].toLocaleDateString("fr-FR", { dateStyle: "medium" })}`
+                        : "À définir"}
+                      {rentalDays
+                        ? ` • ${rentalDays} jour${rentalDays > 1 ? "s" : ""}`
+                        : ""}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Type de contrat
@@ -3299,36 +3302,7 @@ export default function Catalogue() {
                     {contractTypeLabel ?? "Non défini"}
                   </dd>
                 </div>
-                {contractDrawer.mode === "package" ? (
-                  <>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Forfait
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                        {selectedPackage
-                          ? `${selectedPackage.name} • ${selectedPackage.num_dresses} robe${selectedPackage.num_dresses > 1 ? "s" : ""}`
-                          : "Sélectionnez un forfait"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Prix forfait TTC
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                        {selectedPackage ? formatCurrency(selectedPackage.price_ttc) : "-"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Prix forfait HT
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                        {selectedPackage ? formatCurrency(selectedPackage.price_ht) : "-"}
-                      </dd>
-                    </div>
-                  </>
-                ) : (
+                {contractDrawer.mode !== "package" && (
                   <>
                     <div>
                       <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -3350,6 +3324,42 @@ export default function Catalogue() {
                 )}
               </dl>
             </section>
+
+            {/* Section Période de location - Uniquement pour forfait */}
+            {contractDrawer.mode === "package" && (
+              <section className="space-y-4 rounded-2xl border border-gray-200 bg-white/80 p-6 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.02]">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Période de location</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <DatePicker
+                      label="Dates de location"
+                      id={contractDatePickerId}
+                      mode="range"
+                      defaultDate={contractDateRange}
+                      placeholder="Sélectionnez une période"
+                      onChange={handleContractDateChange}
+                      options={{
+                        enableTime: true,
+                        time_24hr: true,
+                        minuteIncrement: 15,
+                        dateFormat: "d/m/Y H:i",
+                        closeOnSelect: false,
+                      }}
+                    />
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 text-sm dark:border-gray-700 dark:bg-white/[0.02]">
+                    <p className="font-medium text-gray-800 dark:text-gray-200">
+                      {rentalDays} jour{rentalDays > 1 ? "s" : ""}
+                    </p>
+                    {contractDateRange && (
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Du {contractDateRange[0].toLocaleDateString("fr-FR", { dateStyle: "short" })} au {contractDateRange[1].toLocaleDateString("fr-FR", { dateStyle: "short" })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
 
             {contractDrawer.mode === "package" ? (
               <section className="space-y-5 rounded-2xl border border-gray-200 bg-white/80 p-6 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.02]">
@@ -3393,17 +3403,36 @@ export default function Catalogue() {
 
                     {/* Robe principale */}
                     <div className="rounded-xl border border-brand-200 bg-brand-50/40 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400 mb-2">
-                        Robe principale (sélectionnée)
-                      </p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {contractDrawer.dress?.name ?? "Robe"}
-                      </p>
-                      {contractDrawer.dress?.reference && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                          Réf. {contractDrawer.dress.reference}
-                        </p>
-                      )}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400 mb-2">
+                            Robe principale (sélectionnée)
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {contractDrawer.dress?.name ?? "Robe"}
+                          </p>
+                          {contractDrawer.dress?.reference && (
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                              Réf. {contractDrawer.dress.reference}
+                            </p>
+                          )}
+                        </div>
+                        {contractDrawer.dress?.id && (
+                          <div className="flex flex-col items-center gap-1">
+                            {availabilityInfo.get(contractDrawer.dress.id) === false ? (
+                              <>
+                                <FaTimesCircle className="text-red-500 dark:text-red-400" size={20} />
+                                <span className="text-xs font-medium text-red-600 dark:text-red-400">Indisponible</span>
+                              </>
+                            ) : availabilityInfo.get(contractDrawer.dress.id) === true ? (
+                              <>
+                                <FaCheckCircle className="text-green-500 dark:text-green-400" size={20} />
+                                <span className="text-xs font-medium text-green-600 dark:text-green-400">Disponible</span>
+                              </>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -3417,10 +3446,25 @@ export default function Catalogue() {
                       {Array.from({ length: packageDressLimit - 1 }).map((_, index) => {
                         const currentValue = additionalSelectedDressIds[index] || "";
                         const ordinal = index === 0 ? "1ère" : index === 1 ? "2ème" : index === 2 ? "3ème" : `${index + 1}ème`;
+                        const isAvailable = currentValue ? availabilityInfo.get(currentValue) : undefined;
 
                         return (
                           <div key={index}>
-                            <Label>{ordinal} robe supplémentaire</Label>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Label className="mb-0">{ordinal} robe supplémentaire</Label>
+                              {currentValue && isAvailable !== undefined && (
+                                <div className="flex items-center gap-1">
+                                  {isAvailable === false ? (
+                                    <FaTimesCircle className="text-red-500 dark:text-red-400" size={14} />
+                                  ) : (
+                                    <FaCheckCircle className="text-green-500 dark:text-green-400" size={14} />
+                                  )}
+                                  <span className={`text-xs font-medium ${isAvailable === false ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                                    {isAvailable === false ? 'Indisponible' : 'Disponible'}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                             <Select
                               value={currentValue}
                               onChange={(value) => {
