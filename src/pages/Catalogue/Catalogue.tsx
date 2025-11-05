@@ -1696,13 +1696,14 @@ export default function Catalogue() {
     if (!startRaw || Number.isNaN(startRaw.getTime())) return;
 
     const start = new Date(startRaw.getTime());
-    start.setHours(9, 0, 0, 0);
 
-    // For package mode, force 1-day rental period (same day, 9am-6pm) in processing
+    // For package mode, force 24-hour rental period (12pm to 12pm next day) in processing
     // But let user select dates naturally like in draft drawer
     if (contractDrawer.mode === "package") {
+      start.setHours(12, 0, 0, 0);
       const end = new Date(start.getTime());
-      end.setHours(18, 0, 0, 0);
+      end.setDate(end.getDate() + 1); // Next day
+      end.setHours(12, 0, 0, 0);
 
       setContractForm((prev) =>
         prev
@@ -1715,6 +1716,9 @@ export default function Catalogue() {
       );
       return;
     }
+
+    // For daily mode, use 9am start time
+    start.setHours(9, 0, 0, 0);
 
     const endRaw = selectedDates[1] ?? start;
     let end = new Date(endRaw.getTime());
