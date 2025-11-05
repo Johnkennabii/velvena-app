@@ -190,15 +190,20 @@ const normalizeListResponse = (res: any, fallbackLimit?: number): DressListRespo
 };
 
 const extractUploadList = (res: any): DressUploadFile[] => {
-  const files = Array.isArray(res?.files) ? res.files : Array.isArray(res?.data?.files) ? res.data.files : [];
+  const files = Array.isArray(res?.files)
+    ? res.files
+    : Array.isArray(res?.data?.files)
+    ? res.data.files
+    : [];
+
   return files
-    .filter((file) => file && typeof file === "object")
-    .map((file) => ({
+    .filter((file: Partial<DressUploadFile>) => file && typeof file === "object")
+    .map((file: Partial<DressUploadFile>) => ({
       id: String(file.id ?? file.name ?? ""),
       name: String(file.name ?? file.id ?? ""),
       url: String(file.url ?? ""),
     }))
-    .filter((file) => file.url.length > 0);
+    .filter((file: any) => file.url.length > 0);
 };
 
 export const DressesAPI = {

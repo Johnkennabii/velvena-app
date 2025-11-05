@@ -51,6 +51,7 @@ export interface ContractFullView {
   contract_type_id_ref?: string | null;
   contract_type_name?: string | null;
   package_id?: string | null;
+  created_by?: string | null;
   created_at?: string;
   updated_at?: string | null;
   updated_by?: string | null;

@@ -1,23 +1,15 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
-import { Dropdown } from "../components/ui/dropdown/Dropdown";
-import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
-import { PlusIcon } from "../icons";
-import { useAuth } from "../context/AuthContext";
 import QuickSearchBar from "../components/header/QuickSearchBar";
-
+import QuickActionsDropdown from "../components/header/QuickActionsDropdown";
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
-  const [isQuickActionsOpen, setQuickActionsOpen] = useState(false);
-
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
-  const { hasRole } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+
 
   const handleToggle = () => {
     if (window.innerWidth >= 1280) {
@@ -33,23 +25,9 @@ const AppHeader: React.FC = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
 
-  const toggleQuickActions = () => {
-    setQuickActionsOpen((prev) => !prev);
-  };
 
-  const closeQuickActions = () => {
-    setQuickActionsOpen(false);
-  };
 
-  const triggerQuickAction = (eventName: string, path: string, detail?: Record<string, unknown>) => {
-    window.dispatchEvent(new CustomEvent(eventName, { detail }));
-    closeQuickActions();
 
-    if (location.pathname !== path) {
-      const state = detail ? { quickAction: eventName, ...detail } : { quickAction: eventName };
-      navigate(path, { state });
-    }
-  };
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 xl:border-b">
@@ -145,42 +123,7 @@ const AppHeader: React.FC = () => {
             <NotificationDropdown />
             {/* <!-- Notification Menu Area --> */}
           </div>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={toggleQuickActions}
-              className="dropdown-toggle flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-white/[0.06]"
-              aria-expanded={isQuickActionsOpen}
-              aria-haspopup="true"
-            >
-              <PlusIcon className="size-4" />
-              <span>Plus</span>
-            </button>
-            <Dropdown isOpen={isQuickActionsOpen} onClose={closeQuickActions} className="w-56">
-              <div className="py-2">
-                <DropdownItem
-                  onItemClick={() => triggerQuickAction("open-create-customer", "/customers")}
-                  baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
-                >
-                  Ajouter un client
-                </DropdownItem>
-                <DropdownItem
-                  onItemClick={() => triggerQuickAction("open-contract-drawer", "/catalogue", { mode: "daily" })}
-                  baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
-                >
-                  Ajouter un contrat
-                </DropdownItem>
-                {hasRole("ADMIN", "MANAGER") ? (
-                  <DropdownItem
-                    onItemClick={() => triggerQuickAction("open-create-dress", "/catalogue")}
-                    baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
-                  >
-                    Ajouter une robe
-                  </DropdownItem>
-                ) : null}
-              </div>
-            </Dropdown>
-          </div>
+          <QuickActionsDropdown />
           {/* <!-- User Area --> */}
           <UserDropdown />
         </div>

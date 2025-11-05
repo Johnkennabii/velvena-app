@@ -117,7 +117,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       setSessionExpired(false);
       notify("success", "Connexion réussie", `Bienvenue ${res.email}`);
-      navigate("/");
+
+      // Redirect based on user role
+      if (res.role === "ADMIN" || res.role === "MANAGER") {
+        navigate("/");
+      } else if (res.role === "COLLABORATOR") {
+        navigate("/catalogue");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       notify("error", "Erreur de connexion", err.message || "Identifiants invalides");
       throw err;

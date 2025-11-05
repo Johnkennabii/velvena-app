@@ -1,6 +1,10 @@
 // src/api/httpClient.ts
 const BASE_URL = "https://api.allure-creation.fr";
 
+interface CustomRequestInit extends RequestInit {
+  _skipAuthRefresh?: boolean;
+}
+
 let logoutFn: (() => void) | null = null;
 let notifyFn:
   | ((
@@ -28,8 +32,8 @@ export const httpClientInit = (deps: {
   refreshFn = deps.refreshToken ?? null;
 };
 
-async function performRequest(path: string, options: RequestInit = {}, retry = true): Promise<any> {
-  const { _skipAuthRefresh, ...cleanOptions } = options as RequestInit & { _skipAuthRefresh?: boolean };
+async function performRequest(path: string, options: CustomRequestInit = {}, retry = true): Promise<any> {
+  const { _skipAuthRefresh, ...cleanOptions } = options as CustomRequestInit;
   const skipRefresh = Boolean(_skipAuthRefresh);
   const isFormData = typeof FormData !== "undefined" && cleanOptions.body instanceof FormData;
 
@@ -91,20 +95,20 @@ async function performRequest(path: string, options: RequestInit = {}, retry = t
   return response.json();
 }
 
-export async function httpClient(path: string, options: RequestInit = {}) {
+export async function httpClient(path: string, options: CustomRequestInit = {}) {
   return performRequest(path, options);
 }
 
-httpClient.get = (url: string, options: RequestInit = {}) => httpClient(url, { method: "GET", ...options });
-httpClient.post = (url: string, body: any, options: RequestInit = {}) =>
+httpClient.get = (url: string, options: CustomRequestInit = {}) => httpClient(url, { method: "GET", ...options });
+httpClient.post = (url: string, body: any, options: CustomRequestInit = {}) =>
   httpClient(url, { method: "POST", body: JSON.stringify(body), ...options });
-httpClient.put = (url: string, body: any, options: RequestInit = {}) =>
+httpClient.put = (url: string, body: any, options: CustomRequestInit = {}) =>
   httpClient(url, { method: "PUT", body: JSON.stringify(body), ...options });
-httpClient.patch = (url: string, body?: any, options: RequestInit = {}) =>
+httpClient.patch = (url: string, body?: any, options: CustomRequestInit = {}) =>
   httpClient(url, {
     method: "PATCH",
     body: body !== undefined ? JSON.stringify(body) : undefined,
     ...options,
   });
-httpClient.delete = (url: string, options: RequestInit = {}) =>
+httpClient.delete = (url: string, options: CustomRequestInit = {}) =>
   httpClient(url, { method: "DELETE", ...options });

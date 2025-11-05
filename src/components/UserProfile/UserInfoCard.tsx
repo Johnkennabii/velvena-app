@@ -45,44 +45,65 @@ export default function UserInfoCard() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!user?.id) return;
+    console.log("🔵 handleSave called");
+    if (!user?.id) {
+      console.log("❌ No user ID found");
+      return;
+    }
     setSaving(true);
     try {
       const payload: {
         profile: {
-          firstname: string;
-          lastname: string;
+          firstName: string;
+          lastName: string;
           country: string;
           city: string;
           address: string;
           postal_code: string;
-          role_id: string;
+          role_id?: string;
         };
         password?: string;
       } = {
         profile: {
-          firstname: form.firstname,
-          lastname: form.lastname,
-          country: form.country,
-          city: form.city,
-          address: form.address,
-          postal_code: form.postal_code,
-          role_id: user.profile?.role_id || "11111111-1111-1111-1111-111111111111",
+          firstName: form.firstname.trim(),
+          lastName: form.lastname.trim(),
+          country: form.country.trim(),
+          city: form.city.trim(),
+          address: form.address.trim(),
+          postal_code: form.postal_code.trim(),
         },
       };
+
+      // Only include role_id if it exists
+      if (user.profile?.role_id) {
+        payload.profile.role_id = user.profile.role_id;
+      }
+
       if (form.password.trim()) {
         payload.password = form.password.trim();
       }
+
+      console.log("🔵 Sending payload:", payload);
       const res = await httpClient.put(`/users/${user.id}`, payload);
+      console.log("✅ API Response:", res);
+
       notify("success", "Profil mis à jour", "Vos informations ont été modifiées avec succès");
-      console.log("✅ User updated:", res);
+
       const updatedProfile =
         res?.profile ??
         {
           ...(user?.profile ?? {}),
-          ...payload.profile,
+          firstName: form.firstname.trim(),
+          lastName: form.lastname.trim(),
+          country: form.country.trim(),
+          city: form.city.trim(),
+          address: form.address.trim(),
+          postal_code: form.postal_code.trim(),
         };
+
+      console.log("🔵 Updating user profile with:", updatedProfile);
       updateUserProfile(updatedProfile);
+
       setForm((prev) => ({
         ...prev,
         firstname: updatedProfile?.firstname || updatedProfile?.firstName || "",
@@ -212,7 +233,7 @@ export default function UserInfoCard() {
               <Button size="sm" variant="outline" onClick={closeModal} disabled={saving}>
                 Fermer
               </Button>
-              <Button size="sm" disabled={saving}>
+              <Button type="submit" size="sm" disabled={saving}>
                 {saving ? (
                   <span className="flex items-center gap-2">
                     <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

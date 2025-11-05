@@ -26,6 +26,7 @@ import {
   type DressUpdatePayload,
 } from "../../api/endpoints/dresses";
 import { CustomersAPI, type Customer, type CustomerPayload } from "../../api/endpoints/customers";
+import { UsersAPI, type UserListItem } from "../../api/endpoints/users";
 import {
   ContractAddonsAPI,
   type ContractAddon as ContractAddonOption,
@@ -341,6 +342,7 @@ export default function Catalogue() {
   const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<UserListItem[]>([]);
 
   const [availabilityInfo, setAvailabilityInfo] = useState<Map<string, boolean>>(new Map());
   const [typeUsage, setTypeUsage] = useState<Set<string>>(new Set());
@@ -474,6 +476,24 @@ export default function Catalogue() {
     if (!contractForm?.contractTypeId) return undefined;
     return contractTypes.find((type) => type.id === contractForm.contractTypeId)?.name;
   }, [contractForm?.contractTypeId, contractTypes]);
+
+  const userMap = useMemo(() => {
+    const map = new Map<string, UserListItem>();
+    users.forEach((user) => {
+      map.set(user.id, user);
+    });
+    return map;
+  }, [users]);
+
+  const getUserFullName = useCallback((userId: string | null | undefined): string => {
+    if (!userId) return "—";
+    const user = userMap.get(userId);
+    if (!user) return userId;
+    const firstName = user.profile?.firstName || "";
+    const lastName = user.profile?.lastName || "";
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || user.email || userId;
+  }, [userMap]);
 
   const contractDatePickerId = useMemo(
     () => (contractDrawer.dress ? `contract-dates-${contractDrawer.dress.id}` : "contract-dates"),
@@ -1046,6 +1066,19 @@ export default function Catalogue() {
     },
     [],
   );
+
+  // Load users for metadata display
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const userList = await UsersAPI.list();
+        setUsers(userList);
+      } catch (error) {
+        console.error("Failed to load users:", error);
+      }
+    };
+    loadUsers();
+  }, []);
 
   useEffect(() => {
     if (!contractDrawer.open || !contractForm) return;
@@ -2473,9 +2506,8 @@ export default function Catalogue() {
                       label: "Couleur",
                       value: <ColorSwatch hex={dress.hex_code} name={dress.color_name} />,
                     },
-                    { label: "Forfait TTC", value: formatCurrency(dress.price_ttc) },
                     {
-                      label: "Location / jour TTC",
+                      label: "Prix location / jour TTC",
                       value: formatCurrency(dress.price_per_day_ttc),
                     },
                   ];
@@ -2860,14 +2892,8 @@ export default function Catalogue() {
                   label: "Couleur",
                   value: <ColorSwatch hex={viewDress.hex_code} name={viewDress.color_name} />,
                 },
-                { label: "Prix HT", value: formatCurrency(viewDress.price_ht) },
-                { label: "Prix TTC", value: formatCurrency(viewDress.price_ttc) },
                 {
-                  label: "Location / jour HT",
-                  value: formatCurrency(viewDress.price_per_day_ht),
-                },
-                {
-                  label: "Location / jour TTC",
+                  label: "Prix location / jour TTC",
                   value: formatCurrency(viewDress.price_per_day_ttc),
                 },
               ]}
@@ -2898,41 +2924,38 @@ export default function Catalogue() {
               imageClassName="w-full h-80 object-contain bg-white"
             />
 
-            <div className="grid gap-6 rounded-xl border border-gray-200 bg-white/60 p-6 dark:border-gray-800 dark:bg-white/[0.02] sm:grid-cols-2">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Métadonnées</h3>
-                <dl className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+            <div className="rounded-xl border border-gray-200 bg-white/60 p-6 dark:border-gray-800 dark:bg-white/[0.02]">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Métadonnées</h3>
+              <dl className="mt-3 grid gap-4 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Créée le
+                  </dt>
+                  <dd>{formatDateTime(viewDress.created_at)}</dd>
+                </div>
+                {viewDress.created_by && (
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Créée le
+                      Créé par
                     </dt>
-                    <dd>{formatDateTime(viewDress.created_at)}</dd>
+                    <dd>{getUserFullName(viewDress.created_by)}</dd>
                   </div>
+                )}
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Mise à jour le
+                  </dt>
+                  <dd>{formatDateTime(viewDress.updated_at)}</dd>
+                </div>
+                {viewDress.updated_by && (
                   <div>
                     <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Mise à jour le
+                      Mise à jour par
                     </dt>
-                    <dd>{formatDateTime(viewDress.updated_at)}</dd>
+                    <dd>{getUserFullName(viewDress.updated_by)}</dd>
                   </div>
-                </dl>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Publication</h3>
-                <dl className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <div>
-                    <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Publiée le
-                    </dt>
-                    <dd>{formatDateTime(viewDress.published_at)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Statut
-                    </dt>
-                    <dd>{viewDress.published_post ? "En ligne" : "Hors ligne"}</dd>
-                  </div>
-                </dl>
-              </div>
+                )}
+              </dl>
             </div>
           </div>
         )}
@@ -3162,6 +3185,81 @@ export default function Catalogue() {
       >
         {contractForm ? (
           <form className="space-y-8" onSubmit={handleContractSubmit}>
+            {/* Robe sélectionnée - Carte visuelle */}
+            {contractDrawer.dress && (
+              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-theme-xs dark:border-gray-800 dark:from-white/[0.02] dark:to-white/[0.01]">
+                <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start">
+                  {/* Image de la robe */}
+                  <div className="shrink-0">
+                    <div className="relative h-48 w-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-800 sm:h-32 sm:w-32">
+                      <img
+                        src={contractDrawer.dress.images?.[0] || FALLBACK_IMAGE}
+                        alt={contractDrawer.dress.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Informations de la robe */}
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {contractDrawer.dress.name}
+                      </h3>
+                      {contractDrawer.dress.reference && (
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          Réf. {contractDrawer.dress.reference}
+                        </p>
+                      )}
+                    </div>
+
+                    <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                      {contractDrawer.dress.type_name && (
+                        <div>
+                          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">Type</dt>
+                          <dd className="mt-0.5 font-medium text-gray-900 dark:text-white">
+                            {contractDrawer.dress.type_name}
+                          </dd>
+                        </div>
+                      )}
+                      {contractDrawer.dress.size_name && (
+                        <div>
+                          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">Taille</dt>
+                          <dd className="mt-0.5 font-medium text-gray-900 dark:text-white">
+                            {contractDrawer.dress.size_name}
+                          </dd>
+                        </div>
+                      )}
+                      {contractDrawer.dress.color_name && (
+                        <div>
+                          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">Couleur</dt>
+                          <dd className="mt-0.5 flex items-center gap-2">
+                            {contractDrawer.dress.hex_code && (
+                              <span
+                                className="inline-block h-4 w-4 rounded-full border border-gray-300 shadow-sm dark:border-gray-700"
+                                style={{ backgroundColor: contractDrawer.dress.hex_code }}
+                              />
+                            )}
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {contractDrawer.dress.color_name}
+                            </span>
+                          </dd>
+                        </div>
+                      )}
+                      {contractDrawer.dress.condition_name && (
+                        <div>
+                          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">État</dt>
+                          <dd className="mt-0.5 font-medium text-gray-900 dark:text-white">
+                            {contractDrawer.dress.condition_name}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <section className="space-y-4 rounded-2xl border border-gray-200 bg-white/80 p-6 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.02]">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="space-y-1">
@@ -3180,19 +3278,6 @@ export default function Catalogue() {
                 </Badge>
               </div>
               <dl className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Robe
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                    {contractForm.dressName ?? contractDrawer.dress?.name ?? "Robe sans nom"}
-                    {contractForm.dressReference || contractDrawer.dress?.reference ? (
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {` • Réf. ${contractForm.dressReference ?? contractDrawer.dress?.reference ?? "-"}`}
-                      </span>
-                    ) : null}
-                  </dd>
-                </div>
                 <div>
                   <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Période
