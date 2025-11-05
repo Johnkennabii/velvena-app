@@ -832,6 +832,7 @@ export default function Catalogue() {
     const endDate = selectedDates[1] ?? selectedDates[0];
     if (!startDate || Number.isNaN(startDate.getTime())) {
       setContractDraft((prev) => ({ ...prev, startDate: null, endDate: null }));
+      setFilters((prev) => ({ ...prev, availabilityStart: "", availabilityEnd: "" }));
       return;
     }
     const normalizedEnd = endDate && !Number.isNaN(endDate.getTime()) && endDate > startDate
@@ -840,10 +841,20 @@ export default function Catalogue() {
     if (!selectedDates[1]) {
       normalizedEnd.setDate(normalizedEnd.getDate() + 1);
     }
+    const startIso = startDate.toISOString();
+    const endIso = normalizedEnd.toISOString();
+
     setContractDraft((prev) => ({
       ...prev,
-      startDate: startDate.toISOString(),
-      endDate: normalizedEnd.toISOString(),
+      startDate: startIso,
+      endDate: endIso,
+    }));
+
+    // Synchronize with catalog filters to show dress availability
+    setFilters((prev) => ({
+      ...prev,
+      availabilityStart: startIso,
+      availabilityEnd: endIso
     }));
   }, []);
 
@@ -2201,6 +2212,8 @@ export default function Catalogue() {
     setContractSubmitting(false);
     setContractAvailabilityStatus("idle");
     setContractDraft({ mode: "daily", dressId: null, startDate: null, endDate: null });
+    // Clear availability filters to show all dresses again
+    setFilters((prev) => ({ ...prev, availabilityStart: "", availabilityEnd: "" }));
   };
 
   useEffect(() => {
@@ -3645,16 +3658,16 @@ export default function Catalogue() {
                   <DatePicker
                     label="Dates de location"
                     id={contractDatePickerId}
-                    mode={contractDrawer.mode === "package" ? "single" : "range"}
+                    mode="range"
                     defaultDate={contractDateRange}
-                    placeholder={contractDrawer.mode === "package" ? "Sélectionnez une date" : "Sélectionnez une période"}
+                    placeholder="Sélectionnez une période"
                     onChange={handleContractDateChange}
                     options={{
                       enableTime: true,
                       time_24hr: true,
                       minuteIncrement: 15,
                       dateFormat: "d/m/Y H:i",
-                      closeOnSelect: contractDrawer.mode === "package",
+                      closeOnSelect: false,
                     }}
                   />
 
