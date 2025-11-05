@@ -1878,30 +1878,6 @@ export default function Catalogue() {
     );
   };
 
-  const handleDepositTTCChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const numericRaw = parseNumber(value) ?? 0;
-    const totalTTC = parseNumber(contractForm?.totalPriceTTC ?? "0") ?? 0;
-    const maxTotal = totalTTC > 0 ? totalTTC : Number.POSITIVE_INFINITY;
-    const minimum = contractDrawer.mode === "package" ? Math.max(totalTTC * 0.5, 0) : 0;
-    const numeric = Math.min(Math.max(numericRaw, minimum), maxTotal);
-    const ratio = contractDrawer.mode === "package" ? packageVatRatio : vatRatio;
-    const ht = numeric * ratio;
-    const formattedTTC = formatMoneyValue(numeric);
-    const formattedHT = formatMoneyValue(ht);
-    setContractForm((prev) =>
-      prev
-        ? {
-            ...prev,
-            depositTTC: formattedTTC,
-            depositHT: formattedHT,
-            depositPaidTTC: formattedTTC,
-            depositPaidHT: formattedHT,
-          }
-        : prev,
-    );
-  };
-
   const handleDepositPaidTTCChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     const numericRaw = parseNumber(value) ?? 0;
