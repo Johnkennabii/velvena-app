@@ -1690,7 +1690,7 @@ export default function Catalogue() {
     setFilters({ ...defaultFilters });
   };
 
-  const handleContractDateChange = useCallback((selectedDates: Date[]) => {
+  const handleContractDateChange = useCallback((selectedDates: Date[], _dateStr: string, instance: any) => {
     if (!selectedDates.length) return;
     const startRaw = selectedDates[0];
     if (!startRaw || Number.isNaN(startRaw.getTime())) return;
@@ -1698,10 +1698,18 @@ export default function Catalogue() {
     const start = new Date(startRaw.getTime());
     start.setHours(9, 0, 0, 0);
 
-    // For package mode, force 1-day rental period
+    // For package mode, force 1-day rental period (same day, 9am-6pm)
     if (contractDrawer.mode === "package") {
       const end = new Date(start.getTime());
       end.setHours(18, 0, 0, 0);
+
+      // If only one date selected, automatically select the same date as end to create a 1-day range
+      if (selectedDates.length === 1 && instance) {
+        // Force the range to show visually in the DatePicker
+        setTimeout(() => {
+          instance.setDate([start, end], false);
+        }, 0);
+      }
 
       setContractForm((prev) =>
         prev
