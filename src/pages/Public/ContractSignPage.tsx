@@ -10,6 +10,8 @@ import {
   type ContractDress,
   type ContractFullView,
 } from "../../api/endpoints/contracts";
+import ContractTemplateNegafa from "./ContractTemplateNegafa";
+import ContractTemplateLocation from "./ContractTemplateLocation";
 
 const formatCurrency = (value?: string | number | null) => {
   if (value === undefined || value === null || value === "") return "-";
@@ -260,7 +262,14 @@ export default function ContractSignPage() {
           </section>
         ) : null}
 
-        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
+        {contract.contract_type?.name?.toLowerCase().includes("forfait") ||
+        contract.contract_type?.name?.toLowerCase().includes("negafa") ? (
+          <ContractTemplateNegafa />
+        ) : (
+          <ContractTemplateLocation />
+        )}
+
+        {/* <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
           <article className="space-y-4 text-sm leading-relaxed text-gray-700">
             <p><strong>Entre les soussignés :</strong></p>
             <p>
@@ -311,7 +320,7 @@ export default function ContractSignPage() {
             <p><strong>Article 8 : Housse et cintre</strong></p>
             <p>La non restitution de la housse ou du cintre entraînera une indemnité forfaitaire de 50 €.</p>
           </article>
-        </section>
+        </section> */}
 
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
           <p className="text-sm text-gray-600">

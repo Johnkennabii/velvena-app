@@ -230,7 +230,7 @@ const formatPaymentMethod = (value?: string | null) => {
 
 const buildSignLinkUrl = (token: string | undefined | null) => {
   if (!token) return null;
-  const defaultBase = typeof window !== "undefined" ? `${window.location.origin}/sign` : "/sign";
+  const defaultBase = typeof window !== "undefined" ? `${window.location.origin}/sign-links` : "/sign-links";
   const base = (import.meta.env.VITE_CONTRACT_SIGNATURE_URL as string | undefined) ?? defaultBase;
   return `${base.replace(/\/$/, "")}/${token}`;
 };

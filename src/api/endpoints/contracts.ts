@@ -214,7 +214,7 @@ export const ContractsAPI = {
   },
 
   getSignatureByToken: async (token: string): Promise<ContractFullView> => {
-    const res = await httpClient.get(`/sign/${token}`);
+    const res = await httpClient.get(`/sign-links/${token}`);
     const data = res?.data ?? res;
     if (data?.contract && typeof data.contract === "object") return data.contract as ContractFullView;
     if (data?.data && typeof data.data === "object") return data.data as ContractFullView;
@@ -222,7 +222,7 @@ export const ContractsAPI = {
   },
 
   signByToken: async (token: string): Promise<ContractFullView> => {
-    const res = await httpClient.post(`/sign/${token}`, {});
+    const res = await httpClient.post(`/sign-links/${token}/sign`, {});
     const data = res?.data ?? res;
     if (data?.contract && typeof data.contract === "object") return data.contract as ContractFullView;
     if (data?.data && typeof data.data === "object") return data.data as ContractFullView;

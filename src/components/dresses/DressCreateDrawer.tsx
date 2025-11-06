@@ -1,13 +1,13 @@
 import type React from "react";
-import RightDrawer from "../../../components/ui/drawer/RightDrawer";
-import Label from "../../../components/form/Label";
-import Input from "../../../components/form/input/InputField";
-import Button from "../../../components/ui/button/Button";
-import type { DressType } from "../../../api/endpoints/dressTypes";
-import type { DressSize } from "../../../api/endpoints/dressSizes";
-import type { DressCondition } from "../../../api/endpoints/dressConditions";
-import type { DressColor } from "../../../api/endpoints/dressColors";
-import type { DressFormState } from "../types";
+import RightDrawer from "../ui/drawer/RightDrawer";
+import Label from "../form/Label";
+import Input from "../form/input/InputField";
+import Button from "../ui/button/Button";
+import type { DressType } from "../../api/endpoints/dressTypes";
+import type { DressSize } from "../../api/endpoints/dressSizes";
+import type { DressCondition } from "../../api/endpoints/dressConditions";
+import type { DressColor } from "../../api/endpoints/dressColors";
+import type { DressFormState } from "../../pages/Catalogue/types";
 
 type DropzoneGetProps = (props?: Record<string, unknown>) => Record<string, unknown>;
 
