@@ -13,6 +13,7 @@ import SpinnerOne from "../../components/ui/spinner/SpinnerOne";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
 import Select from "../../components/form/Select";
+import DressCombobox from "../../components/form/DressCombobox";
 import PaginationWithIcon from "../../components/tables/DataTables/TableOne/PaginationWithIcon";
 import DatePicker from "../../components/form/date-picker";
 import Checkbox from "../../components/form/input/Checkbox";
@@ -565,25 +566,25 @@ export default function Catalogue() {
     [contractPackages],
   );
 
-  const additionalDressOptions = useMemo(() => {
+  // Options pour le DressCombobox (exclut les robes déjà sélectionnées)
+  const additionalDressComboboxOptions = useMemo(() => {
     const activeDress = contractDrawer.dress;
-    if (!activeDress) return [] as { value: string; text: string }[];
+    if (!activeDress) return [];
     const baseId = activeDress.id;
+    const alreadySelected = [baseId, ...additionalSelectedDressIds].filter(Boolean);
+
     return dresses
-      .filter((dress) => dress.id && dress.id !== baseId)
+      .filter((dress) => dress.id && !alreadySelected.includes(dress.id))
       .map((dress) => {
         const available = availabilityInfo.get(dress.id) ?? true;
-        const labelParts = [dress.name ?? "Robe"];
-        if (dress.reference) labelParts.push(`Réf. ${dress.reference}`);
-        if (!available) labelParts.push("Indisponible");
         return {
-          value: dress.id,
-          text: labelParts.join(" • "),
+          id: dress.id,
+          name: dress.name ?? "Robe",
+          reference: dress.reference ?? "",
           isAvailable: available,
         };
       })
-      .filter((option) => option.isAvailable || additionalSelectedDressIds.includes(option.value))
-      .map(({ value, text }) => ({ value, text }));
+      .filter((option) => option.isAvailable);
   }, [dresses, contractDrawer.dress, availabilityInfo, additionalSelectedDressIds]);
 
   const packageIncludedAddons = useMemo(() => {
@@ -3523,6 +3524,8 @@ export default function Catalogue() {
                         const ordinal = index === 0 ? "1ère" : index === 1 ? "2ème" : index === 2 ? "3ème" : `${index + 1}ème`;
                         const isAvailable = currentValue ? availabilityInfo.get(currentValue) : undefined;
 
+                        const selectedDress = currentValue ? dresses.find(d => d.id === currentValue) : null;
+
                         return (
                           <div key={index}>
                             <div className="flex items-center gap-2 mb-1">
@@ -3540,41 +3543,87 @@ export default function Catalogue() {
                                 </div>
                               )}
                             </div>
-                            <Select
-                              value={currentValue}
-                              onChange={(value) => {
-                                const baseId = contractDrawer.dress?.id;
-                                if (!baseId) return;
 
-                                const newAdditional = [...additionalSelectedDressIds];
-                                if (value) {
-                                  newAdditional[index] = value;
-                                } else {
-                                  newAdditional.splice(index, 1);
-                                }
+                            {selectedDress ? (
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-800">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {selectedDress.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Réf: {selectedDress.reference}
+                                  </p>
+                                </div>
+                                <div className="relative inline-block group flex-shrink-0">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                      const baseId = contractDrawer.dress?.id;
+                                      if (!baseId) return;
 
-                                const uniqueAdditional = newAdditional.filter((id, idx) =>
-                                  id && newAdditional.indexOf(id) === idx
-                                );
+                                      const newAdditional = [...additionalSelectedDressIds];
+                                      newAdditional.splice(index, 1);
 
-                                setContractForm((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        packageDressIds: [baseId, ...uniqueAdditional],
-                                      }
-                                    : prev,
-                                );
-                              }}
-                              options={[
-                                { value: "", label: "— Sélectionner une robe —" },
-                                ...additionalDressOptions.map(opt => ({
-                                  value: opt.value,
-                                  label: opt.text,
-                                })),
-                              ]}
-                              placeholder="Sélectionnez une robe"
-                            />
+                                      const uniqueAdditional = newAdditional.filter((id, idx) =>
+                                        id && newAdditional.indexOf(id) === idx
+                                      );
+
+                                      setContractForm((prev) =>
+                                        prev
+                                          ? {
+                                              ...prev,
+                                              packageDressIds: [baseId, ...uniqueAdditional],
+                                            }
+                                          : prev,
+                                      );
+                                    }}
+                                    className="!p-2 hover:!text-error-600 dark:hover:!text-error-400"
+                                  >
+                                    <FaTimesCircle size={18} />
+                                  </Button>
+                                  <div className="invisible absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 z-50 opacity-0 transition-opacity duration-300 group-hover:visible group-hover:opacity-100">
+                                    <div className="relative">
+                                      <div className="drop-shadow-4xl whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-medium text-gray-700 dark:bg-[#1E2634] dark:text-white">
+                                        Retirer cette robe
+                                      </div>
+                                      <div className="absolute -bottom-1 left-1/2 h-3 w-4 -translate-x-1/2 rotate-45 bg-white dark:bg-[#1E2634]"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <DressCombobox
+                                value={currentValue}
+                                onChange={(value) => {
+                                  const baseId = contractDrawer.dress?.id;
+                                  if (!baseId) return;
+
+                                  const newAdditional = [...additionalSelectedDressIds];
+                                  if (value) {
+                                    newAdditional[index] = value;
+                                  } else {
+                                    newAdditional.splice(index, 1);
+                                  }
+
+                                  const uniqueAdditional = newAdditional.filter((id, idx) =>
+                                    id && newAdditional.indexOf(id) === idx
+                                  );
+
+                                  setContractForm((prev) =>
+                                    prev
+                                      ? {
+                                          ...prev,
+                                          packageDressIds: [baseId, ...uniqueAdditional],
+                                        }
+                                      : prev,
+                                  );
+                                }}
+                                options={additionalDressComboboxOptions}
+                                placeholder="Rechercher une robe..."
+                                emptyMessage="Aucune robe disponible"
+                              />
+                            )}
                           </div>
                         );
                       })}
