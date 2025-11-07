@@ -8,7 +8,6 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import Input from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
-import Badge from "../../components/ui/badge/Badge";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
 import { DressConditionsAPI, type DressCondition } from "../../api/endpoints/dressConditions";
@@ -310,30 +309,6 @@ export default function DressConditions() {
                     isHeader
                     className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
                   >
-                    Description
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
-                    Créé le
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
-                    Mis à jour le
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
-                    Statut
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
                     Actions
                   </TableCell>
                 </TableRow>
@@ -343,20 +318,6 @@ export default function DressConditions() {
                   <TableRow key={row.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.05]">
                     <TableCell className="px-4 py-3 text-sm font-medium text-gray-800 dark:text-white/90">
                       {row.name}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {row.descriptionPreview}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {row.createdLabel}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {row.updatedLabel}
-                    </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <Badge variant="light" color={row.deleted_at ? "warning" : "success"} size="sm">
-                        {row.deleted_at ? "Désactivé" : "Actif"}
-                      </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -495,17 +456,6 @@ export default function DressConditions() {
                 onChange={(e) => setCreateForm((prev) => ({ ...prev, name: e.target.value }))}
                 placeholder="Ex : Neuve"
                 required
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Description
-              </label>
-              <TextArea
-                rows={4}
-                value={createForm.description}
-                onChange={(value) => setCreateForm((prev) => ({ ...prev, description: value }))}
-                placeholder="Décrivez brièvement cet etat"
               />
             </div>
           </div>

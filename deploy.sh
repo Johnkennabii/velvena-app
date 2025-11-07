@@ -54,15 +54,19 @@ echo -e "${BLUE}📡 Étape 4/4: Déploiement sur le VPS...${NC}"
 
 # Backup de l'ancien build sur le VPS
 echo "   → Sauvegarde de l'ancien build..."
-ssh $VPS_HOST "cd $VPS_PATH && [ -d dist ] && mv dist dist.backup.$(date +%Y%m%d-%H%M%S) || true"
+ssh $VPS_HOST "cd $VPS_PATH && mkdir -p backups && tar -czf backups/backup.$(date +%Y%m%d-%H%M%S).tar.gz assets images index.html favicon.png 2>/dev/null || true"
+
+# Suppression des anciens fichiers
+echo "   → Nettoyage des anciens fichiers..."
+ssh $VPS_HOST "cd $VPS_PATH && rm -rf assets images index.html favicon.png .DS_Store"
 
 # Upload de l'archive
 echo "   → Upload de l'archive..."
 scp dist.tar.gz $VPS_HOST:$VPS_PATH/
 
-# Extraction sur le VPS
+# Extraction sur le VPS (directement dans le dossier racine)
 echo "   → Extraction sur le VPS..."
-ssh $VPS_HOST "cd $VPS_PATH && mkdir -p dist && tar -xzf dist.tar.gz -C dist && rm dist.tar.gz"
+ssh $VPS_HOST "cd $VPS_PATH && tar -xzf dist.tar.gz && rm dist.tar.gz && rm -f .DS_Store ._* 2>/dev/null || true"
 
 # Rechargement de Nginx
 echo "   → Rechargement de Nginx..."

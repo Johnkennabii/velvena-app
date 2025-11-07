@@ -8,7 +8,6 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import Input from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
-import Badge from "../../components/ui/badge/Badge";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
 import { DressTypesAPI, type DressType } from "../../api/endpoints/dressTypes";
@@ -316,24 +315,6 @@ export default function DressTypes() {
                     isHeader
                     className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
                   >
-                    Créé le
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
-                    Mis à jour le
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
-                    Statut
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                  >
                     Actions
                   </TableCell>
                 </TableRow>
@@ -346,17 +327,6 @@ export default function DressTypes() {
                     </TableCell>
                     <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {row.descriptionPreview}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {row.createdLabel}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {row.updatedLabel}
-                    </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <Badge variant="light" color={row.deleted_at ? "warning" : "success"} size="sm">
-                        {row.deleted_at ? "Désactivé" : "Actif"}
-                      </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2">

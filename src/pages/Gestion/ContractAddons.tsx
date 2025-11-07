@@ -3,9 +3,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import SpinnerOne from "../../components/ui/spinner/SpinnerOne";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
-import Badge from "../../components/ui/badge/Badge";
 import Input from "../../components/form/input/InputField";
-import Switch from "../../components/form/switch/Switch";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { ContractAddonsAPI, type ContractAddon } from "../../api/endpoints/contractAddons";
@@ -378,9 +376,6 @@ export default function ContractAddons() {
                     Prix TTC
                   </TableCell>
                   <TableCell isHeader className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Inclus
-                  </TableCell>
-                  <TableCell isHeader className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Actions
                   </TableCell>
                 </TableRow>
@@ -396,11 +391,6 @@ export default function ContractAddons() {
                     </TableCell>
                     <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {row.formattedTTC}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      <Badge variant="light" color={row.included ? "success" : "warning"} size="sm">
-                        {row.included ? "Oui" : "Non"}
-                      </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -564,14 +554,6 @@ export default function ContractAddons() {
                 required
               />
             </div>
-            <div>
-              <Switch
-                key={`create-included-${createForm.included ? "1" : "0"}`}
-                label="Inclus par défaut"
-                defaultChecked={createForm.included}
-                onChange={(value) => handleCreateChange("included", value)}
-              />
-            </div>
           </div>
 
           <div className="flex items-center justify-end gap-3">
@@ -643,14 +625,6 @@ export default function ContractAddons() {
                 onChange={(e) => handleEditChange("price_ttc", e.target.value)}
                 placeholder="Ex : 119.99"
                 required
-              />
-            </div>
-            <div>
-              <Switch
-                key={`edit-included-${editAddon?.id ?? "none"}-${editForm.included ? "1" : "0"}`}
-                label="Inclus par défaut"
-                defaultChecked={editForm.included}
-                onChange={(value) => handleEditChange("included", value)}
               />
             </div>
           </div>
