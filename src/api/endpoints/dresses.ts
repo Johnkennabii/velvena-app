@@ -306,10 +306,27 @@ export const DressesAPI = {
 
   async deleteImage(dressId: string, imageId: string): Promise<DressDetails> {
     const res = await httpClient(
-      `/dresses/${dressId}/images/${imageId}`,
+      `/dresses/${dressId}/images`,
       {
         method: "DELETE",
-        body: JSON.stringify({ keys: [imageId] }),
+        body: JSON.stringify({ key: imageId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (res?.data && typeof res.data === "object") {
+      return normalizeDress(res.data);
+    }
+    return normalizeDress(res);
+  },
+
+  async deleteImages(dressId: string, imageIds: string[]): Promise<DressDetails> {
+    const res = await httpClient(
+      `/dresses/${dressId}/images`,
+      {
+        method: "DELETE",
+        body: JSON.stringify({ keys: imageIds }),
         headers: {
           "Content-Type": "application/json",
         },
