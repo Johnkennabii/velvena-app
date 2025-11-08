@@ -100,6 +100,16 @@ export interface ContractFullView {
     num_dresses?: number | null;
     price_ht?: string | number | null;
     price_ttc?: string | number | null;
+    addons?: Array<{
+      package_id: string;
+      addon_id: string;
+      addon?: {
+        id: string;
+        name: string;
+        price_ht?: string | number;
+        price_ttc?: string | number;
+      };
+    }>;
   } | null;
 }
 

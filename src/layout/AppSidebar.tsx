@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
     name: "AI Assistant",
     icon: <AiIcon />,
     new: true,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Text Generator", path: "/text-generator" },
       { name: "Image Generator", path: "/image-generator" },
@@ -72,7 +72,7 @@ const navItems: NavItem[] = [
     name: "E-commerce",
     icon: <CartIcon />,
     new: true,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Products", path: "/products-list" },
       { name: "Add Product", path: "/add-product" },
@@ -133,7 +133,7 @@ const navItems: NavItem[] = [
   {
     name: "Task",
     icon: <TaskIcon />,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "List", path: "/task-list", pro: true },
       { name: "Kanban", path: "/task-kanban", pro: true },
@@ -142,7 +142,7 @@ const navItems: NavItem[] = [
   {
     name: "Forms",
     icon: <ListIcon />,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Form Elements", path: "/form-elements", pro: false },
       { name: "Form Layout", path: "/form-layout", pro: true },
@@ -151,7 +151,7 @@ const navItems: NavItem[] = [
   {
     name: "Tables",
     icon: <TableIcon />,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Basic Tables", path: "/basic-tables", pro: false },
       { name: "Data Tables", path: "/data-tables", pro: true },
@@ -160,7 +160,7 @@ const navItems: NavItem[] = [
   {
     name: "Pages",
     icon: <PageIcon />,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "File Manager", path: "/file-manager" },
       { name: "Pricing Tables", path: "/pricing-tables" },
@@ -182,7 +182,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PieChartIcon />,
     name: "Charts",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Line Chart", path: "/line-chart", pro: true },
       { name: "Bar Chart", path: "/bar-chart", pro: true },
@@ -192,7 +192,7 @@ const othersItems: NavItem[] = [
   {
     icon: <BoxCubeIcon />,
     name: "UI Elements",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Alerts", path: "/alerts", pro: false },
       { name: "Avatar", path: "/avatars", pro: false },
@@ -221,7 +221,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
     name: "Authentication",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Sign In", path: "/signin", pro: false },
       { name: "Sign Up", path: "/signup", pro: false },
@@ -240,13 +240,13 @@ const supportItems: NavItem[] = [
     icon: <ChatIcon />,
     name: "Chat",
     path: "/chat",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
   },
   {
     icon: <CallIcon />,
     name: "Support Ticket",
     new: true,
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Ticket List", path: "/support-tickets" },
       { name: "Ticket Reply", path: "/support-ticket-reply" },
@@ -255,7 +255,7 @@ const supportItems: NavItem[] = [
   {
     icon: <MailIcon />,
     name: "Email",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["ADMIN"],
     subItems: [
       { name: "Inbox", path: "/inbox" },
       { name: "Details", path: "/inbox-details" },

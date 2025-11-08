@@ -278,6 +278,19 @@ const ContractCard = ({
   const isSigned = contract.status === "SIGNED";
   const canModifySignedContract = canManage; // Only ADMIN and MANAGER can modify signed contracts
 
+  // Check if signature was sent (has sign_link with token)
+  const hasSignatureSent = Boolean(contract.sign_link?.token);
+
+  // Check if PDF was generated (status is PENDING_SIGNATURE or has generated PDF)
+  const hasPdfBeenGenerated = contract.status === "PENDING_SIGNATURE" || hasPdfGenerated;
+
+  // COLLABORATOR cannot deactivate contracts
+  const isCollaborator = !canManage && canGeneratePDF;
+
+  // MANAGER: if PDF generated OR signature sent, cannot modify
+  const isManager = canManage && !canModifySignedContract;
+  const cannotModifyAsManager = isManager && (hasPdfBeenGenerated || hasSignatureSent);
+
   const signLinkUrl = buildSignLinkUrl(contract.sign_link?.token);
   const dresses = (contract.dresses ?? [])
     .map((dress) => dress?.dress ?? dress)
@@ -452,7 +465,7 @@ const ContractCard = ({
             size="sm"
             variant="outline"
             onClick={() => onGenerate(contract)}
-            disabled={!canGeneratePDF || pdfGeneratingId === contract.id || isDisabled}
+            disabled={!canGeneratePDF || pdfGeneratingId === contract.id || isDisabled || hasSignatureSent}
           >
             {pdfGeneratingId === contract.id ? "Génération..." : "Générer le PDF"}
           </Button>
@@ -469,7 +482,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={!canManage || isDisabled || (isSigned && !canModifySignedContract)}
+          disabled={!canManage || isDisabled || (isSigned && !canModifySignedContract) || cannotModifyAsManager}
           onClick={() => onEdit(contract)}
         >
           Modifier contrat
@@ -477,7 +490,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={(!canSoftDelete || softDeletingId === contract.id) || (isDisabled && !canReactivate)}
+          disabled={(!canSoftDelete || softDeletingId === contract.id) || (isDisabled && !canReactivate) || isCollaborator}
           onClick={() => onSoftDelete(contract)}
         >
           {softDeletingId === contract.id
@@ -491,7 +504,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={!canUseSignature || !signLinkUrl || signatureLoadingId === contract.id || isDisabled || (isSigned && !canModifySignedContract)}
+          disabled={!canUseSignature || !signLinkUrl || signatureLoadingId === contract.id || isDisabled || (isSigned && !canModifySignedContract) || hasPdfBeenGenerated}
           onClick={() => onSignature(contract)}
         >
           {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
@@ -705,9 +718,18 @@ export default function Customers() {
   );
 
   const contractEditSelectedTotals = useMemo(
-    () =>
-      contractEditSelectedAddons.reduce(
+    () => {
+      const contract = contractEditDrawer.contract;
+      const packageAddons = contract?.package?.addons ?? [];
+      const packageAddonIds = new Set(packageAddons.map((link: { addon_id: string }) => link.addon_id));
+
+      return contractEditSelectedAddons.reduce(
         (acc, addon) => {
+          // Pour location forfait : exclure les addons qui sont inclus dans le package
+          const isInPackage = packageAddonIds.has(addon.id);
+          if (isInPackage) {
+            return acc;
+          }
           const ht = toNumericValue(addon.price_ht);
           const ttc = toNumericValue(addon.price_ttc);
           return {
@@ -716,8 +738,9 @@ export default function Customers() {
           };
         },
         { ht: 0, ttc: 0 },
-      ),
-    [contractEditSelectedAddons],
+      );
+    },
+    [contractEditSelectedAddons, contractEditDrawer.contract],
   );
 
   const computeHtFromTtc = useCallback(
@@ -729,6 +752,76 @@ export default function Customers() {
     },
     [contractEditVatRatio],
   );
+
+  // Calcul automatique des prix selon le type de location
+  useEffect(() => {
+    if (!contractEditForm || !contractEditDrawer.contract) return;
+
+    const contract = contractEditDrawer.contract;
+    const hasPackage = Boolean(contract.package_id);
+    const dresses = contract.dresses ?? [];
+    const mainDress = dresses[0]; // La robe principale
+
+    // Calculer le prix total TTC
+    let totalPriceTTC = 0;
+
+    if (hasPackage) {
+      // Location forfait
+      const packagePrice = toNumericValue(contract.package?.price_ttc);
+      totalPriceTTC = Number.isNaN(packagePrice) ? 0 : packagePrice;
+      // Ajouter uniquement les options supplémentaires (pas celles incluses)
+      totalPriceTTC += contractEditSelectedTotals.ttc;
+    } else {
+      // Location par jour
+      if (mainDress && contractEditDurationDays > 0) {
+        const pricePerDay = toNumericValue(mainDress.price_per_day_ttc ?? mainDress.price_per_day_ht);
+        if (!Number.isNaN(pricePerDay)) {
+          totalPriceTTC = pricePerDay * contractEditDurationDays;
+        }
+      }
+      // Ajouter toutes les options cochées
+      totalPriceTTC += contractEditSelectedTotals.ttc;
+    }
+
+    // Calculer les montants
+    const totalPriceHT = Math.round(totalPriceTTC * contractEditVatRatio * 100) / 100;
+    const accountTTC = totalPriceTTC;
+    const accountHT = totalPriceHT;
+    const minimumAccountPaidTTC = Math.round(totalPriceTTC * 0.5 * 100) / 100; // 50% minimum
+
+    // Caution TTC = Prix de la robe
+    let cautionTTC = 0;
+    if (mainDress) {
+      const dressPrice = toNumericValue(mainDress.price_ttc ?? mainDress.price_per_day_ttc);
+      cautionTTC = Number.isNaN(dressPrice) ? 0 : dressPrice;
+    }
+    const cautionHT = Math.round(cautionTTC * contractEditVatRatio * 100) / 100;
+
+    setContractEditForm(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        totalPriceTTC: totalPriceTTC.toFixed(2),
+        totalPriceHT: totalPriceHT.toFixed(2),
+        accountTTC: accountTTC.toFixed(2),
+        accountHT: accountHT.toFixed(2),
+        accountPaidTTC: prev.accountPaidTTC || minimumAccountPaidTTC.toFixed(2),
+        accountPaidHT: computeHtFromTtc(prev.accountPaidTTC || minimumAccountPaidTTC.toFixed(2)),
+        cautionTTC: cautionTTC.toFixed(2),
+        cautionHT: cautionHT.toFixed(2),
+        cautionPaidTTC: "0.00", // Disabled
+        cautionPaidHT: "0.00", // Disabled
+      };
+    });
+  }, [
+    contractEditDrawer.contract,
+    contractEditForm?.startDate,
+    contractEditForm?.endDate,
+    contractEditDurationDays,
+    contractEditSelectedTotals,
+    contractEditVatRatio,
+    computeHtFromTtc,
+  ]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -1931,6 +2024,8 @@ export default function Customers() {
                       time_24hr: true,
                       minuteIncrement: 15,
                       dateFormat: "d/m/Y H:i",
+                      defaultHour: 12,
+                      defaultMinute: 0,
                     }}
                   />
                 </div>
@@ -2130,7 +2225,8 @@ export default function Customers() {
                     step="0.01"
                     min="0"
                     value={contractEditForm.cautionPaidTTC}
-                    onChange={handleContractEditInputChange("cautionPaidTTC")}
+                    disabled
+                    readOnly
                   />
                 </div>
                 <div>
@@ -2141,6 +2237,7 @@ export default function Customers() {
                     step="0.01"
                     min="0"
                     value={contractEditForm.cautionPaidHT}
+                    disabled
                     readOnly
                   />
                 </div>

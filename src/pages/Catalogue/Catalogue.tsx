@@ -533,9 +533,16 @@ export default function Catalogue() {
         const ht = toNumeric(addon.price_ht ?? addon.price_ttc ?? 0);
         const ttc = toNumeric(addon.price_ttc ?? addon.price_ht ?? 0);
 
-        // Toutes les options sont facturées (plus de concept "inclus")
-        acc.chargeableHT += ht;
-        acc.chargeableTTC += ttc;
+        // Pour location forfait : exclure les addons inclus dans le package
+        const isInPackage = packageAddonIds.includes(addon.id);
+        if (isInPackage) {
+          acc.includedHT += ht;
+          acc.includedTTC += ttc;
+          acc.includedCount += 1;
+        } else {
+          acc.chargeableHT += ht;
+          acc.chargeableTTC += ttc;
+        }
         acc.totalCount += 1;
 
         return acc;
@@ -549,7 +556,7 @@ export default function Catalogue() {
         totalCount: 0,
       },
     );
-  }, [selectedAddonsDetails]);
+  }, [selectedAddonsDetails, packageAddonIds]);
 
   const packageDressLimit = selectedPackage?.num_dresses ?? 1;
   const baseDressId = contractDrawer.dress?.id ?? null;
@@ -699,9 +706,9 @@ export default function Catalogue() {
       contractAddonsInitializedRef.current = false;
       packageAddonDefaultsRef.current = [];
       const now = new Date();
-      now.setHours(9, 0, 0, 0);
+      now.setHours(12, 0, 0, 0);
       const defaultEnd = new Date(now.getTime());
-      defaultEnd.setHours(18, 0, 0, 0);
+      defaultEnd.setHours(12, 0, 0, 0);
 
       const parsedStart = range?.startDate ? new Date(range.startDate) : now;
       const validStart = Number.isNaN(parsedStart.getTime()) ? now : parsedStart;
@@ -1736,26 +1743,26 @@ export default function Catalogue() {
       return;
     }
 
-    // For daily mode, use 9am start time
-    start.setHours(9, 0, 0, 0);
+    // For daily mode, use 12pm start time
+    start.setHours(12, 0, 0, 0);
 
     const endRaw = selectedDates[1] ?? start;
     let end = new Date(endRaw.getTime());
-    end.setHours(18, 0, 0, 0);
+    end.setHours(12, 0, 0, 0);
 
     if (selectedDates.length === 1) {
       for (let i = 2; i < selectedDates.length; i += 1) {
         const candidate = selectedDates[i];
         if (candidate && !Number.isNaN(candidate.getTime()) && candidate > end) {
           end = new Date(candidate.getTime());
-          end.setHours(18, 0, 0, 0);
+          end.setHours(12, 0, 0, 0);
         }
       }
     }
 
     if (end <= start) {
       end = addDays(start, 1);
-      end.setHours(18, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
     }
 
     setContractForm((prev) =>
@@ -2510,12 +2517,12 @@ export default function Catalogue() {
                 />
               </div>
               <div>
-                <Label>Prix maximum (€)</Label>
+                <Label>Prix maximum par jour TTC (€)</Label>
                 <Input
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="Ex. 1200"
+                  placeholder="Ex. 150"
                   value={filters.priceMax}
                   onChange={(event) => handleFilterChange("priceMax")(event.target.value)}
                 />
@@ -2533,6 +2540,8 @@ export default function Catalogue() {
                     time_24hr: true,
                     minuteIncrement: 15,
                     dateFormat: "d/m/Y H:i",
+                    defaultHour: 12,
+                    defaultMinute: 0,
                   }}
                 />
               </div>
@@ -2675,16 +2684,18 @@ export default function Catalogue() {
                           </button>
                         </IconTooltip>
                       ) : null}
-                      <IconTooltip title="Publier (bientôt)">
-                        <button
-                          type="button"
-                          disabled
-                          className={iconButtonClass()}
-                          aria-label="Publier"
-                        >
-                          <CheckLineIcon className="size-4" />
-                        </button>
-                      </IconTooltip>
+                      {isAdmin ? (
+                        <IconTooltip title="Publier (bientôt)">
+                          <button
+                            type="button"
+                            disabled
+                            className={iconButtonClass()}
+                            aria-label="Publier"
+                          >
+                            <CheckLineIcon className="size-4" />
+                          </button>
+                        </IconTooltip>
+                      ) : null}
                     </div>
                   );
 
@@ -3829,6 +3840,8 @@ export default function Catalogue() {
                       minuteIncrement: 15,
                       dateFormat: "d/m/Y H:i",
                       closeOnSelect: false,
+                      defaultHour: 12,
+                      defaultMinute: 0,
                     }}
                   />
 
@@ -4118,6 +4131,8 @@ export default function Catalogue() {
                       minuteIncrement: 15,
                       dateFormat: "d/m/Y H:i",
                       closeOnSelect: false,
+                      defaultHour: 12,
+                      defaultMinute: 0,
                     }}
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400">

@@ -244,7 +244,7 @@ export const DressesAPI = {
       search.set("priceMin", String(params.priceMin));
     }
     if (typeof params.priceMax === "number") {
-      search.set("priceMax", String(params.priceMax));
+      search.set("pricePerDayMax", String(params.priceMax));
     }
 
     const res = await httpClient.get(`/dresses/details-view?${search.toString()}`);
