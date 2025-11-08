@@ -65,6 +65,8 @@ export interface ContractFullView {
   updated_by?: string | null;
   deleted_at?: string | null;
   deleted_by?: string | null;
+  signed_at?: string | null;
+  signed_pdf_url?: string | null;
   addons?: ContractAddon[];
   addon_links?: {
     contract_id: string;
@@ -200,7 +202,7 @@ export const ContractsAPI = {
     return res?.data ?? res ?? {};
   },
 
-  async uploadSignedPdf(contractId: string, file: File): Promise<{ success: boolean; url?: string }> {
+  async uploadSignedPdf(contractId: string, file: File): Promise<{ success: boolean; link?: string; data?: ContractFullView }> {
     const formData = new FormData();
     formData.append("file", file);
     const res = await httpClient(`/contracts/${contractId}/upload-signed-pdf`, {
@@ -210,7 +212,7 @@ export const ContractsAPI = {
         Accept: "application/json",
       },
     });
-    return res?.data ?? res ?? {};
+    return res?.data ? res : (res ?? {});
   },
 
   async update(contractId: string, payload: ContractUpdatePayload): Promise<ContractFullView> {

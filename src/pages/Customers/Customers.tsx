@@ -427,11 +427,25 @@ const ContractCard = ({
               <p className="font-medium text-gray-900 dark:text-white">{getUserFullName(contract.deleted_by)}</p>
             </div>
           )}
+          {contract.signed_at && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Signé le</p>
+              <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.signed_at)}</p>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 pt-2">
-        {!hasPdfGenerated ? (
+        {contract.signed_pdf_url ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => window.open(contract.signed_pdf_url!, "_blank", "noopener,noreferrer")}
+          >
+            Voir contrat signé
+          </Button>
+        ) : !hasPdfGenerated ? (
           <Button
             size="sm"
             variant="outline"
@@ -1118,8 +1132,18 @@ export default function Customers() {
 
       setUploadingSignedPdfId(contract.id);
       try {
-        await ContractsAPI.uploadSignedPdf(contract.id, file);
-        notify("success", "PDF importé", "Le contrat signé a été importé avec succès.");
+        const response = await ContractsAPI.uploadSignedPdf(contract.id, file);
+
+        // Update the contract with the new data from the response
+        if (response.data) {
+          setViewContracts((prev) =>
+            prev.map((item) =>
+              item.id === contract.id ? { ...item, ...response.data } : item
+            )
+          );
+        }
+
+        notify("success", "PDF importé", "Le contrat signé a été importé avec succès. Statut mis à jour: SIGNED");
       } catch (error) {
         console.error("❌ Upload PDF signé :", error);
         notify("error", "Erreur", "L'importation du PDF signé a échoué.");
