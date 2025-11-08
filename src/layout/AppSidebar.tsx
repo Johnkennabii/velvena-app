@@ -113,11 +113,11 @@ const navItems: NavItem[] = [
     name: "Gestion",
     requiredRoles: ["ADMIN", "MANAGER"],
     subItems: [
-      { name: "Gestion contrat", isLabel: true },
+      { name: "Gestion contrat", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["ADMIN"] },
-      { name: "Référence robe", isLabel: true },
+      { name: "Référence robe", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["ADMIN", "MANAGER"] },
       { name: "Etats de robe", path: "/gestion/dress-conditions", requiredRoles: ["ADMIN", "MANAGER"] },

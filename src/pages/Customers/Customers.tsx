@@ -275,6 +275,8 @@ const ContractCard = ({
 }) => {
   const config = resolveStatusMeta(contract.status, contract.deleted_at);
   const isDisabled = Boolean(contract.deleted_at);
+  const isSigned = contract.status === "SIGNED";
+  const canModifySignedContract = canManage; // Only ADMIN and MANAGER can modify signed contracts
 
   const signLinkUrl = buildSignLinkUrl(contract.sign_link?.token);
   const dresses = (contract.dresses ?? [])
@@ -464,7 +466,12 @@ const ContractCard = ({
             {uploadingSignedPdfId === contract.id ? "Importation..." : "Importer contrat signé"}
           </Button>
         )}
-        <Button size="sm" variant="outline" disabled={!canManage || isDisabled} onClick={() => onEdit(contract)}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={!canManage || isDisabled || (isSigned && !canModifySignedContract)}
+          onClick={() => onEdit(contract)}
+        >
           Modifier contrat
         </Button>
         <Button
@@ -484,7 +491,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={!canUseSignature || !signLinkUrl || signatureLoadingId === contract.id || isDisabled}
+          disabled={!canUseSignature || !signLinkUrl || signatureLoadingId === contract.id || isDisabled || (isSigned && !canModifySignedContract)}
           onClick={() => onSignature(contract)}
         >
           {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
@@ -1100,8 +1107,15 @@ export default function Customers() {
         window.open(res.link, "_blank", "noopener,noreferrer");
         // Mark this contract as having a generated PDF
         setGeneratedPdfContracts((prev) => new Set(prev).add(contract.id));
+
+        // Update contract status to PENDING_SIGNATURE
+        setViewContracts((prev) =>
+          prev.map((item) =>
+            item.id === contract.id ? { ...item, status: "PENDING_SIGNATURE" } : item
+          )
+        );
       }
-      notify("success", "Contrat généré", "Le contrat a été généré en PDF.");
+      notify("success", "Contrat généré", "Le contrat a été généré en PDF. Statut: En attente de signature");
     } catch (error) {
       console.error("❌ Génération contrat :", error);
       notify("error", "Erreur", "La génération du contrat a échoué.");
