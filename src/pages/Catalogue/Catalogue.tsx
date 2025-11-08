@@ -336,7 +336,8 @@ const ColorSwatch = ({ hex, name }: { hex?: string | null; name?: string | null 
 export default function Catalogue() {
   const { notify } = useNotification();
   const { hasRole } = useAuth();
-  const canManage = hasRole("ADMIN", "MANAGER", "COLLABORATOR");
+  const canManage = hasRole("ADMIN", "MANAGER");
+  const canCreateContract = hasRole("ADMIN", "MANAGER", "COLLABORATOR");
   const isAdmin = hasRole("ADMIN");
   const navigate = useNavigate();
   const location = useLocation();
@@ -2614,7 +2615,7 @@ export default function Catalogue() {
                           <IoEyeOutline className="size-4" />
                         </button>
                       </IconTooltip>
-                      {canManage ? (
+                      {canCreateContract ? (
                         <>
                           <IconTooltip title="Location par jour">
                             <button
@@ -2636,6 +2637,10 @@ export default function Catalogue() {
                               <DollarLineIcon className="size-4" />
                             </button>
                           </IconTooltip>
+                        </>
+                      ) : null}
+                      {canManage ? (
+                        <>
                           <IconTooltip title="Modifier">
                             <button
                               type="button"
