@@ -826,17 +826,18 @@ export default function Catalogue() {
     [initializeContractContext],
   );
 
-  const draftDressSelectOptions = useMemo(() => {
+  const draftDressComboboxOptions = useMemo(() => {
     return dresses
       .map((dress) => {
         const available = availabilityInfo.get(dress.id ?? "") !== false;
-        const availabilityLabel = available ? "" : " • Indisponible";
         return {
-          value: dress.id,
-          label: `${dress.name ?? "Robe"}${dress.reference ? ` • Réf. ${dress.reference}` : ""}${availabilityLabel}`,
+          id: dress.id,
+          name: dress.name ?? "Robe",
+          reference: dress.reference ?? "",
+          isAvailable: available,
         };
       })
-      .sort((a, b) => a.label.localeCompare(b.label, "fr"));
+      .sort((a, b) => a.name.localeCompare(b.name, "fr"));
   }, [availabilityInfo, dresses]);
 
   const packageUnavailable =
@@ -4145,12 +4146,12 @@ export default function Catalogue() {
                     <div className="flex justify-center py-6">
                       <SpinnerOne />
                     </div>
-                  ) : draftDressSelectOptions.length ? (
-                    <Select
-                      options={draftDressSelectOptions}
+                  ) : draftDressComboboxOptions.length ? (
+                    <DressCombobox
+                      options={draftDressComboboxOptions}
                       value={contractDraft.dressId ?? ""}
                       onChange={handleDraftDressChange}
-                      placeholder="Sélectionnez une robe"
+                      placeholder="Rechercher une robe..."
                     />
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
