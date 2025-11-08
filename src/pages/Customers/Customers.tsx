@@ -19,6 +19,7 @@ import { useAuth } from "../../context/AuthContext";
 import { CustomersAPI, type Customer, type CustomerListResponse } from "../../api/endpoints/customers";
 import { ContractsAPI, type ContractFullView, type ContractUpdatePayload } from "../../api/endpoints/contracts";
 import { ContractAddonsAPI, type ContractAddon as ContractAddonOption } from "../../api/endpoints/contractAddons";
+import { UsersAPI, type UserListItem } from "../../api/endpoints/users";
 import { PencilIcon, CloseLineIcon, TrashBinIcon } from "../../icons";
 import { IoEyeOutline } from "react-icons/io5";
 import DatePicker from "../../components/form/date-picker";
@@ -241,22 +242,36 @@ const ContractCard = ({
   onEdit,
   onSoftDelete,
   onSignature,
+  onUploadSigned,
   canManage,
+  canGeneratePDF,
+  canUseSignature,
   canSoftDelete,
+  canReactivate,
   softDeletingId,
   signatureLoadingId,
   pdfGeneratingId,
+  uploadingSignedPdfId,
+  hasPdfGenerated,
+  getUserFullName,
 }: {
   contract: ContractFullView;
   onGenerate: (contract: ContractFullView) => void;
   onEdit: (contract: ContractFullView) => void;
   onSoftDelete: (contract: ContractFullView) => void;
   onSignature: (contract: ContractFullView) => void;
+  onUploadSigned: (contract: ContractFullView) => void;
   canManage: boolean;
+  canGeneratePDF: boolean;
+  canUseSignature: boolean;
   canSoftDelete: boolean;
+  canReactivate: boolean;
   softDeletingId: string | null;
   signatureLoadingId: string | null;
   pdfGeneratingId: string | null;
+  uploadingSignedPdfId: string | null;
+  hasPdfGenerated: boolean;
+  getUserFullName: (userId: string | null | undefined) => string;
 }) => {
   const config = resolveStatusMeta(contract.status, contract.deleted_at);
   const isDisabled = Boolean(contract.deleted_at);
@@ -373,22 +388,75 @@ const ContractCard = ({
         </div>
       )}
 
+      <div className="space-y-3">
+        <h5 className="text-sm font-semibold text-gray-800 dark:text-white/90">Métadonnées</h5>
+        <div className="grid gap-x-8 gap-y-3 text-xs md:grid-cols-2 lg:grid-cols-3">
+          {contract.created_at && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Créé le</p>
+              <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.created_at)}</p>
+            </div>
+          )}
+          {contract.created_by && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Créé par</p>
+              <p className="font-medium text-gray-900 dark:text-white">{getUserFullName(contract.created_by)}</p>
+            </div>
+          )}
+          {contract.updated_at && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Mis à jour le</p>
+              <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.updated_at)}</p>
+            </div>
+          )}
+          {contract.updated_by && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Mis à jour par</p>
+              <p className="font-medium text-gray-900 dark:text-white">{getUserFullName(contract.updated_by)}</p>
+            </div>
+          )}
+          {contract.deleted_at && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Désactivé le</p>
+              <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.deleted_at)}</p>
+            </div>
+          )}
+          {contract.deleted_by && (
+            <div className="space-y-0.5">
+              <p className="text-gray-500 dark:text-gray-400">Désactivé par</p>
+              <p className="font-medium text-gray-900 dark:text-white">{getUserFullName(contract.deleted_by)}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-3 pt-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onGenerate(contract)}
-          disabled={!canManage || pdfGeneratingId === contract.id || isDisabled}
-        >
-          {pdfGeneratingId === contract.id ? "Génération..." : "Générer le PDF"}
-        </Button>
+        {!hasPdfGenerated ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onGenerate(contract)}
+            disabled={!canGeneratePDF || pdfGeneratingId === contract.id || isDisabled}
+          >
+            {pdfGeneratingId === contract.id ? "Génération..." : "Générer le PDF"}
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onUploadSigned(contract)}
+            disabled={!canGeneratePDF || uploadingSignedPdfId === contract.id || isDisabled}
+          >
+            {uploadingSignedPdfId === contract.id ? "Importation..." : "Importer contrat signé"}
+          </Button>
+        )}
         <Button size="sm" variant="outline" disabled={!canManage || isDisabled} onClick={() => onEdit(contract)}>
           Modifier contrat
         </Button>
         <Button
           size="sm"
           variant="outline"
-          disabled={!canSoftDelete || softDeletingId === contract.id}
+          disabled={(!canSoftDelete || softDeletingId === contract.id) || (isDisabled && !canReactivate)}
           onClick={() => onSoftDelete(contract)}
         >
           {softDeletingId === contract.id
@@ -402,7 +470,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={!canManage || !signLinkUrl || signatureLoadingId === contract.id || isDisabled}
+          disabled={!canUseSignature || !signLinkUrl || signatureLoadingId === contract.id || isDisabled}
           onClick={() => onSignature(contract)}
         >
           {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
@@ -497,6 +565,10 @@ export default function Customers() {
   const [contractAddonsError, setContractAddonsError] = useState<string | null>(null);
   const [contractEditAddonIds, setContractEditAddonIds] = useState<string[]>([]);
   const contractEditDefaultsAppliedRef = useRef(false);
+  const [users, setUsers] = useState<UserListItem[]>([]);
+  const [generatedPdfContracts, setGeneratedPdfContracts] = useState<Set<string>>(new Set());
+  const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { notify } = useNotification();
   const { hasRole } = useAuth();
@@ -504,7 +576,10 @@ export default function Customers() {
   const navigate = useNavigate();
   const canManage = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
   const canManageContracts = hasRole("ADMIN") || hasRole("MANAGER");
-  const canSoftDelete = hasRole("ADMIN") || hasRole("MANAGER");
+  const canGeneratePDF = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
+  const canUseSignature = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
+  const canSoftDelete = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
+  const canReactivate = hasRole("ADMIN") || hasRole("MANAGER");
   const canHardDelete = hasRole("ADMIN");
   const createBirthdayId = "create-customer-birthday";
   const editBirthdayId = "edit-customer-birthday";
@@ -539,6 +614,19 @@ export default function Customers() {
   );
 
   const customers: CustomerRow[] = useMemo(() => customerData.data.map(toCustomerRow), [customerData.data]);
+
+  const getUserFullName = useCallback(
+    (userId: string | null | undefined): string => {
+      if (!userId) return "-";
+      const user = users.find((u) => u.id === userId);
+      if (!user) return userId; // Fallback to UUID if user not found
+      const firstName = user.profile?.firstName || "";
+      const lastName = user.profile?.lastName || "";
+      const fullName = [firstName, lastName].filter(Boolean).join(" ");
+      return fullName || user.email || userId;
+    },
+    [users],
+  );
 
   const contractEditDateRange = useMemo(() => {
     if (!contractEditForm?.startDate || !contractEditForm?.endDate) return undefined;
@@ -800,6 +888,24 @@ export default function Customers() {
   }, [contractAddons.length, notify]);
 
   useEffect(() => {
+    if (users.length) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const userList = await UsersAPI.list();
+        if (!cancelled) {
+          setUsers(userList);
+        }
+      } catch (error) {
+        console.error("❌ Chargement utilisateurs :", error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [users.length]);
+
+  useEffect(() => {
     if (!contractEditDrawer.open || !contractEditDrawer.contract) return;
     setContractEditForm(buildContractEditFormState(contractEditDrawer.contract));
     contractEditDefaultsAppliedRef.current = false;
@@ -970,7 +1076,7 @@ export default function Customers() {
   };
 
   const handleGenerateContract = async (contract: ContractFullView) => {
-    if (!canManageContracts) {
+    if (!canGeneratePDF) {
       notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
       return;
     }
@@ -979,6 +1085,8 @@ export default function Customers() {
       const res = await ContractsAPI.generatePdf(contract.id);
       if (res?.link) {
         window.open(res.link, "_blank", "noopener,noreferrer");
+        // Mark this contract as having a generated PDF
+        setGeneratedPdfContracts((prev) => new Set(prev).add(contract.id));
       }
       notify("success", "Contrat généré", "Le contrat a été généré en PDF.");
     } catch (error) {
@@ -989,8 +1097,42 @@ export default function Customers() {
     }
   };
 
+  const handleUploadSignedPdf = async (contract: ContractFullView) => {
+    if (!canGeneratePDF) {
+      notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
+      return;
+    }
+
+    // Create file input dynamically
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf,.pdf";
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.includes("pdf")) {
+        notify("warning", "Format invalide", "Veuillez sélectionner un fichier PDF.");
+        return;
+      }
+
+      setUploadingSignedPdfId(contract.id);
+      try {
+        await ContractsAPI.uploadSignedPdf(contract.id, file);
+        notify("success", "PDF importé", "Le contrat signé a été importé avec succès.");
+      } catch (error) {
+        console.error("❌ Upload PDF signé :", error);
+        notify("error", "Erreur", "L'importation du PDF signé a échoué.");
+      } finally {
+        setUploadingSignedPdfId(null);
+      }
+    };
+    input.click();
+  };
+
   const handleSignature = async (contract: ContractFullView) => {
-    if (!canManageContracts) {
+    if (!canUseSignature) {
       notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
       return;
     }
@@ -1034,13 +1176,21 @@ export default function Customers() {
   };
 
   const handleSoftDeleteContract = async (contract: ContractFullView) => {
+    const isDisabled = Boolean(contract.deleted_at);
+
+    // COLLABORATOR can only deactivate, not reactivate
+    if (isDisabled && !canReactivate) {
+      notify("warning", "Action non autorisée", "Vous n'avez pas les droits pour réactiver un contrat.");
+      return;
+    }
+
     if (!canSoftDelete) {
       notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
       return;
     }
+
     setSoftDeletingContractId(contract.id);
     try {
-      const isDisabled = Boolean(contract.deleted_at);
       if (isDisabled) {
         await ContractsAPI.restore(contract.id);
         notify("success", "Contrat activé", `Le contrat ${contract.contract_number} a été réactivé.`);
@@ -1646,11 +1796,18 @@ export default function Customers() {
                       onEdit={handleEditContract}
                       onSoftDelete={handleSoftDeleteContract}
                       onSignature={handleSignature}
+                      onUploadSigned={handleUploadSignedPdf}
                       canManage={canManageContracts}
+                      canGeneratePDF={canGeneratePDF}
+                      canUseSignature={canUseSignature}
                       canSoftDelete={canSoftDelete}
+                      canReactivate={canReactivate}
                       softDeletingId={softDeletingContractId}
                       signatureLoadingId={signatureGeneratingContractId}
                       pdfGeneratingId={pdfGeneratingContractId}
+                      uploadingSignedPdfId={uploadingSignedPdfId}
+                      hasPdfGenerated={generatedPdfContracts.has(contract.id)}
+                      getUserFullName={getUserFullName}
                     />
                   ))}
                 </div>

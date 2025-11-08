@@ -200,6 +200,19 @@ export const ContractsAPI = {
     return res?.data ?? res ?? {};
   },
 
+  async uploadSignedPdf(contractId: string, file: File): Promise<{ success: boolean; url?: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await httpClient(`/contracts/${contractId}/upload-signed-pdf`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    return res?.data ?? res ?? {};
+  },
+
   async update(contractId: string, payload: ContractUpdatePayload): Promise<ContractFullView> {
     const res = await httpClient.put(`/contracts/${contractId}`, payload);
     if (res?.data && typeof res.data === "object") return res.data as ContractFullView;
