@@ -21,6 +21,8 @@ import {
   TaskIcon,
   UserCircleIcon,
 } from "../icons";
+import { PiUserCircleGear } from "react-icons/pi";
+import { PiDress } from "react-icons/pi";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useAuth } from "../context/AuthContext";
@@ -56,6 +58,54 @@ const navItems: NavItem[] = [
       { name: "Logistics", path: "/logistics", new: true },
     ],
   },
+    {
+    icon: <PiDress />,
+    name: "Catalogue",
+    path: "/catalogue",
+    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Calendrier",
+    path: "/calendar",
+    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+  },
+    {
+    icon: <UserCircleIcon />,
+    name: "Clients",
+    path: "/customers",
+    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+  },
+  {
+    icon: <PiUserCircleGear />,
+    name: "Utilisateur",
+    path: "/users/list",
+    requiredRoles: ["ADMIN", "MANAGER"],
+  },
+
+
+  {
+    icon: <PlugInIcon />,
+    name: "Gestion",
+    requiredRoles: ["ADMIN", "MANAGER"],
+    subItems: [
+      { name: "Gestion contrat", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["ADMIN"] },
+      { name: "Référence robe", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Etats de robe", path: "/gestion/dress-conditions", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Couleurs de robe", path: "/gestion/dress-colors", requiredRoles: ["ADMIN", "MANAGER"] },
+    ],
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Mon profile",
+    path: "/profile",
+    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+  },
   {
     name: "AI Assistant",
     icon: <AiIcon />,
@@ -83,52 +133,6 @@ const navItems: NavItem[] = [
       { name: "Transactions", path: "/transactions" },
       { name: "Single Transaction", path: "/single-transaction" },
     ],
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Utilisateur",
-    path: "/users/list",
-    requiredRoles: ["ADMIN", "MANAGER"],
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Clients",
-    path: "/customers",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
-  },
-  {
-    icon: <CartIcon />,
-    name: "Catalogue",
-    path: "/catalogue",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Gestion",
-    requiredRoles: ["ADMIN", "MANAGER"],
-    subItems: [
-      { name: "Gestion contrat", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["ADMIN"] },
-      { name: "Référence robe", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Etats de robe", path: "/gestion/dress-conditions", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Couleurs de robe", path: "/gestion/dress-colors", requiredRoles: ["ADMIN", "MANAGER"] },
-    ],
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Mon profile",
-    path: "/profile",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
   },
   {
     name: "Task",
