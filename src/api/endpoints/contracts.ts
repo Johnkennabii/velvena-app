@@ -181,6 +181,12 @@ const extractContractArray = (res: any): ContractFullView[] => {
 };
 
 export const ContractsAPI = {
+  listAll: async (): Promise<ContractFullView[]> => {
+    const res = await httpClient.get("/contracts/full-view");
+    const entries = extractContractArray(res);
+    return entries;
+  },
+
   listByCustomer: async (customerId: string): Promise<ContractFullView[]> => {
     const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}`);
     const entries = extractContractArray(res);

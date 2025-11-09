@@ -26,6 +26,7 @@ import DressColors from "./pages/Gestion/DressColors";
 import Customers from "./pages/Customers/Customers";
 import Catalogue from "./pages/Catalogue/Catalogue";
 import ContractSignPage from "./pages/Public/ContractSignPage";
+import Calendar from "./pages/Calendar";
 
 export default function App() {
   return (
@@ -121,6 +122,14 @@ export default function App() {
             element={
               <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
                 <Catalogue />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <Calendar />
               </ProtectedRoute>
             }
           />
