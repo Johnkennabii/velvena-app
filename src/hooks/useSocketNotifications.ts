@@ -12,6 +12,7 @@ export interface Notification {
   read: boolean;
   reference?: string;
   contractNumber?: string;
+  contractId?: string;
   creator?: {
     id: string | null;
     firstName?: string;
@@ -24,7 +25,9 @@ export interface Notification {
   };
 }
 
-export function useSocketNotifications() {
+export function useSocketNotifications(
+  onNotificationReceived?: (notification: Notification) => void
+) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -58,6 +61,11 @@ export function useSocketNotifications() {
         read: false,
       };
       setNotifications((prev) => [newNotification, ...prev]);
+
+      // Appeler le callback si fourni
+      if (onNotificationReceived) {
+        onNotificationReceived(newNotification);
+      }
     });
 
     socketInstance.on("connect_error", (error) => {
@@ -69,7 +77,7 @@ export function useSocketNotifications() {
     return () => {
       socketInstance.disconnect();
     };
-  }, []);
+  }, [onNotificationReceived]);
 
   const markAsRead = useCallback((notificationId: string) => {
     setNotifications((prev) =>

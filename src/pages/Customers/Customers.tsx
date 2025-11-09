@@ -648,6 +648,35 @@ export default function Customers() {
 
   const customers: CustomerRow[] = useMemo(() => customerData.data.map(toCustomerRow), [customerData.data]);
 
+  // Écouter les notifications de contrats signés pour mettre à jour automatiquement
+  useEffect(() => {
+    const handleContractSigned = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const notification = customEvent.detail;
+
+      if (notification.type === "CONTRACT_SIGNED" && notification.contractId) {
+        // Mettre à jour le contrat dans la liste viewContracts si présent
+        setViewContracts((prev) =>
+          prev.map((contract) =>
+            contract.id === notification.contractId
+              ? {
+                  ...contract,
+                  status: "SIGNED",
+                  signed_at: notification.timestamp,
+                }
+              : contract
+          )
+        );
+        console.log(`✅ Contrat ${notification.contractNumber} mis à jour automatiquement: statut = SIGNED`);
+      }
+    };
+
+    window.addEventListener("socket-notification", handleContractSigned);
+    return () => {
+      window.removeEventListener("socket-notification", handleContractSigned);
+    };
+  }, []);
+
   const getUserFullName = useCallback(
     (userId: string | null | undefined): string => {
       if (!userId) return "-";

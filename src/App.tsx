@@ -26,10 +26,11 @@ import DressColors from "./pages/Gestion/DressColors";
 import Customers from "./pages/Customers/Customers";
 import Catalogue from "./pages/Catalogue/Catalogue";
 import ContractSignPage from "./pages/Public/ContractSignPage";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 export default function App() {
   return (
-    <>
+    <NotificationProvider>
       <ScrollToTop />
       <Routes>
         {/* --- Auth Pages --- */}
@@ -190,6 +191,6 @@ export default function App() {
         {/* --- Fallback --- */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </NotificationProvider>
   );
 }

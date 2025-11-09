@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import {
-  useSocketNotifications,
-  type Notification,
-} from "../../hooks/useSocketNotifications";
+import { useNotifications } from "../../contexts/NotificationContext";
+import type { Notification } from "../../hooks/useSocketNotifications";
 
 function formatTimeAgo(timestamp: string): string {
   const now = new Date();
@@ -31,7 +29,7 @@ export default function NotificationDropdown() {
     unreadCount,
     markAllAsRead,
     clearAllNotifications,
-  } = useSocketNotifications();
+  } = useNotifications();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
