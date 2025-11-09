@@ -172,6 +172,42 @@ export default function NotificationDropdown() {
                       {notification.message}
                     </span>
 
+                    {/* Additional info for dress creation */}
+                    {notification.type === "DRESS_CREATED" &&
+                      notification.reference && (
+                        <span className="mb-1 block text-theme-xs text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">Référence:</span>{" "}
+                          {notification.reference}
+                          {notification.creator?.firstName &&
+                            notification.creator?.lastName && (
+                              <>
+                                {" • "}
+                                <span className="font-medium">Créé par:</span>{" "}
+                                {notification.creator.firstName}{" "}
+                                {notification.creator.lastName}
+                              </>
+                            )}
+                        </span>
+                      )}
+
+                    {/* Additional info for contract signing */}
+                    {notification.type === "CONTRACT_SIGNED" &&
+                      notification.contractNumber && (
+                        <span className="mb-1 block text-theme-xs text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">N° Contrat:</span>{" "}
+                          {notification.contractNumber}
+                          {notification.customer?.firstName &&
+                            notification.customer?.lastName && (
+                              <>
+                                {" • "}
+                                <span className="font-medium">Client:</span>{" "}
+                                {notification.customer.firstName}{" "}
+                                {notification.customer.lastName}
+                              </>
+                            )}
+                        </span>
+                      )}
+
                     <span className="flex items-center gap-2 text-gray-500 text-theme-xs dark:text-gray-400">
                       <span>
                         {notification.type === "CONTRACT_SIGNED"

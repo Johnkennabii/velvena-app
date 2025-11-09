@@ -10,6 +10,18 @@ export interface Notification {
   message: string;
   timestamp: string;
   read: boolean;
+  reference?: string;
+  contractNumber?: string;
+  creator?: {
+    id: string | null;
+    firstName?: string;
+    lastName?: string;
+  };
+  customer?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+  };
 }
 
 export function useSocketNotifications() {
