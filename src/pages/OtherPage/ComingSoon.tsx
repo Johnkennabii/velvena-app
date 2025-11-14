@@ -18,12 +18,18 @@ export default function ComingSoon() {
 
         <div>
           <div className="mx-auto w-full max-w-[460px] text-center">
-<Link
-  to="/"
-  className="inline-block mb-6 text-3xl font-bold text-gray-900 dark:text-white tracking-tight"
->
-  Allure Creation
-</Link>
+            <Link to="/" className="inline-block mb-6">
+              <img
+                className="dark:hidden"
+                src="./images/logo/logo.svg"
+                alt="Logo"
+              />
+              <img
+                className="hidden dark:block"
+                src="./images/logo/logo-dark.svg"
+                alt="Logo"
+              />
+            </Link>
 
             <h1 className="mb-3 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-xl">
               Coming Soon

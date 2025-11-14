@@ -17,15 +17,17 @@ export default function AuthLayout({
             {/* <!-- ===== Common Grid Shape Start ===== --> */}
             <GridShape />
             <div className="flex flex-col items-center max-w-xs">
-<Link
-  to="/"
-  className="block mb-4 text-3xl font-bold text-center text-gray-900 dark:text-white tracking-tight"
->
-  Allure Creation
-</Link>
-<p className="text-center text-gray-400 dark:text-white/60">
-  Gérez vos créations et vos locations de robes en toute simplicité.
-</p>
+              <Link to="/" className="block mb-4">
+                <img
+                  width={231}
+                  height={48}
+                  src="/images/logo/auth-logo.svg"
+                  alt="Logo"
+                />
+              </Link>
+              <p className="text-center text-gray-400 dark:text-white/60">
+                Free and Open-Source Tailwind CSS Admin Dashboard Template
+              </p>
             </div>
           </div>
         </div>

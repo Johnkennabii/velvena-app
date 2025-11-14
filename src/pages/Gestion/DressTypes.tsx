@@ -265,7 +265,7 @@ export default function DressTypes() {
 
   return (
     <>
-      <PageMeta title="Types de robe" description="Administration des types de robe." />
+      <PageMeta title="Types de robe - Allure Creation App" description="Administration des types de robe." />
       <PageBreadcrumb pageTitle="Types de robe" />
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

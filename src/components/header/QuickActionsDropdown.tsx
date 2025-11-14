@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { IoAddSharp } from "react-icons/io5";
+import { FiUserPlus } from "react-icons/fi";
+import { HiOutlineTicket } from "react-icons/hi2";
+import { PiDress } from "react-icons/pi";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useAuth } from "../../context/AuthContext";
@@ -45,21 +48,24 @@ export default function QuickActionsDropdown() {
         <div className="py-2">
           <DropdownItem
             onItemClick={() => triggerQuickAction("open-create-customer", "/customers")}
-            baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
+            baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
           >
+            <FiUserPlus className="size-4" />
             Ajouter un client
           </DropdownItem>
           <DropdownItem
             onItemClick={() => triggerQuickAction("open-contract-drawer", "/catalogue", { mode: "daily" })}
-            baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
+            baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
           >
+            <HiOutlineTicket className="size-4" />
             Ajouter un contrat
           </DropdownItem>
           {hasRole("ADMIN", "MANAGER") && (
             <DropdownItem
               onItemClick={() => triggerQuickAction("open-create-dress", "/catalogue")}
-              baseClassName="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
+              baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
             >
+              <PiDress className="size-4" />
               Ajouter une robe
             </DropdownItem>
           )}

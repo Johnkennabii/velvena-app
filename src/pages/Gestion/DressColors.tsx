@@ -316,7 +316,7 @@ export default function DressColors() {
 
   return (
     <>
-      <PageMeta title="Couleurs de robe" description="Administration des couleurs de robe." />
+      <PageMeta title="Couleurs de robe - Allure Creation App" description="Administration des couleurs de robe." />
       <PageBreadcrumb pageTitle="Couleurs de robe" />
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

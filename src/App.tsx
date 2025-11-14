@@ -54,6 +54,15 @@ export default function App() {
             }
           />
           <Route
+            index
+            path="/changelog"
+            element={
+              <ProtectedRoute roles={["ADMIN", "MANAGER", ""]}>
+                <Ecommerce />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/analytics"
             element={
               <ProtectedRoute roles={["ADMIN"]}>

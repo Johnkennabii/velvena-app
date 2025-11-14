@@ -1929,7 +1929,12 @@ export default function Catalogue() {
     const customer = customerDrawer.customer;
     handleCloseCustomerDrawer();
     if (customer.id) {
-      navigate(`/customers?search=${encodeURIComponent(customer.email ?? customer.lastname ?? customer.firstname ?? "")}`);
+      navigate("/customers", {
+        state: {
+          openCustomerDrawer: true,
+          customerId: customer.id
+        }
+      });
     } else {
       navigate("/customers");
     }
@@ -2447,7 +2452,7 @@ export default function Catalogue() {
 
   return (
     <div className="space-y-6">
-      <PageMeta title="Catalogue" description="Gestion des robes."/>
+      <PageMeta title="Catalogue - Allure Creation App" description="Gérez la visibilité, les visuels et les actions commerciales de votre dressing"/>
       <PageBreadcrumb pageTitle="Catalogue" />
 
       <div className="rounded-2xl border border-gray-200 bg-white px-5 py-6 shadow-theme-xs transition dark:border-white/10 dark:bg-white/[0.03] xl:px-10 xl:py-10">

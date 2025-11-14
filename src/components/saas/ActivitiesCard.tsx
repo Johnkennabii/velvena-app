@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { MoreDotIcon } from "../../icons";
+import { HiOutlineTicket } from "react-icons/hi2";
+import { PiDress } from "react-icons/pi";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { NotificationsAPI, NotificationData } from "../../api/endpoints/notifications";
@@ -86,41 +88,12 @@ export default function ActivitiesCard() {
 
   const getNotificationIcon = (type: NotificationData["type"]) => {
     if (type === "CONTRACT_SIGNED") {
-      return (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9 5.0625H14.0625L12.5827 8.35084C12.4506 8.64443 12.4506 8.98057 12.5827 9.27416L14.0625 12.5625H10.125C9.50368 12.5625 9 12.0588 9 11.4375V10.875M3.9375 10.875H9M3.9375 3.375H7.875C8.49632 3.375 9 3.87868 9 4.5V10.875M3.9375 15.9375V2.0625"
-            stroke="#12B76A"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
+      return <HiOutlineTicket className="size-5 text-success-500" />;
     }
-    return (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M9 11.25V9M9 6.75H9.0075M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
-          stroke="#F79009"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    if (type === "DRESS_CREATED") {
+      return <PiDress className="size-5 text-warning-500" />;
+    }
+    return <HiOutlineTicket className="size-5 text-warning-500" />;
   };
 
   const getNotificationColor = (type: NotificationData["type"]) => {

@@ -432,7 +432,7 @@ export default function ContractPackages() {
 
   return (
     <>
-      <PageMeta title="Gestion des forfaits" description="Administration des forfaits contractuels." />
+      <PageMeta title="Gestion des forfaits - Allure Creation App" description="Administration des forfaits contractuels." />
       <PageBreadcrumb pageTitle="Forfaits" />
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

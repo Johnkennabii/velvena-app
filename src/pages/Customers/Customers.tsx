@@ -625,7 +625,7 @@ export default function Customers() {
   const canHardDelete = hasRole("ADMIN");
   const createBirthdayId = "create-customer-birthday";
   const editBirthdayId = "edit-customer-birthday";
-  const canGeneratePDF = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
+  const canGeneratePDF = hasRole("ADMIN") || hasRole("MANAGER");
   
 
   const totalPages = useMemo(
@@ -890,6 +890,56 @@ export default function Customers() {
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location, navigate]);
+
+  useEffect(() => {
+    const state = location.state as { openCustomerDrawer?: boolean; customerId?: string } | null;
+    if (state?.openCustomerDrawer && state?.customerId) {
+      // Charger le client et ouvrir le drawer
+      const loadAndOpenCustomer = async () => {
+        try {
+          const customer = await CustomersAPI.getById(state.customerId!);
+          const customerRow: CustomerRow = {
+            ...customer,
+            fullName: [customer.firstname, customer.lastname].filter(Boolean).join(" ") || customer.email || "-",
+            createdLabel: customer.created_at ? new Date(customer.created_at).toLocaleDateString("fr-FR") : "-",
+          };
+          setViewOpen(true);
+          setViewCustomer(customerRow);
+          setViewLoading(true);
+          setContractsLoading(true);
+          setContractsError(null);
+          setViewContracts([]);
+          setSoftDeletingContractId(null);
+
+          // Charger les détails et contrats
+          const [detail, contracts] = await Promise.all([
+            CustomersAPI.getById(customer.id),
+            ContractsAPI.listByCustomer(customer.id),
+          ]);
+          setViewCustomer(detail);
+          let contractsWithDetails = contracts;
+          if (contracts.some((c) => !(c.contract_type && c.contract_type.name))) {
+            contractsWithDetails = await Promise.all(
+              contracts.map(async (c) => {
+                if (c.contract_type && c.contract_type.name) return c;
+                const full = await ContractsAPI.getById(c.id);
+                return { ...c, contract_type: full.contract_type };
+              })
+            );
+          }
+          setViewContracts(contractsWithDetails);
+          setViewLoading(false);
+          setContractsLoading(false);
+        } catch (error) {
+          console.error("Erreur lors du chargement du client:", error);
+          notify("error", "Erreur", "Impossible de charger les détails du client");
+        }
+      };
+      loadAndOpenCustomer();
+      // Nettoyer l'état de navigation
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate, notify]);
 
     const openViewModal = useCallback(
     async (customer: CustomerRow) => {
@@ -1646,7 +1696,7 @@ export default function Customers() {
 
   return (
     <>
-      <PageMeta title="Clients" description="Gestion des clients et contacts." />
+      <PageMeta title="Clients - Allure Creation App" description="Gestion des clients et contacts." />
       <PageBreadcrumb pageTitle="Clients" />
 
       <section className="flex flex-col gap-6">

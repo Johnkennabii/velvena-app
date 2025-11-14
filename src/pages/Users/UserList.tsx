@@ -677,12 +677,12 @@ const formatRoleLabel = (role?: string) => {
 
   return (
     <>
-      <PageMeta title="Liste des utilisateurs | Allure Création" description="Consultez l'ensemble des utilisateurs enregistrés sur Allure Création." />
-      <PageBreadcrumb pageTitle="Liste des utilisateurs" />
+      <PageMeta title="Utilisateurs - Allure Creation App" description="Consultez l'ensemble des utilisateurs enregistrés sur Allure Création." />
+      <PageBreadcrumb pageTitle="Uilisateurs" />
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Utilisateurs</h3>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Liste des utilisateurs</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {loading ? "Chargement..." : `${rows.length} utilisateur${rows.length > 1 ? "s" : ""}`}
             </p>
