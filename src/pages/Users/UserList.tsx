@@ -15,6 +15,7 @@ import Select from "../../components/form/Select";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { PencilIcon, TrashBinIcon, CloseLineIcon } from "../../icons";
+import { PasswordValidator, validatePassword } from "../../components/common/PasswordValidator";
 
 const TooltipWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
@@ -628,6 +629,16 @@ const formatRoleLabel = (role?: string) => {
       return;
     }
 
+    if (!validatePassword(createForm.password)) {
+      console.log("⚠️ Invalid password");
+      notify(
+        "warning",
+        "Mot de passe invalide",
+        "Le mot de passe doit contenir au moins 10 caractères, 1 majuscule, 2 chiffres et 1 caractère spécial."
+      );
+      return;
+    }
+
     if (!createForm.roleId) {
       console.log("⚠️ Missing roleId");
       notify("warning", "Champs manquants", "Veuillez sélectionner un rôle.");
@@ -965,6 +976,11 @@ const formatRoleLabel = (role?: string) => {
                 onChange={(e) => handleCreateFieldChange("password", e.target.value)}
                 placeholder="Mot de passe sécurisé"
               />
+              {createForm.password && (
+                <div className="mt-3">
+                  <PasswordValidator password={createForm.password} />
+                </div>
+              )}
             </div>
             <div className="sm:col-span-2">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">

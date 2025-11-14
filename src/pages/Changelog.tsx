@@ -24,6 +24,18 @@ interface HelpSection {
 
 const changelogs: ChangelogEntry[] = [
   {
+    version: "2.2.0",
+    date: "14 novembre 2025",
+    type: "added",
+    description: "Système de validation de mot de passe complexe avec indicateurs visuels en temps réel",
+  },
+  {
+    version: "2.2.0",
+    date: "14 novembre 2025",
+    type: "added",
+    description: "Page Changelog & Aide complète avec guide des fonctionnalités et historique des versions",
+  },
+  {
     version: "2.1.0",
     date: "14 novembre 2025",
     type: "fixed",

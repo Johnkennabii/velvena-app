@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { httpClient } from "../../api/httpClient";
 import { useNotification } from "../../context/NotificationContext";
 import { useEffect, useState } from "react";
+import { PasswordValidator, validatePassword } from "../common/PasswordValidator";
 
 export default function UserInfoCard() {
   const { user, updateUserProfile } = useAuth();
@@ -80,6 +81,15 @@ export default function UserInfoCard() {
       }
 
       if (form.password.trim()) {
+        if (!validatePassword(form.password)) {
+          notify(
+            "warning",
+            "Mot de passe invalide",
+            "Le mot de passe doit contenir au moins 10 caractères, 1 majuscule, 2 chiffres et 1 caractère spécial."
+          );
+          setSaving(false);
+          return;
+        }
         payload.password = form.password.trim();
       }
 
@@ -226,6 +236,11 @@ export default function UserInfoCard() {
                     value={form.password}
                     onChange={handleChange}
                   />
+                  {form.password && (
+                    <div className="mt-3">
+                      <PasswordValidator password={form.password} />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
