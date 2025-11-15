@@ -26,6 +26,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import DatePicker from "../../components/form/date-picker";
 import type { QuickSearchNavigationPayload } from "../../types/quickSearch";
 import { io } from "socket.io-client";
+import { getContractPermissions, type UserRole, type ContractStatus } from "../../utils/contractPermissions";
 
 const DEFAULT_VAT_RATIO = 0.8333333333;
 
@@ -251,12 +252,7 @@ const ContractCard = ({
   onSoftDelete,
   onSignature,
   onUploadSigned,
-  canManage,
-  canGeneratePDF,
-  canUseSignature,
-  canSoftDelete,
-  canReactivate,
-  isAdmin,
+  userRole,
   softDeletingId,
   signatureLoadingId,
   pdfGeneratingId,
@@ -271,12 +267,7 @@ const ContractCard = ({
   onSoftDelete: (contract: ContractFullView) => void;
   onSignature: (contract: ContractFullView) => void;
   onUploadSigned: (contract: ContractFullView) => void;
-  canManage: boolean;
-  canGeneratePDF: boolean;
-  canUseSignature: boolean;
-  canSoftDelete: boolean;
-  canReactivate: boolean;
-  isAdmin: boolean;
+  userRole: UserRole;
   softDeletingId: string | null;
   signatureLoadingId: string | null;
   pdfGeneratingId: string | null;
@@ -285,37 +276,16 @@ const ContractCard = ({
   getUserFullName: (userId: string | null | undefined) => string;
   contractPackages: ContractPackage[];
 }) => {
+  // ✨ Système simplifié de permissions
+  const permissions = getContractPermissions(
+    userRole,
+    contract.status as ContractStatus,
+    Boolean(contract.deleted_at)
+  );
+
   const config = resolveStatusMeta(contract.status, contract.deleted_at);
-  const isDisabled = Boolean(contract.deleted_at);
-  const isSigned = contract.status === "SIGNED" || contract.status === "SIGNED_ELECTRONICALLY";
-
-  // Check if signature was sent (status is PENDING_SIGNATURE means signature link was actually sent)
-  const hasSignatureSent = contract.status === "PENDING_SIGNATURE";
-
-
-  // COLLABORATOR cannot deactivate contracts
-  const isCollaborator = !canManage && canGeneratePDF;
-
-  // MANAGER and COLLABORATOR: cannot modify signed contracts (only ADMIN can)
-  const cannotModifyAsNonAdmin = !isAdmin && isSigned;
-
+  const isDeleted = Boolean(contract.deleted_at);
   const signLinkUrl = buildSignLinkUrl(contract.sign_link?.token);
-
-  // Signature électronique should be disabled when status is PENDING (waiting for manual PDF upload)
-  const isPendingManualUpload = contract.status === "PENDING";
-
-  // Debug: Check why signature button is disabled
-  const signatureButtonDisabled = !canUseSignature || signatureLoadingId === contract.id || isDisabled || cannotModifyAsNonAdmin || hasSignatureSent || isSigned || isPendingManualUpload;
-  console.log("🔍 DEBUG Signature Button - Contrat", contract.contract_number, "Status:", contract.status, {
-    disabled: signatureButtonDisabled,
-    canUseSignature,
-    signatureLoadingId: signatureLoadingId === contract.id,
-    isDisabled,
-    cannotModifyAsNonAdmin,
-    hasSignatureSent,
-    isSigned,
-    isPendingManualUpload,
-  });
 
   const dresses = (contract.dresses ?? [])
     .map((dress) => dress?.dress ?? dress)
@@ -505,6 +475,7 @@ const ContractCard = ({
             size="sm"
             variant="outline"
             onClick={() => window.open(contract.signed_pdf_url!, "_blank", "noopener,noreferrer")}
+            disabled={!permissions.canViewSigned}
           >
             Voir contrat signé
           </Button>
@@ -512,18 +483,8 @@ const ContractCard = ({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => {
-              console.log("🔍 Debug Générer PDF:", {
-                canGeneratePDF,
-                pdfGeneratingId,
-                contractId: contract.id,
-                isDisabled,
-                hasSignatureSent,
-                contractStatus: contract.status,
-              });
-              onGenerate(contract);
-            }}
-            disabled={!canGeneratePDF || pdfGeneratingId === contract.id || isDisabled || hasSignatureSent}
+            onClick={() => onGenerate(contract)}
+            disabled={!permissions.canGeneratePdf || pdfGeneratingId === contract.id}
           >
             {pdfGeneratingId === contract.id ? "Génération..." : "Générer le PDF"}
           </Button>
@@ -532,7 +493,7 @@ const ContractCard = ({
             size="sm"
             variant="outline"
             onClick={() => onUploadSigned(contract)}
-            disabled={!canGeneratePDF || uploadingSignedPdfId === contract.id || isDisabled}
+            disabled={!permissions.canUploadSigned || uploadingSignedPdfId === contract.id}
           >
             {uploadingSignedPdfId === contract.id ? "Importation..." : "Importer contrat signé"}
           </Button>
@@ -540,7 +501,7 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={!canManage || isDisabled || cannotModifyAsNonAdmin || isPendingManualUpload}
+          disabled={!permissions.canEdit}
           onClick={() => onEdit(contract)}
         >
           Modifier contrat
@@ -548,21 +509,25 @@ const ContractCard = ({
         <Button
           size="sm"
           variant="outline"
-          disabled={(!canSoftDelete || softDeletingId === contract.id) || (isDisabled && !canReactivate) || isCollaborator || cannotModifyAsNonAdmin}
+          disabled={
+            isDeleted
+              ? !permissions.canReactivate || softDeletingId === contract.id
+              : !permissions.canSoftDelete || softDeletingId === contract.id
+          }
           onClick={() => onSoftDelete(contract)}
         >
           {softDeletingId === contract.id
-            ? isDisabled
+            ? isDeleted
               ? "Activation..."
               : "Désactivation..."
-            : isDisabled
+            : isDeleted
             ? "Activer contrat"
             : "Désactiver contrat"}
         </Button>
         <Button
           size="sm"
           variant="outline"
-          disabled={signatureButtonDisabled}
+          disabled={!permissions.canSendSignature || signatureLoadingId === contract.id}
           onClick={() => onSignature(contract)}
         >
           {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
@@ -663,18 +628,23 @@ export default function Customers() {
   const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState<string | null>(null);
 
   const { notify } = useNotification();
-  const { hasRole } = useAuth();
+  const { hasRole, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // ✨ Système simplifié: on récupère juste le rôle de l'utilisateur
+  const userRole: UserRole = (user?.role as UserRole) || 'USER';
+
+  // Permissions pour les fonctionnalités non liées aux contrats (clients, actions générales)
   const canManage = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
   const canManageContracts = hasRole("ADMIN") || hasRole("MANAGER");
-  const canUseSignature = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
   const canSoftDelete = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
   const canReactivate = hasRole("ADMIN") || hasRole("MANAGER");
+  const canGeneratePDF = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
+  const canUseSignature = hasRole("ADMIN") || hasRole("MANAGER") || hasRole("COLLABORATOR");
   const canHardDelete = hasRole("ADMIN");
   const createBirthdayId = "create-customer-birthday";
   const editBirthdayId = "edit-customer-birthday";
-  const canGeneratePDF = hasRole("ADMIN") || hasRole("MANAGER");
   
 
   const totalPages = useMemo(
@@ -2109,12 +2079,7 @@ export default function Customers() {
                       onSoftDelete={handleSoftDeleteContract}
                       onSignature={handleSignature}
                       onUploadSigned={handleUploadSignedPdf}
-                      canManage={canManageContracts}
-                      canGeneratePDF={canGeneratePDF}
-                      canUseSignature={canUseSignature}
-                      canSoftDelete={canSoftDelete}
-                      canReactivate={canReactivate}
-                      isAdmin={hasRole("ADMIN")}
+                      userRole={userRole}
                       softDeletingId={softDeletingContractId}
                       signatureLoadingId={signatureGeneratingContractId}
                       pdfGeneratingId={pdfGeneratingContractId}
