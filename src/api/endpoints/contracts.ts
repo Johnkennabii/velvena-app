@@ -182,13 +182,13 @@ const extractContractArray = (res: any): ContractFullView[] => {
 
 export const ContractsAPI = {
   listAll: async (): Promise<ContractFullView[]> => {
-    const res = await httpClient.get("/contracts/full-view");
+    const res = await httpClient.get("/contracts/full-view?include=package");
     const entries = extractContractArray(res);
     return entries;
   },
 
   listByCustomer: async (customerId: string): Promise<ContractFullView[]> => {
-    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}`);
+    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}&include=package`);
     const entries = extractContractArray(res);
     return entries;
   },
@@ -243,7 +243,7 @@ export const ContractsAPI = {
   },
 
   getById: async (contractId: string): Promise<ContractFullView> => {
-    const res = await httpClient.get(`/contracts/${contractId}`);
+    const res = await httpClient.get(`/contracts/${contractId}?include=package`);
     if (res?.data && typeof res.data === "object") return res.data as ContractFullView;
     return res as ContractFullView;
   },

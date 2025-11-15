@@ -19,6 +19,7 @@ import { useAuth } from "../../context/AuthContext";
 import { CustomersAPI, type Customer, type CustomerListResponse } from "../../api/endpoints/customers";
 import { ContractsAPI, type ContractFullView, type ContractUpdatePayload } from "../../api/endpoints/contracts";
 import { ContractAddonsAPI, type ContractAddon as ContractAddonOption } from "../../api/endpoints/contractAddons";
+import { ContractPackagesAPI, type ContractPackage } from "../../api/endpoints/contractPackages";
 import { UsersAPI, type UserListItem } from "../../api/endpoints/users";
 import { PencilIcon, CloseLineIcon, TrashBinIcon } from "../../icons";
 import { IoEyeOutline } from "react-icons/io5";
@@ -164,14 +165,20 @@ const TooltipWrapper = ({ title, children }: { title: string; children: React.Re
   </div>
 );
 
-const InfoCard = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div>
-    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-      {label}
-    </p>
-    <div className="mt-1 text-sm text-gray-800 dark:text-gray-200">{children}</div>
-  </div>
-);
+const InfoCard = ({ label, children, color }: { label: string; children: React.ReactNode; color?: string }) => {
+  const colorClasses = color === 'success'
+    ? 'text-green-700 dark:text-green-400 font-semibold'
+    : 'text-gray-800 dark:text-gray-200';
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        {label}
+      </p>
+      <div className={`mt-1 text-sm ${colorClasses}`}>{children}</div>
+    </div>
+  );
+};
 
 const formatCurrency = (value?: string | number | null) => {
   if (value === undefined || value === null || value === "") return "-";
@@ -256,6 +263,7 @@ const ContractCard = ({
   uploadingSignedPdfId,
   hasPdfGenerated,
   getUserFullName,
+  contractPackages,
 }: {
   contract: ContractFullView;
   onGenerate: (contract: ContractFullView) => void;
@@ -275,6 +283,7 @@ const ContractCard = ({
   uploadingSignedPdfId: string | null;
   hasPdfGenerated: boolean;
   getUserFullName: (userId: string | null | undefined) => string;
+  contractPackages: ContractPackage[];
 }) => {
   const config = resolveStatusMeta(contract.status, contract.deleted_at);
   const isDisabled = Boolean(contract.deleted_at);
@@ -320,6 +329,24 @@ const ContractCard = ({
     price_ht?: string | number | null;
     included?: boolean;
   }>;
+
+  // Récupérer les IDs des addons inclus dans le forfait
+  // Si contract.package.addons n'est pas disponible, chercher dans contractPackages
+  const currentPackage = contract.package?.id
+    ? contractPackages.find((pkg: ContractPackage) => pkg.id === contract.package?.id)
+    : null;
+
+  const packageAddonIds = (currentPackage?.addons?.map((pa: { addon_id: string }) => pa.addon_id) ??
+                          contract.package?.addons?.map((pa: { addon_id: string }) => pa.addon_id) ??
+                          []);
+
+  const getAddonLabel = (addonId?: string) => {
+    if (addonId && packageAddonIds.includes(addonId)) {
+      return "Inclus au forfait";
+    }
+    return "Optionnel";
+  };
+
   const paymentLabel = formatPaymentMethod(contract.deposit_payment_method);
 
   return (
@@ -348,7 +375,7 @@ const ContractCard = ({
         <InfoCard label="Caution TTC">{formatCurrency(contract.caution_ttc)}</InfoCard>
         <InfoCard label="Caution payée TTC">{formatCurrency(contract.caution_paid_ttc)}</InfoCard>
         <InfoCard label="Méthode de paiement">{paymentLabel}</InfoCard>
-        <InfoCard label="Type de contrat">{contract.contract_type_name || "-"}</InfoCard>
+        <InfoCard label="Type de contrat" color="success">{contract.contract_type_name || "-"}</InfoCard>
         <InfoCard label="Forfait associé">
           {contract.package?.name
             ? `${contract.package.name} ${contract.package.price_ttc ? `(${formatCurrency(contract.package.price_ttc)})` : ""}`
@@ -405,7 +432,7 @@ const ContractCard = ({
                 <div className="space-y-0.5">
                   <span className="font-medium text-gray-900 dark:text-white">{addon.name}</span>
                   <span className="block text-xs text-gray-500 dark:text-gray-400">
-                    {addon.included ? "Inclus" : "Optionnel"}
+                    {getAddonLabel(addon.id)}
                   </span>
                 </div>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -624,6 +651,7 @@ export default function Customers() {
   const [contractAddonsError, setContractAddonsError] = useState<string | null>(null);
   const [contractEditAddonIds, setContractEditAddonIds] = useState<string[]>([]);
   const contractEditDefaultsAppliedRef = useRef(false);
+  const [contractPackages, setContractPackages] = useState<ContractPackage[]>([]);
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [generatedPdfContracts, setGeneratedPdfContracts] = useState<Set<string>>(new Set());
   const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState<string | null>(null);
@@ -986,6 +1014,7 @@ export default function Customers() {
                     contract.contract_type?.name ??
                     contract.contract_type_name ??
                     null,
+                  package: fullContract.package ?? contract.package ?? null,
                 };
               } catch (error) {
                 console.error("❌ Détail contrat :", error);
@@ -1106,6 +1135,24 @@ export default function Customers() {
       cancelled = true;
     };
   }, [contractAddons.length, notify]);
+
+  useEffect(() => {
+    if (contractPackages.length) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const packages = await ContractPackagesAPI.list();
+        if (!cancelled) {
+          setContractPackages(packages);
+        }
+      } catch (error) {
+        console.error("❌ Chargement forfaits :", error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [contractPackages.length]);
 
   useEffect(() => {
     if (users.length) return;
@@ -2068,6 +2115,7 @@ export default function Customers() {
                       uploadingSignedPdfId={uploadingSignedPdfId}
                       hasPdfGenerated={generatedPdfContracts.has(contract.id)}
                       getUserFullName={getUserFullName}
+                      contractPackages={contractPackages}
                     />
                   ))}
                 </div>

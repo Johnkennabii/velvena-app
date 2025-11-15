@@ -110,6 +110,18 @@ export default function ContractSignPage() {
     return [] as ContractAddon[];
   }, [contract]);
 
+  // Récupérer les IDs des addons inclus dans le forfait
+  const packageAddonIds = useMemo(() => {
+    return contract?.package?.addons?.map(pa => pa.addon_id) ?? [];
+  }, [contract?.package?.addons]);
+
+  const getAddonLabel = (addonId?: string) => {
+    if (addonId && packageAddonIds.includes(addonId)) {
+      return "Inclus au forfait";
+    }
+    return "Optionnel";
+  };
+
   const isDisabled = useMemo(() => {
     return Boolean(contract?.deleted_at);
   }, [contract]);
@@ -499,7 +511,7 @@ export default function ContractSignPage() {
                 >
                   <div>
                     <p className="font-medium text-gray-900">{addon.name}</p>
-                    <p className="text-xs text-gray-500">{addon.included ? "Inclus" : "Optionnel"}</p>
+                    <p className="text-xs text-gray-500">{getAddonLabel(addon.id)}</p>
                   </div>
                   <p className="text-xs text-gray-500">{formatCurrency(addon.price_ttc)} TTC</p>
                 </div>
