@@ -1591,7 +1591,7 @@ export default function Customers() {
           );
         }
 
-        notify("success", "PDF importé", "Le contrat signé a été importé avec succès. Statut mis à jour: SIGNED");
+        notify("success", "PDF importé", "Le contrat signé a été importé avec succès. Statut mis à jour: Signé");
       } catch (error) {
         console.error("❌ Upload PDF signé :", error);
         notify("error", "Erreur", "L'importation du PDF signé a échoué.");

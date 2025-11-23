@@ -129,7 +129,9 @@ export default function ContractSignPage() {
   const isSigned = useMemo(() => {
     if (!contract) return false;
     const status = (contract.status ?? "").toUpperCase();
-    return SIGNED_STATUSES.has(status);
+    const signed = SIGNED_STATUSES.has(status);
+    console.log("✅ isSigned check:", { status, signed, SIGNED_STATUSES: Array.from(SIGNED_STATUSES) });
+    return signed;
   }, [contract]);
 
   const daysRemaining = useMemo(() => {
@@ -160,6 +162,52 @@ export default function ContractSignPage() {
       notify("error", "Erreur", "La signature électronique n'a pas pu être enregistrée.");
     } finally {
       setSigning(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = async () => {
+    console.log("🚀 handleDownload appelé !");
+    try {
+      console.log("🔍 Données du contrat complet:", contract);
+      console.log("🔍 contract.id:", contract?.id);
+      console.log("🔍 contract.signature_reference:", contract?.signature_reference);
+      console.log("🔍 token utilisé dans l'URL:", token);
+
+      if (!contract?.id || !contract?.signature_reference) {
+        notify("error", "Erreur", "Informations de contrat manquantes.");
+        console.error("❌ Contract data:", {
+          id: contract?.id,
+          signature_reference: contract?.signature_reference,
+          has_id: !!contract?.id,
+          has_signature_reference: !!contract?.signature_reference
+        });
+        return;
+      }
+
+      notify("info", "Téléchargement en cours", "Veuillez patienter...");
+
+      const blob = await ContractsAPI.downloadContractPdf(contract.id, contract.signature_reference);
+
+      // Créer un lien temporaire pour télécharger le fichier
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `contrat-${contract.contract_number || "document"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Nettoyer
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      notify("success", "Téléchargement réussi", "Le contrat a été téléchargé avec succès.");
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du PDF :", err);
+      notify("error", "Erreur", `Impossible de télécharger le PDF: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
     }
   };
 
@@ -245,6 +293,14 @@ export default function ContractSignPage() {
           <p className="text-sm text-gray-600">
             Contrat n° {contract.contract_number ?? "-"} — {formatDateTime(contract.created_at)}
           </p>
+          {isSigned && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-success-100 px-4 py-2 text-sm font-medium text-success-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Contrat signé électroniquement
+            </div>
+          )}
         </header>
 
         {(() => {
@@ -583,13 +639,31 @@ export default function ContractSignPage() {
           </article>
         </section> */}
 
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm print:hidden">
           <p className="text-sm text-gray-600">
-            En cliquant sur « Signer », vous confirmez votre accord pour l’intégralité des clauses ci-dessus.
+            En cliquant sur « Signer », vous confirmez votre accord pour l'intégralité des clauses ci-dessus.
           </p>
-          <Button onClick={() => setModalOpen(true)} disabled={isSigned || isDisabled}>
-            {isDisabled ? "Contrat désactivé" : isSigned ? "Contrat déjà signé" : "Signer électroniquement"}
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button onClick={() => setModalOpen(true)} disabled={isSigned || isDisabled}>
+              {isDisabled ? "Contrat désactivé" : isSigned ? "Contrat déjà signé" : "Signer électroniquement"}
+            </Button>
+            {isSigned && (
+              <>
+                <Button onClick={handlePrint} variant="outline">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  Imprimer le contrat
+                </Button>
+                <Button onClick={handleDownload}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Télécharger en PDF
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
       {legalModal}

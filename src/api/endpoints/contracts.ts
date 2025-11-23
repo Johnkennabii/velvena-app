@@ -68,6 +68,9 @@ export interface ContractFullView {
   deleted_by?: string | null;
   signed_at?: string | null;
   signed_pdf_url?: string | null;
+  signature_reference?: string | null;
+  signature_ip?: string | null;
+  signature_location?: string | null;
   addons?: ContractAddon[];
   addon_links?: {
     contract_id: string;
@@ -449,5 +452,39 @@ export const ContractsAPI = {
     };
 
     return ContractsAPI.update(contractId, payload);
+  },
+
+  downloadContractPdf: async (contractId: string, signatureReference: string): Promise<Blob> => {
+    const token = localStorage.getItem("token");
+    const BASE_URL = "https://api.allure-creation.fr";
+    const url = `${BASE_URL}/contracts/download/${contractId}/${signatureReference}`;
+
+    console.log("📥 Téléchargement du PDF:", {
+      url,
+      contractId,
+      signatureReference,
+      hasToken: !!token
+    });
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: token ? {
+        'Authorization': `Bearer ${token}`,
+      } : {},
+    });
+
+    console.log("📥 Réponse du serveur:", {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type')
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("📥 Erreur de téléchargement:", errorText);
+      throw new Error(`Erreur lors du téléchargement: ${response.statusText} - ${errorText}`);
+    }
+
+    return response.blob();
   },
 };
