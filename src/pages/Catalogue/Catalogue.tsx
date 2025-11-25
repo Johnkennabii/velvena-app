@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCatalogueFilters } from "../../hooks/catalogue/useCatalogueFilters";
 import { useDressReferences } from "../../hooks/catalogue/useDressReferences";
 import { useDressViewAndDelete } from "../../hooks/catalogue/useDressViewAndDelete";
+import { useDressCreate } from "../../hooks/catalogue/useDressCreate";
+import { useDressEdit } from "../../hooks/catalogue/useDressEdit";
 import { useDropzone } from "react-dropzone";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -70,7 +72,6 @@ import {
   type ContractMode,
   type CatalogueFilters,
   type DressFormState,
-  type QueuedImage,
   type QuickCustomerFormState,
 } from "./types";
 import type { QuickSearchNavigationPayload } from "../../types/quickSearch";
@@ -383,27 +384,49 @@ export default function Catalogue() {
     setDeleteLoading,
   } = useDressViewAndDelete();
 
+  // Utilisation du hook de gestion du drawer de création
+  const {
+    createDrawerOpen,
+    setCreateDrawerOpen,
+    createForm,
+    setCreateForm,
+    creating,
+    setCreating,
+    createImages,
+    setCreateImages,
+    createUploadingImages,
+    setCreateUploadingImages,
+  } = useDressCreate();
+
+  // Utilisation du hook de gestion du drawer d'édition
+  const {
+    editDrawerOpen,
+    setEditDrawerOpen,
+    editDress,
+    setEditDress,
+    editForm,
+    setEditForm,
+    editLoading,
+    setEditLoading,
+    editUploadingImages,
+    setEditUploadingImages,
+  } = useDressEdit();
+
   const [dresses, setDresses] = useState<DressDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserListItem[]>([]);
-
-  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<DressFormState>(emptyFormState);
-  const [creating, setCreating] = useState(false);
-  const [createImages, setCreateImages] = useState<QueuedImage[]>([]);
-  const [createUploadingImages, setCreateUploadingImages] = useState(false);
-
-  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
-  const [editDress, setEditDress] = useState<DressDetails | null>(null);
-  const [editForm, setEditForm] = useState<DressFormState | null>(null);
-  const [editLoading, setEditLoading] = useState(false);
-  const [editUploadingImages, setEditUploadingImages] = useState(false);
 
   // dressTypes, dressSizes, dressConditions, dressColors, referencesLoading,
   // contractTypes, contractTypesLoading sont maintenant fournis par le hook useDressReferences
 
   // viewDrawerOpen, viewDress, viewLoading, deleteTarget, deleteLoading
   // sont maintenant fournis par le hook useDressViewAndDelete
+
+  // createDrawerOpen, createForm, creating, createImages, createUploadingImages
+  // sont maintenant fournis par le hook useDressCreate
+
+  // editDrawerOpen, editDress, editForm, editLoading, editUploadingImages
+  // sont maintenant fournis par le hook useDressEdit
 
   const [contractDrawer, setContractDrawer] = useState<{
     open: boolean;
