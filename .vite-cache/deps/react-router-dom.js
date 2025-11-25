@@ -1,7 +1,4 @@
 import {
-  require_react_dom
-} from "./chunk-XVPNPNLI.js";
-import {
   Action,
   Await,
   AwaitContextProvider,
@@ -131,6 +128,9 @@ import {
   withErrorBoundaryProps,
   withHydrateFallbackProps
 } from "./chunk-5I6MPOC6.js";
+import {
+  require_react_dom
+} from "./chunk-XVPNPNLI.js";
 import {
   require_react
 } from "./chunk-W24JOBID.js";

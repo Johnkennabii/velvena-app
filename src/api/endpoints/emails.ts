@@ -174,62 +174,76 @@ export const EmailsAPI = {
   /**
    * Envoie un nouvel email
    */
-  async send(payload: SendEmailPayload): Promise<{ success: boolean; messageId: string }> {
-    const formData = new FormData();
+  async send(payload: SendEmailPayload): Promise<{ success: boolean; message?: string }> {
+    // Le backend attend un JSON simple, pas un FormData
+    const body = {
+      to: payload.to.length === 1 ? payload.to[0] : payload.to,
+      cc: payload.cc,
+      bcc: payload.bcc,
+      subject: payload.subject,
+      html: payload.isHtml !== false ? payload.body : undefined,
+      text: payload.isHtml === false ? payload.body : undefined,
+    };
 
-    formData.append("to", JSON.stringify(payload.to));
-    if (payload.cc) formData.append("cc", JSON.stringify(payload.cc));
-    if (payload.bcc) formData.append("bcc", JSON.stringify(payload.bcc));
-    formData.append("subject", payload.subject);
-    formData.append("body", payload.body);
-    formData.append("isHtml", payload.isHtml ? "true" : "false");
-
-    if (payload.attachments) {
-      payload.attachments.forEach((file, index) => {
-        formData.append(`attachment_${index}`, file);
-      });
+    // TODO: Les pièces jointes ne sont pas encore supportées par le backend
+    // Il faudra utiliser FormData quand le backend le supportera
+    if (payload.attachments && payload.attachments.length > 0) {
+      console.warn("Les pièces jointes ne sont pas encore supportées");
     }
 
-    return httpClient("/emails/send", {
-      method: "POST",
-      body: formData,
-    });
+    return httpClient.post("/mails/send", body);
   },
 
   /**
    * Marque un email comme lu/non lu
    */
-  async markAsRead(id: string, folder: string = "INBOX", read: boolean = true): Promise<void> {
-    return httpClient.patch(`/emails/${id}/read`, { folder, read });
+  async markAsRead(uid: number, mailbox: string = "inbox", read: boolean = true): Promise<void> {
+    const action = read ? "read" : "unread";
+    return httpClient.patch(`/mails/${mailbox}/${uid}/${action}`);
   },
 
   /**
    * Marque un email avec un flag (starred)
    */
-  async toggleFlag(id: string, folder: string = "INBOX", flagged: boolean = true): Promise<void> {
-    return httpClient.patch(`/emails/${id}/flag`, { folder, flagged });
+  async toggleFlag(uid: number, mailbox: string = "inbox", flagged: boolean = true): Promise<void> {
+    const action = flagged ? "add" : "remove";
+    return httpClient.patch(`/mails/${mailbox}/${uid}/flag/${action}`, { flag: "\\Flagged" });
   },
 
   /**
    * Déplace un email vers un autre dossier
    */
-  async move(id: string, fromFolder: string, toFolder: string): Promise<void> {
-    return httpClient.patch(`/emails/${id}/move`, { fromFolder, toFolder });
+  async move(uid: number, fromMailbox: string, toMailbox: string): Promise<void> {
+    return httpClient.patch(`/mails/${fromMailbox}/${uid}/move`, { toMailbox });
   },
 
   /**
-   * Supprime définitivement un email
+   * Récupère un email individuel
    */
-  async delete(id: string, folder: string): Promise<void> {
-    return httpClient.delete(`/emails/${id}?folder=${folder}`);
+  async getEmail(uid: number, mailbox: string): Promise<InboxEmail> {
+    const response = await httpClient.get(`/mails/${mailbox}/${uid}`);
+    return response.data;
+  },
+
+  /**
+   * Supprime un email (déplace vers corbeille ou supprime définitivement)
+   */
+  async delete(uid: number, mailbox: string, permanent: boolean = false): Promise<void> {
+    if (permanent) {
+      // Suppression définitive (uniquement depuis trash)
+      return httpClient.delete(`/mails/${mailbox}/${uid}/permanent`);
+    } else {
+      // Déplacement vers corbeille
+      return httpClient.delete(`/mails/${mailbox}/${uid}`);
+    }
   },
 
   /**
    * Télécharge une pièce jointe
    */
-  async downloadAttachment(emailId: string, attachmentIndex: number, folder: string = "INBOX"): Promise<Blob> {
+  async downloadAttachment(emailUid: number, attachmentIndex: number, mailbox: string = "inbox"): Promise<Blob> {
     const response = await fetch(
-      `${httpClient.get.toString().includes('https://api.allure-creation.fr') ? 'https://api.allure-creation.fr' : ''}/emails/${emailId}/attachments/${attachmentIndex}?folder=${folder}`,
+      `https://api.allure-creation.fr/emails/${emailUid}/attachments/${attachmentIndex}?mailbox=${mailbox}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

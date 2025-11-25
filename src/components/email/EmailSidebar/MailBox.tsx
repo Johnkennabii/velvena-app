@@ -5,6 +5,8 @@ import { EmailsAPI, Mailbox } from "../../../api/endpoints/emails";
 interface MailBoxProps {
   onMailboxSelect: (mailbox: string) => void;
   selectedMailbox: string;
+  onEmailDrop?: (toMailbox: string) => void;
+  draggingEmail?: { uid: number; mailbox: string } | null;
 }
 
 // Mapping des noms de mailbox API vers les noms utilisés par l'API
@@ -20,9 +22,10 @@ const MAILBOX_NAME_MAP: Record<string, string> = {
 // Mailboxes qui ne sont pas encore supportées par l'API
 const UNSUPPORTED_MAILBOXES = ["drafts"];
 
-export default function MailBox({ onMailboxSelect, selectedMailbox }: MailBoxProps) {
+export default function MailBox({ onMailboxSelect, selectedMailbox, onEmailDrop, draggingEmail }: MailBoxProps) {
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dragOverMailbox, setDragOverMailbox] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMailboxes = async () => {
@@ -38,6 +41,26 @@ export default function MailBox({ onMailboxSelect, selectedMailbox }: MailBoxPro
 
     fetchMailboxes();
   }, []);
+
+  const handleDragOver = (e: React.DragEvent, mailboxName: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverMailbox(mailboxName);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverMailbox(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, toMailboxName: string) => {
+    e.preventDefault();
+    setDragOverMailbox(null);
+
+    if (draggingEmail && onEmailDrop) {
+      const toMailbox = MAILBOX_NAME_MAP[toMailboxName] || toMailboxName.toLowerCase();
+      onEmailDrop(toMailbox);
+    }
+  };
 
   if (loading) {
     return (
@@ -79,12 +102,17 @@ export default function MailBox({ onMailboxSelect, selectedMailbox }: MailBoxPro
         const isActive = selectedMailbox === normalizedName;
         const isUnsupported = UNSUPPORTED_MAILBOXES.includes(normalizedName);
 
+        const isDragOver = dragOverMailbox === mailbox.name;
+
         return (
           <li key={mailbox.name}>
             <button
               onClick={() => handleMailboxClick(mailbox.name)}
               disabled={isUnsupported}
-              className={`group flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-medium
+              onDragOver={(e) => handleDragOver(e, mailbox.name)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, mailbox.name)}
+              className={`group flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors
                 ${
                   isActive
                     ? "text-brand-500 bg-brand-50 dark:text-brand-400 dark:bg-brand-500/[0.12]"
@@ -92,6 +120,7 @@ export default function MailBox({ onMailboxSelect, selectedMailbox }: MailBoxPro
                     ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                     : "text-gray-500 dark:text-gray-400"
                 }
+                ${isDragOver && !isUnsupported ? "ring-2 ring-brand-500 bg-brand-100 dark:bg-brand-500/[0.20]" : ""}
                 ${!isUnsupported ? "hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-500/[0.12] dark:hover:text-brand-400" : ""}`}
             >
               <span className="flex items-center gap-3">

@@ -1,232 +1,241 @@
 {
-  "hash": "4f4145f5",
+  "hash": "5243a99e",
   "configHash": "68b10410",
-  "lockfileHash": "70dbfa6d",
-  "browserHash": "d5679f06",
+  "lockfileHash": "d2a1c905",
+  "browserHash": "90d594de",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "d39a0ab5",
+      "fileHash": "d158c6fe",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "52bbd6c0",
+      "fileHash": "b5c33112",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "bc79cb95",
+      "fileHash": "5fcdc8af",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "5f9c0477",
+      "fileHash": "1f2ea8aa",
       "needsInterop": true
     },
-    "@react-jvectormap/core": {
-      "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
-      "file": "@react-jvectormap_core.js",
-      "fileHash": "51fa4e87",
-      "needsInterop": true
-    },
-    "@react-jvectormap/world": {
-      "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
-      "file": "@react-jvectormap_world.js",
-      "fileHash": "af99a213",
-      "needsInterop": false
-    },
-    "clsx": {
-      "src": "../../node_modules/clsx/dist/clsx.mjs",
-      "file": "clsx.js",
-      "fileHash": "5c95cc07",
-      "needsInterop": false
-    },
-    "flatpickr": {
-      "src": "../../node_modules/flatpickr/dist/esm/index.js",
-      "file": "flatpickr.js",
-      "fileHash": "9b6624d4",
-      "needsInterop": false
-    },
-    "flatpickr/dist/l10n/fr.js": {
-      "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
-      "file": "flatpickr_dist_l10n_fr__js.js",
-      "fileHash": "085644bd",
-      "needsInterop": true
-    },
-    "react-apexcharts": {
-      "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
-      "file": "react-apexcharts.js",
-      "fileHash": "1622205b",
-      "needsInterop": true
-    },
-    "react-dom/client": {
-      "src": "../../node_modules/react-dom/client.js",
-      "file": "react-dom_client.js",
-      "fileHash": "136ed57a",
-      "needsInterop": true
-    },
-    "react-dropzone": {
-      "src": "../../node_modules/react-dropzone/dist/es/index.js",
-      "file": "react-dropzone.js",
-      "fileHash": "1c84caf4",
-      "needsInterop": false
-    },
-    "react-helmet-async": {
-      "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
-      "file": "react-helmet-async.js",
-      "fileHash": "fac71681",
-      "needsInterop": false
-    },
-    "react-icons/io5": {
-      "src": "../../node_modules/react-icons/io5/index.mjs",
-      "file": "react-icons_io5.js",
-      "fileHash": "672e5b29",
-      "needsInterop": false
-    },
-    "react-router": {
-      "src": "../../node_modules/react-router/dist/development/index.mjs",
-      "file": "react-router.js",
-      "fileHash": "af21596a",
-      "needsInterop": false
-    },
-    "react-router-dom": {
-      "src": "../../node_modules/react-router-dom/dist/index.mjs",
-      "file": "react-router-dom.js",
-      "fileHash": "cb3f6b8f",
-      "needsInterop": false
-    },
-    "swiper/modules": {
-      "src": "../../node_modules/swiper/modules/index.mjs",
-      "file": "swiper_modules.js",
-      "fileHash": "f1ddbed9",
-      "needsInterop": false
-    },
-    "swiper/react": {
-      "src": "../../node_modules/swiper/swiper-react.mjs",
-      "file": "swiper_react.js",
-      "fileHash": "9aff6ca8",
-      "needsInterop": false
-    },
-    "tailwind-merge": {
-      "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
-      "file": "tailwind-merge.js",
-      "fileHash": "5c7e6672",
-      "needsInterop": false
-    },
-    "react-icons/fa": {
-      "src": "../../node_modules/react-icons/fa/index.mjs",
-      "file": "react-icons_fa.js",
-      "fileHash": "c6c4b6b2",
-      "needsInterop": false
-    },
-    "socket.io-client": {
-      "src": "../../node_modules/socket.io-client/build/esm/index.js",
-      "file": "socket__io-client.js",
-      "fileHash": "dbefc652",
-      "needsInterop": false
-    },
-    "@fullcalendar/react": {
-      "src": "../../node_modules/@fullcalendar/react/dist/index.js",
-      "file": "@fullcalendar_react.js",
-      "fileHash": "a7dc1cb1",
+    "@fullcalendar/core/locales/fr": {
+      "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
+      "file": "@fullcalendar_core_locales_fr.js",
+      "fileHash": "1683bef7",
       "needsInterop": false
     },
     "@fullcalendar/daygrid": {
       "src": "../../node_modules/@fullcalendar/daygrid/index.js",
       "file": "@fullcalendar_daygrid.js",
-      "fileHash": "9d51527d",
-      "needsInterop": false
-    },
-    "@fullcalendar/timegrid": {
-      "src": "../../node_modules/@fullcalendar/timegrid/index.js",
-      "file": "@fullcalendar_timegrid.js",
-      "fileHash": "2e3f5a0b",
+      "fileHash": "8c0f505b",
       "needsInterop": false
     },
     "@fullcalendar/interaction": {
       "src": "../../node_modules/@fullcalendar/interaction/index.js",
       "file": "@fullcalendar_interaction.js",
-      "fileHash": "2ac1e065",
+      "fileHash": "36c2f141",
       "needsInterop": false
     },
-    "@fullcalendar/core/locales/fr": {
-      "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
-      "file": "@fullcalendar_core_locales_fr.js",
-      "fileHash": "4d5da4f7",
+    "@fullcalendar/react": {
+      "src": "../../node_modules/@fullcalendar/react/dist/index.js",
+      "file": "@fullcalendar_react.js",
+      "fileHash": "051eae78",
       "needsInterop": false
     },
-    "react-icons/pi": {
-      "src": "../../node_modules/react-icons/pi/index.mjs",
-      "file": "react-icons_pi.js",
-      "fileHash": "f6c0289b",
+    "@fullcalendar/timegrid": {
+      "src": "../../node_modules/@fullcalendar/timegrid/index.js",
+      "file": "@fullcalendar_timegrid.js",
+      "fileHash": "f2745ee6",
       "needsInterop": false
     },
-    "react-icons/fa6": {
-      "src": "../../node_modules/react-icons/fa6/index.mjs",
-      "file": "react-icons_fa6.js",
-      "fileHash": "8f20b01f",
+    "@react-jvectormap/core": {
+      "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
+      "file": "@react-jvectormap_core.js",
+      "fileHash": "d8fe3c51",
+      "needsInterop": true
+    },
+    "@react-jvectormap/world": {
+      "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
+      "file": "@react-jvectormap_world.js",
+      "fileHash": "ead0bbdd",
       "needsInterop": false
     },
-    "xlsx": {
-      "src": "../../node_modules/xlsx/xlsx.mjs",
-      "file": "xlsx.js",
-      "fileHash": "b8875992",
+    "clsx": {
+      "src": "../../node_modules/clsx/dist/clsx.mjs",
+      "file": "clsx.js",
+      "fileHash": "cc76a6d1",
+      "needsInterop": false
+    },
+    "flatpickr": {
+      "src": "../../node_modules/flatpickr/dist/esm/index.js",
+      "file": "flatpickr.js",
+      "fileHash": "0bf383a4",
+      "needsInterop": false
+    },
+    "flatpickr/dist/l10n/fr.js": {
+      "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
+      "file": "flatpickr_dist_l10n_fr__js.js",
+      "fileHash": "7291452a",
+      "needsInterop": true
+    },
+    "html2canvas": {
+      "src": "../../node_modules/html2canvas/dist/html2canvas.esm.js",
+      "file": "html2canvas.js",
+      "fileHash": "e1b05a12",
+      "needsInterop": false
+    },
+    "jspdf": {
+      "src": "../../node_modules/jspdf/dist/jspdf.es.min.js",
+      "file": "jspdf.js",
+      "fileHash": "05a3e556",
+      "needsInterop": false
+    },
+    "react-apexcharts": {
+      "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
+      "file": "react-apexcharts.js",
+      "fileHash": "9bbd215a",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "aeb58878",
+      "needsInterop": true
+    },
+    "react-dropzone": {
+      "src": "../../node_modules/react-dropzone/dist/es/index.js",
+      "file": "react-dropzone.js",
+      "fileHash": "27ed62e5",
+      "needsInterop": false
+    },
+    "react-helmet-async": {
+      "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
+      "file": "react-helmet-async.js",
+      "fileHash": "d5afecdd",
+      "needsInterop": false
+    },
+    "react-icons/fa": {
+      "src": "../../node_modules/react-icons/fa/index.mjs",
+      "file": "react-icons_fa.js",
+      "fileHash": "79eabc63",
       "needsInterop": false
     },
     "react-icons/fi": {
       "src": "../../node_modules/react-icons/fi/index.mjs",
       "file": "react-icons_fi.js",
-      "fileHash": "fa5e19f8",
+      "fileHash": "75850065",
       "needsInterop": false
     },
     "react-icons/hi2": {
       "src": "../../node_modules/react-icons/hi2/index.mjs",
       "file": "react-icons_hi2.js",
-      "fileHash": "106442c5",
+      "fileHash": "9c9d915f",
       "needsInterop": false
     },
-    "react-icons/ai": {
-      "src": "../../node_modules/react-icons/ai/index.mjs",
-      "file": "react-icons_ai.js",
-      "fileHash": "7b3baa87",
+    "react-icons/io5": {
+      "src": "../../node_modules/react-icons/io5/index.mjs",
+      "file": "react-icons_io5.js",
+      "fileHash": "fd772325",
+      "needsInterop": false
+    },
+    "react-icons/pi": {
+      "src": "../../node_modules/react-icons/pi/index.mjs",
+      "file": "react-icons_pi.js",
+      "fileHash": "cc9c13ca",
+      "needsInterop": false
+    },
+    "react-router": {
+      "src": "../../node_modules/react-router/dist/development/index.mjs",
+      "file": "react-router.js",
+      "fileHash": "37ef911e",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "49574ea1",
       "needsInterop": false
     },
     "simplebar-react": {
       "src": "../../node_modules/simplebar-react/dist/index.mjs",
       "file": "simplebar-react.js",
-      "fileHash": "f3ffba2f",
+      "fileHash": "3ec379c0",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "ab95492f",
+      "needsInterop": false
+    },
+    "swiper/modules": {
+      "src": "../../node_modules/swiper/modules/index.mjs",
+      "file": "swiper_modules.js",
+      "fileHash": "e49331d7",
+      "needsInterop": false
+    },
+    "swiper/react": {
+      "src": "../../node_modules/swiper/swiper-react.mjs",
+      "file": "swiper_react.js",
+      "fileHash": "5fb78779",
+      "needsInterop": false
+    },
+    "tailwind-merge": {
+      "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
+      "file": "tailwind-merge.js",
+      "fileHash": "cee6148d",
+      "needsInterop": false
+    },
+    "xlsx": {
+      "src": "../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "2ad97f2f",
       "needsInterop": false
     }
   },
   "chunks": {
+    "purify.es-NT3CXYAF": {
+      "file": "purify__es-NT3CXYAF.js"
+    },
+    "index.es-2HWCOOLK": {
+      "file": "index__es-2HWCOOLK.js"
+    },
+    "chunk-XLOWEJT4": {
+      "file": "chunk-XLOWEJT4.js"
+    },
+    "chunk-JL2MEAST": {
+      "file": "chunk-JL2MEAST.js"
+    },
     "chunk-T7OI7B56": {
       "file": "chunk-T7OI7B56.js"
+    },
+    "chunk-5I6MPOC6": {
+      "file": "chunk-5I6MPOC6.js"
+    },
+    "chunk-SITVF2AJ": {
+      "file": "chunk-SITVF2AJ.js"
+    },
+    "chunk-XVPNPNLI": {
+      "file": "chunk-XVPNPNLI.js"
+    },
+    "chunk-W24JOBID": {
+      "file": "chunk-W24JOBID.js"
     },
     "chunk-D5I3RLC3": {
       "file": "chunk-D5I3RLC3.js"
     },
     "chunk-XXR5GDEA": {
       "file": "chunk-XXR5GDEA.js"
-    },
-    "chunk-JL2MEAST": {
-      "file": "chunk-JL2MEAST.js"
-    },
-    "chunk-XVPNPNLI": {
-      "file": "chunk-XVPNPNLI.js"
-    },
-    "chunk-5I6MPOC6": {
-      "file": "chunk-5I6MPOC6.js"
-    },
-    "chunk-XLOWEJT4": {
-      "file": "chunk-XLOWEJT4.js"
-    },
-    "chunk-W24JOBID": {
-      "file": "chunk-W24JOBID.js"
     },
     "chunk-EWTE5DHJ": {
       "file": "chunk-EWTE5DHJ.js"

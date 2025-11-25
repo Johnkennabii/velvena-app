@@ -7,11 +7,25 @@ import { MoreDotIcon } from "../../../icons";
 interface EmailHeaderProps {
   isChecked: boolean;
   onSelectAll: (checked: boolean) => void;
+  selectedCount: number;
+  onRefresh?: () => void;
+  onDelete?: () => void;
+  onMarkAsRead?: () => void;
+  onMarkAsUnread?: () => void;
+  onMoveTo?: (folder: string) => void;
+  onViewAll?: () => void;
 }
 
 export default function EmailHeader({
   isChecked,
   onSelectAll,
+  selectedCount,
+  onRefresh,
+  onDelete,
+  onMarkAsRead,
+  onMarkAsUnread,
+  onMoveTo,
+  onViewAll,
 }: EmailHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,8 +47,17 @@ export default function EmailHeader({
     setIsOpenTwo(false);
   }
 
+  const hasSelection = selectedCount > 0;
+
   return (
     <div className="flex flex-col justify-between gap-3 p-4 border-b border-gray-200 dark:border-gray-800 sm:flex-row">
+      {hasSelection && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            {selectedCount} email(s) sélectionné(s)
+          </span>
+        </div>
+      )}
       <div className="flex items-center w-full gap-2">
         <div className="relative w-full sm:w-auto">
           <button className="flex items-center justify-between w-full gap-3 p-3 border border-gray-200 rounded-lg dropdown-toggle dark:border-gray-800 sm:justify-center">
@@ -65,30 +88,34 @@ export default function EmailHeader({
           <Dropdown
             isOpen={isOpen}
             onClose={closeDropdown}
-            className="absolute left-0 z-40 w-40 p-2 mt-1 space-y-1 bg-white border border-gray-200 top-full rounded-2xl shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+            className="absolute left-0 z-40 w-48 p-2 mt-1 space-y-1 bg-white border border-gray-200 top-full rounded-2xl shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
           >
             <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              onItemClick={() => {
+                onMarkAsRead && onMarkAsRead();
+                closeDropdown();
+              }}
+              className={`flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 ${!hasSelection ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              All
+              Marquer comme lu
             </DropdownItem>
             <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              onItemClick={() => {
+                onMarkAsUnread && onMarkAsUnread();
+                closeDropdown();
+              }}
+              className={`flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 ${!hasSelection ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Read
-            </DropdownItem>{" "}
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Unread
+              Marquer comme non lu
             </DropdownItem>
           </Dropdown>
         </div>
 
-        <button className="flex items-center justify-center w-full h-10 text-gray-500 transition-colors border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+        <button
+          onClick={onRefresh}
+          title="Actualiser"
+          className="flex items-center justify-center w-full h-10 text-gray-500 transition-colors border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+        >
           <svg
             width="20"
             height="20"
@@ -105,7 +132,11 @@ export default function EmailHeader({
           </svg>
         </button>
 
-        <button className="flex items-center justify-center w-full h-10 text-gray-500 transition-colors border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-error-500 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-error-500">
+        <button
+          onClick={onDelete}
+          disabled={!hasSelection}
+          title="Supprimer"
+          className="flex items-center justify-center w-full h-10 text-gray-500 transition-colors border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-error-500 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-error-500">
           <svg
             className="fill-current"
             width="20"
@@ -123,7 +154,11 @@ export default function EmailHeader({
           </svg>
         </button>
 
-        <button className="flex items-center justify-center w-full h-10 text-gray-500 border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+        <button
+          onClick={() => onMoveTo && onMoveTo('trash')}
+          disabled={!hasSelection}
+          title="Archiver"
+          className="flex items-center justify-center w-full h-10 text-gray-500 border border-gray-200 rounded-lg max-w-10 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
           <svg
             width="20"
             height="20"
@@ -150,19 +185,16 @@ export default function EmailHeader({
           <Dropdown
             isOpen={isOpenTwo}
             onClose={closeDropdownTwo}
-            className="w-40 p-2"
+            className="w-56 p-2"
           >
             <DropdownItem
-              onItemClick={closeDropdownTwo}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              onItemClick={() => {
+                onViewAll && onViewAll();
+                closeDropdownTwo();
+              }}
+              className="flex w-full px-3 py-2 font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdownTwo}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
+              Voir tous les emails
             </DropdownItem>
           </Dropdown>
         </div>

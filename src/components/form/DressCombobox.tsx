@@ -54,7 +54,10 @@ const DressCombobox: React.FC<DressComboboxProps> = ({
   // Fermer au clic à l'extérieur
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setSearchQuery("");
       }
@@ -195,7 +198,7 @@ const DressCombobox: React.FC<DressComboboxProps> = ({
 
       {/* Liste déroulante */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute z-[100] mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
           <ul
             ref={listRef}
             className="max-h-64 overflow-y-auto py-1"
@@ -211,7 +214,7 @@ const DressCombobox: React.FC<DressComboboxProps> = ({
                   key={dress.id}
                   onClick={() => handleSelect(dress.id)}
                   onMouseEnter={() => setHighlightedIndex(index)}
-                  className={`flex items-center gap-3 cursor-pointer px-4 py-2.5 text-sm transition-colors ${
+                  className={`flex items-start gap-3 cursor-pointer px-4 py-2.5 text-sm transition-colors ${
                     index === highlightedIndex
                       ? "bg-brand-50 dark:bg-brand-500/10"
                       : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -264,7 +267,7 @@ const DressCombobox: React.FC<DressComboboxProps> = ({
 
                   {/* Nom et référence */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 dark:text-white truncate">
+                    <p className="font-medium text-gray-900 dark:text-white break-words">
                       {dress.name}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">

@@ -2,17 +2,27 @@ import LabelList from "./LabelList";
 import MailBox from "./MailBox";
 import FilterList from "./FilterList";
 import SimpleBar from "simplebar-react";
+import { useModal } from "../../../hooks/useModal";
+import EmailComposeModal from "../EmailCompose/EmailComposeModal";
 
 interface EmailSidebarProps {
   onMailboxSelect: (mailbox: string) => void;
   selectedMailbox: string;
+  onEmailSent?: () => void;
+  onEmailDrop?: (toMailbox: string) => void;
+  draggingEmail?: { uid: number; mailbox: string } | null;
 }
 
-export default function EmailSidebar({ onMailboxSelect, selectedMailbox }: EmailSidebarProps) {
+export default function EmailSidebar({ onMailboxSelect, selectedMailbox, onEmailSent, onEmailDrop, draggingEmail }: EmailSidebarProps) {
+  const composeModal = useModal();
+
   return (
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="pb-5">
-        <button className="flex items-center justify-center w-full gap-2 p-3 text-sm font-medium text-white rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+        <button
+          onClick={composeModal.openModal}
+          className="flex items-center justify-center w-full gap-2 p-3 text-sm font-medium text-white rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+        >
           <svg
             className="fill-current"
             width="21"
@@ -39,7 +49,12 @@ export default function EmailSidebar({ onMailboxSelect, selectedMailbox }: Email
             <h3 className="mb-3 text-xs font-medium uppercase leading-[18px] text-gray-700 dark:text-gray-400">
               MAILBOX
             </h3>
-            <MailBox onMailboxSelect={onMailboxSelect} selectedMailbox={selectedMailbox} />
+            <MailBox
+              onMailboxSelect={onMailboxSelect}
+              selectedMailbox={selectedMailbox}
+              onEmailDrop={onEmailDrop}
+              draggingEmail={draggingEmail}
+            />
           </div>
           {/* <!--== Mailbox Group End ==--> */}
 
@@ -63,6 +78,12 @@ export default function EmailSidebar({ onMailboxSelect, selectedMailbox }: Email
         </nav>
         {/* // <!--== Inbox Menu End ==--> */}
       </SimpleBar>
+
+      <EmailComposeModal
+        isOpen={composeModal.isOpen}
+        onClose={composeModal.closeModal}
+        onEmailSent={onEmailSent}
+      />
     </div>
   );
 }
