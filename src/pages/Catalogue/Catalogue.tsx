@@ -43,6 +43,7 @@ import {
 } from "../../api/endpoints/dressConditions";
 import { DressColorsAPI, type DressColor } from "../../api/endpoints/dressColors";
 import { compressImages } from "../../utils/imageCompression";
+import { formatCurrency as formatCurrencyUtil } from "../../utils/formatters";
 import {
   CheckLineIcon,
   DollarLineIcon,
@@ -109,11 +110,12 @@ const parseNumber = (value: string): number | null => {
   return parsed;
 };
 
+// Wrapper pour formater les devises avec support de parsing de strings
 const formatCurrency = (value?: string | number | null) => {
   if (value === undefined || value === null || value === "") return "-";
   const numeric = typeof value === "number" ? value : parseNumber(String(value));
   if (numeric === null) return String(value);
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(numeric);
+  return formatCurrencyUtil(numeric);
 };
 
 const formatDateTime = (value?: string | null) => {

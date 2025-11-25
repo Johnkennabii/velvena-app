@@ -15,13 +15,8 @@ import {
 } from "../../api/endpoints/contracts";
 import ContractTemplateNegafa from "./ContractTemplateNegafa";
 import ContractTemplateLocation from "./ContractTemplateLocation";
+import { formatCurrency, formatDate } from "../../utils/formatters";
 
-const formatCurrency = (value?: string | number | null) => {
-  if (value === undefined || value === null || value === "") return "-";
-  const numeric = typeof value === "number" ? value : Number(value);
-  if (Number.isNaN(numeric)) return String(value);
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(numeric);
-};
 
 const formatDateTime = (value?: string | null) => {
   if (!value) return "-";
@@ -33,16 +28,6 @@ const formatDateTime = (value?: string | null) => {
   });
 };
 
-const formatDate = (value?: string | null) => {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-};
 
 const SIGNED_STATUSES = new Set(["SIGNED", "SIGNED_ELECTRONICALLY", "COMPLETED"]);
 

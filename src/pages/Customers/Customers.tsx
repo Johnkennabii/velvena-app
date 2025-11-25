@@ -28,6 +28,7 @@ import DatePicker from "../../components/form/date-picker";
 import type { QuickSearchNavigationPayload } from "../../types/quickSearch";
 import { io } from "socket.io-client";
 import { getContractPermissions, type UserRole, type ContractStatus } from "../../utils/contractPermissions";
+import { formatCurrency, formatDateTimeShort, formatDateShort } from "../../utils/formatters";
 
 const DEFAULT_VAT_RATIO = 0.8333333333;
 
@@ -182,12 +183,6 @@ const InfoCard = ({ label, children, color }: { label: string; children: React.R
   );
 };
 
-const formatCurrency = (value?: string | number | null) => {
-  if (value === undefined || value === null || value === "") return "-";
-  const numeric = typeof value === "number" ? value : Number(value);
-  if (Number.isNaN(numeric)) return String(value);
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(numeric);
-};
 
 const statusConfig: Record<
   string,
@@ -353,7 +348,7 @@ const ContractCard = ({
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>{formatDateTime(contract.start_datetime)} → {formatDateTime(contract.end_datetime)}</span>
+              <span>{formatDateTimeShort(contract.start_datetime)} → {formatDateTimeShort(contract.end_datetime)}</span>
             </div>
             {(contract.package?.name || contract.contract_type_name === "Forfait") && (
               <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
@@ -590,7 +585,7 @@ const ContractCard = ({
               {contract.created_at && (
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Créé le</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.created_at)}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTimeShort(contract.created_at)}</p>
                 </div>
               )}
               {contract.created_by && (
@@ -602,7 +597,7 @@ const ContractCard = ({
               {contract.updated_at && (
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Mis à jour le</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.updated_at)}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTimeShort(contract.updated_at)}</p>
                 </div>
               )}
               {contract.updated_by && (
@@ -614,7 +609,7 @@ const ContractCard = ({
               {contract.deleted_at && (
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Désactivé le</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.deleted_at)}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTimeShort(contract.deleted_at)}</p>
                 </div>
               )}
               {contract.deleted_by && (
@@ -626,7 +621,7 @@ const ContractCard = ({
               {contract.signed_at && (
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Signé le</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTime(contract.signed_at)}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{formatDateTimeShort(contract.signed_at)}</p>
                 </div>
               )}
             </div>
@@ -706,31 +701,7 @@ const ContractCard = ({
   );
 };
 
-const formatDateTime = (value?: string | null) => {
-  if (!value) return "-";
-  try {
-    const date = new Date(value);
-    return date.toLocaleString("fr-FR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "-";
-  }
-};
 
-const formatDateOnly = (value?: string | null) => {
-  if (!value) return "-";
-  try {
-    const date = new Date(value);
-    return date.toLocaleDateString("fr-FR");
-  } catch {
-    return "-";
-  }
-};
 
 const toISODate = (value: string) => {
   if (!value) return undefined;
@@ -742,7 +713,7 @@ const toISODate = (value: string) => {
 const toCustomerRow = (customer: Customer): CustomerRow => ({
   ...customer,
   fullName: [customer.firstname, customer.lastname].filter(Boolean).join(" ") || "-",
-  createdLabel: formatDateTime(customer.created_at),
+  createdLabel: formatDateTimeShort(customer.created_at),
 });
 
 export default function Customers() {
@@ -2317,14 +2288,14 @@ export default function Customers() {
               </InfoCard>
               <InfoCard label="Email">{viewCustomer.email || "-"}</InfoCard>
               <InfoCard label="Téléphone">{viewCustomer.phone || "-"}</InfoCard>
-              <InfoCard label="Date de naissance">{formatDateOnly(viewCustomer.birthday)}</InfoCard>
+              <InfoCard label="Date de naissance">{formatDateShort(viewCustomer.birthday)}</InfoCard>
               <InfoCard label="Pays / Ville">
                 {[viewCustomer.city, viewCustomer.country].filter(Boolean).join(", ") || "-"}
               </InfoCard>
               <InfoCard label="Adresse">
                 {[viewCustomer.address, viewCustomer.postal_code].filter(Boolean).join(" ") || "-"}
               </InfoCard>
-              <InfoCard label="Créé le">{formatDateTime(viewCustomer.created_at)}</InfoCard>
+              <InfoCard label="Créé le">{formatDateTimeShort(viewCustomer.created_at)}</InfoCard>
               <InfoCard label="Statut">
                 <Badge variant="light" color={viewCustomer.deleted_at ? "warning" : "success"} size="sm">
                   {viewCustomer.deleted_at ? "Désactivé" : "Actif"}
