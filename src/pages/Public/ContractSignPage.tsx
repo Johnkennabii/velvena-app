@@ -115,22 +115,17 @@ export default function ContractSignPage() {
     if (!contract) return false;
     const status = (contract.status ?? "").toUpperCase();
     const signed = SIGNED_STATUSES.has(status);
-    console.log("✅ isSigned check:", { status, signed, SIGNED_STATUSES: Array.from(SIGNED_STATUSES) });
     return signed;
   }, [contract]);
 
   const daysRemaining = useMemo(() => {
-    console.log("🔍 DEBUG daysRemaining - contract:", contract);
-    console.log("🔍 DEBUG daysRemaining - sign_link:", contract?.sign_link);
     if (!contract?.sign_link?.expires_at) {
-      console.log("⚠️ Pas de sign_link.expires_at");
       return null;
     }
     const expiresAt = new Date(contract.sign_link.expires_at);
     const now = new Date();
     const diffMs = expiresAt.getTime() - now.getTime();
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    console.log("🔍 DEBUG daysRemaining - diffDays:", diffDays, "expires:", expiresAt, "now:", now);
     return diffDays;
   }, [contract]);
 
@@ -155,13 +150,7 @@ export default function ContractSignPage() {
   };
 
   const handleDownload = async () => {
-    console.log("🚀 handleDownload appelé !");
     try {
-      console.log("🔍 Données du contrat complet:", contract);
-      console.log("🔍 contract.id:", contract?.id);
-      console.log("🔍 contract.signature_reference:", contract?.signature_reference);
-      console.log("🔍 token utilisé dans l'URL:", token);
-
       if (!contract?.id || !contract?.signature_reference) {
         notify("error", "Erreur", "Informations de contrat manquantes.");
         console.error("❌ Contract data:", {
@@ -287,19 +276,6 @@ export default function ContractSignPage() {
             </div>
           )}
         </header>
-
-        {(() => {
-          console.log("🔍 DEBUG Alerte conditions:", {
-            daysRemaining,
-            daysRemainingNotNull: daysRemaining !== null,
-            daysRemainingPositive: daysRemaining !== null && daysRemaining > 0,
-            isSigned,
-            isDisabled,
-            showInfoAlert: daysRemaining !== null && daysRemaining > 0 && !isSigned && !isDisabled,
-            showErrorAlert: daysRemaining !== null && daysRemaining <= 0 && !isSigned && !isDisabled,
-          });
-          return null;
-        })()}
 
         {daysRemaining !== null && daysRemaining > 0 && !isSigned && !isDisabled && (
           <Alert

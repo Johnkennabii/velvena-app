@@ -851,9 +851,6 @@ export default function Customers() {
               : contract
           )
         );
-        console.log(
-          `✅ Contrat ${notification.contractNumber} mis à jour automatiquement: statut = SIGNED`
-        );
       }
     });
 
@@ -946,16 +943,10 @@ export default function Customers() {
 
       const packageAddonIds = new Set(packageAddonIdsArray);
 
-      console.log('Edit Contract - Package Addon IDs:', Array.from(packageAddonIds));
-      console.log('Edit Contract - Selected Addons:', contractEditSelectedAddons);
-      console.log('Edit Contract - Contract Package ID:', contract?.package?.id);
-      console.log('Edit Contract - Found Package:', currentPackage?.name);
-
       return contractEditSelectedAddons.reduce(
         (acc, addon) => {
           // Pour location forfait : exclure les addons qui sont inclus dans le package
           const isInPackage = packageAddonIds.has(addon.id);
-          console.log(`Addon ${addon.name} (${addon.id}): isInPackage=${isInPackage}`);
           if (isInPackage) {
             return acc;
           }
@@ -1494,7 +1485,6 @@ export default function Customers() {
     setPdfGeneratingContractId(contract.id);
     try {
       const res = await ContractsAPI.generatePdf(contract.id);
-      console.log("🔍 DEBUG generatePdf - Réponse:", res);
       if (res?.link) {
         window.open(res.link, "_blank", "noopener,noreferrer");
         // Mark this contract as having a generated PDF
@@ -1502,13 +1492,7 @@ export default function Customers() {
 
         // Update contract status to PENDING after PDF generation
         try {
-          const updatedContract = await ContractsAPI.update(contract.id, { status: "PENDING" });
-          console.log("🔍 DEBUG update status to PENDING - Réponse:", {
-            id: updatedContract.id,
-            status: updatedContract.status,
-            signed_pdf_url: updatedContract.signed_pdf_url,
-            signed_at: updatedContract.signed_at,
-          });
+          await ContractsAPI.update(contract.id, { status: "PENDING" });
           // Update local state
           setViewContracts((prev) =>
             prev.map((c) => (c.id === contract.id ? { ...c, status: "PENDING" } : c))
@@ -1612,12 +1596,6 @@ export default function Customers() {
       notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
       return;
     }
-    console.log("🔍 DEBUG handleEditContract - Contrat ouvert:", {
-      id: contract.id,
-      status: contract.status,
-      signed_pdf_url: contract.signed_pdf_url,
-      signed_at: contract.signed_at,
-    });
     setContractEditDrawer({ open: true, contract });
     setContractEditForm(buildContractEditFormState(contract));
     setContractEditSubmitting(false);

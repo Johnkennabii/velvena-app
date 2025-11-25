@@ -31,8 +31,6 @@ export function useSocketNotifications() {
   useEffect(() => {
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
 
-    socket.on("connect", () => console.log("🔗 Connecté à Socket.IO"));
-
     socket.on("notification", (notif: Omit<Notification, "id" | "read">) => {
       const newNotification: Notification = {
         ...notif,
@@ -41,8 +39,6 @@ export function useSocketNotifications() {
       };
       setNotifications((prev) => [newNotification, ...prev]);
     });
-
-    socket.on("disconnect", () => console.log("❌ Déconnecté de Socket.IO"));
 
     return () => {
       socket.disconnect();

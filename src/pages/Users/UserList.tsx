@@ -250,12 +250,9 @@ const formatRoleLabel = (role?: string) => {
   );
 
   useEffect(() => {
-    console.log("🔵 editingUser changed:", editingUser);
-    console.log("🔵 rolesLoading:", rolesLoading);
     if (!editingUser || rolesLoading) return;
 
     const { roleId, roleKey, roleLabel } = getRoleInfoFromUser(editingUser);
-    console.log("🔵 Updating form with role info:", { roleId, roleKey, roleLabel });
     setEditForm((prev) => ({
       ...prev,
       roleId: roleId || prev.roleId,
@@ -263,10 +260,6 @@ const formatRoleLabel = (role?: string) => {
       roleLabel: roleLabel || prev.roleLabel,
     }));
   }, [editingUser, rolesLoading, getRoleInfoFromUser]);
-
-  useEffect(() => {
-    console.log("🟣 createOpen changed:", createOpen);
-  }, [createOpen]);
 
   const rows = useMemo<UserRow[]>(() => {
     return users.map((user) => {
@@ -384,10 +377,7 @@ const formatRoleLabel = (role?: string) => {
     });
 
   const openCreateModal = () => {
-    console.log("🟣 openCreateModal called");
-    console.log("🟣 currentIsAdmin:", currentIsAdmin, "currentIsManager:", currentIsManager);
     if (!currentIsAdmin && !currentIsManager) {
-      console.log("⚠️ User not authorized to create users");
       notify("warning", "Action non autorisée", "Seuls les administrateurs ou managers peuvent créer des utilisateurs.");
       return;
     }
@@ -396,11 +386,8 @@ const formatRoleLabel = (role?: string) => {
       ? roleOptions
       : roleOptions.filter((role) => normalizeRole(role.label) !== "ADMIN");
     const defaultRole = availableRoles[0]?.value ?? "";
-    console.log("🟣 Available roles:", availableRoles);
-    console.log("🟣 Default role selected:", defaultRole);
     setCreateForm((prev) => ({ ...prev, roleId: defaultRole }));
     setCreateOpen(true);
-    console.log("🟣 Create modal should now be open");
   };
 
   const closeCreateModal = () => {
@@ -436,7 +423,6 @@ const formatRoleLabel = (role?: string) => {
     });
 
   const openEditModal = (user: UserListItem) => {
-    console.log("🔵 openEditModal called with user:", user);
     const profile = (user.profile ?? {}) as UserProfile;
     const { roleId, roleKey, roleLabel } = getRoleInfoFromUser(user);
 
@@ -452,10 +438,8 @@ const formatRoleLabel = (role?: string) => {
       roleKey: roleKey || normalizeRole(roleLabel) || "",
       roleLabel: roleLabel || formatRoleLabel(roleKey) || "",
     };
-    console.log("🔵 Setting edit form data:", formData);
     setEditForm(formData);
     setEditingUser(user);
-    console.log("🔵 editingUser state should now be set");
   };
 
   const closeEditModal = () => {
@@ -515,22 +499,17 @@ const formatRoleLabel = (role?: string) => {
   };
 
   const handleUpdateUser = async (e: React.FormEvent) => {
-    console.log("🟢 handleUpdateUser called");
     e.preventDefault();
     if (!editingUser) {
-      console.log("❌ No editingUser found, returning early");
       return;
     }
-    console.log("🟢 editingUser:", editingUser);
 
     if (rolesLoading) {
-      console.log("⚠️ Roles are still loading");
       notify("info", "Chargement des rôles", "Veuillez patienter pendant la récupération des rôles.");
       return;
     }
 
     if (!editForm.roleId) {
-      console.log("⚠️ No roleId in form");
       notify("warning", "Champ manquant", "Veuillez sélectionner un rôle.");
       return;
     }
@@ -538,7 +517,6 @@ const formatRoleLabel = (role?: string) => {
     const normalizedSelectedRole = normalizeRole(editForm.roleKey);
 
     if (!currentIsAdmin && normalizedSelectedRole === "ADMIN") {
-      console.log("⚠️ Non-admin trying to set ADMIN role");
       notify("warning", "Action non autorisée", "Seul un administrateur peut attribuer le rôle ADMIN.");
       return;
     }
@@ -562,13 +540,9 @@ const formatRoleLabel = (role?: string) => {
       profile: profilePayload,
     };
 
-    console.log("🟢 Sending payload to API:", payload);
-
     try {
       setUpdating(true);
-      console.log("🟢 Calling UsersAPI.update...");
       const res = await UsersAPI.update(editingUser.id, payload);
-      console.log("🟢 API response:", res);
       const updatedUser: UserListItem = {
         ...editingUser,
         ...(res || {}),
@@ -588,7 +562,6 @@ const formatRoleLabel = (role?: string) => {
               : undefined),
         },
       };
-      console.log("🟢 Updated user object:", updatedUser);
       setUsers((prev) => prev.map((u) => (u.id === editingUser.id ? updatedUser : u)));
       notify("success", "Utilisateur mis à jour", "Les modifications ont été enregistrées.");
       closeEditModal();
@@ -601,36 +574,29 @@ const formatRoleLabel = (role?: string) => {
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
-    console.log("🟣 handleCreateUser called");
     e.preventDefault();
-    console.log("🟣 createForm:", createForm);
 
     if (rolesLoading) {
-      console.log("⚠️ Roles are still loading");
       notify("info", "Chargement des rôles", "Veuillez patienter pendant la récupération des rôles.");
       return;
     }
 
     if (!createForm.firstName.trim() || !createForm.lastName.trim()) {
-      console.log("⚠️ Missing firstName or lastName");
       notify("warning", "Champs manquants", "Prénom et nom sont obligatoires.");
       return;
     }
 
     if (!createForm.email.trim()) {
-      console.log("⚠️ Missing email");
       notify("warning", "Champs manquants", "L'email est obligatoire.");
       return;
     }
 
     if (!createForm.password.trim()) {
-      console.log("⚠️ Missing password");
       notify("warning", "Champs manquants", "Le mot de passe est obligatoire.");
       return;
     }
 
     if (!validatePassword(createForm.password)) {
-      console.log("⚠️ Invalid password");
       notify(
         "warning",
         "Mot de passe invalide",
@@ -640,20 +606,17 @@ const formatRoleLabel = (role?: string) => {
     }
 
     if (!createForm.roleId) {
-      console.log("⚠️ Missing roleId");
       notify("warning", "Champs manquants", "Veuillez sélectionner un rôle.");
       return;
     }
 
     if (!currentIsAdmin && normalizeRole(roleMapById.get(createForm.roleId)?.name) === "ADMIN") {
-      console.log("⚠️ Non-admin trying to create ADMIN user");
       notify("warning", "Action non autorisée", "Seul un administrateur peut créer un compte administrateur.");
       return;
     }
 
     const role = roleMapById.get(createForm.roleId);
     if (!role) {
-      console.log("❌ Role not found in roleMapById");
       notify("error", "Rôle introuvable", "Impossible de déterminer le rôle sélectionné.");
       return;
     }
@@ -666,15 +629,10 @@ const formatRoleLabel = (role?: string) => {
       lastName: createForm.lastName.trim(),
     };
 
-    console.log("🟣 Sending payload to API:", payload);
-
     try {
       setCreating(true);
-      console.log("🟣 Calling AuthAPI.register...");
       const res = await AuthAPI.register(payload as any);
-      console.log("🟣 API response:", res);
       const newUser: UserListItem = res?.data ?? res;
-      console.log("🟣 New user object:", newUser);
       setUsers((prev) => [newUser, ...prev]);
       notify("success", "Utilisateur créé", "Le nouvel utilisateur a été ajouté avec succès.");
       closeCreateModal();
@@ -700,10 +658,7 @@ const formatRoleLabel = (role?: string) => {
           </div>
           {(currentIsAdmin || currentIsManager) && (
             <Button
-              onClick={() => {
-                console.log("🟣 'Ajouter un utilisateur' button clicked");
-                openCreateModal();
-              }}
+              onClick={openCreateModal}
               disabled={rolesLoading}
               variant="outline"
             >
@@ -801,11 +756,7 @@ const formatRoleLabel = (role?: string) => {
                           <TooltipWrapper title="Modifier">
                             <button
                               type="button"
-                              onClick={() => {
-                                console.log("🔵 Edit button clicked for user:", row.original);
-                                console.log("🔵 canEditRow:", canEditRow);
-                                openEditModal(row.original);
-                              }}
+                              onClick={() => openEditModal(row.original)}
                               disabled={!canEditRow}
                               className={`inline-flex size-9 items-center justify-center rounded-lg border transition ${
                                 canEditRow
