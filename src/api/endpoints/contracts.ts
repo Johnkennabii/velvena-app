@@ -459,24 +459,11 @@ export const ContractsAPI = {
     const BASE_URL = "https://api.allure-creation.fr";
     const url = `${BASE_URL}/contracts/download/${contractId}/${signatureReference}`;
 
-    console.log("📥 Téléchargement du PDF:", {
-      url,
-      contractId,
-      signatureReference,
-      hasToken: !!token
-    });
-
     const response = await fetch(url, {
       method: 'GET',
       headers: token ? {
         'Authorization': `Bearer ${token}`,
       } : {},
-    });
-
-    console.log("📥 Réponse du serveur:", {
-      status: response.status,
-      statusText: response.statusText,
-      contentType: response.headers.get('content-type')
     });
 
     if (!response.ok) {
@@ -486,5 +473,18 @@ export const ContractsAPI = {
     }
 
     return response.blob();
+  },
+
+  countByCreator: async (userId: string): Promise<number> => {
+    try {
+      const res = await httpClient.get("/contracts/full-view");
+      const entries = extractContractArray(res);
+      // Filter contracts created by the user
+      const userContracts = entries.filter(contract => contract.created_by === userId);
+      return userContracts.length;
+    } catch (error) {
+      console.error("Erreur lors du comptage des contrats:", error);
+      return 0;
+    }
   },
 };

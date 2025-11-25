@@ -10,17 +10,17 @@ interface MailBoxProps {
 }
 
 // Mapping des noms de mailbox API vers les noms utilisés par l'API
-// Valeurs acceptées par l'API : inbox, sent, trash, spam, junk
+// Valeurs acceptées par l'API : inbox, sent, trash, spam, junk, drafts
 const MAILBOX_NAME_MAP: Record<string, string> = {
   INBOX: "inbox",
   Sent: "sent",
-  Drafts: "drafts", // Note: L'API liste cette mailbox mais ne la supporte pas encore
+  Drafts: "drafts",
   Junk: "junk",
   Trash: "trash",
 };
 
 // Mailboxes qui ne sont pas encore supportées par l'API
-const UNSUPPORTED_MAILBOXES = ["drafts"];
+const UNSUPPORTED_MAILBOXES: string[] = [];
 
 export default function MailBox({ onMailboxSelect, selectedMailbox, onEmailDrop, draggingEmail }: MailBoxProps) {
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);

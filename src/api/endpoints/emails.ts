@@ -34,9 +34,22 @@ export interface Email {
 
 export interface EmailFolder {
   name: string;
-  displayName: string;
-  count: number;
-  unseenCount: number;
+  selectable: boolean;
+}
+
+export interface FoldersResponse {
+  success: boolean;
+  data: EmailFolder[];
+}
+
+export interface CreateFolderPayload {
+  name: string;
+}
+
+export interface CreateFolderResponse {
+  success: boolean;
+  message: string;
+  name: string;
 }
 
 export interface Mailbox {
@@ -72,6 +85,8 @@ export interface InboxEmail {
   subject: string;
   from: InboxEmailAddress[];
   to: InboxEmailAddress[];
+  cc?: InboxEmailAddress[];
+  bcc?: InboxEmailAddress[];
   date: string;
   attachments: InboxEmailAttachment[];
   flags: string[];
@@ -142,10 +157,18 @@ export const EmailsAPI = {
   },
 
   /**
-   * Récupère la liste des dossiers (Inbox, Sent, Trash, Spam)
+   * Récupère la liste des dossiers (Inbox, Sent, Trash, Spam, et sous-dossiers)
    */
   async getFolders(): Promise<EmailFolder[]> {
-    return httpClient.get("/emails/folders");
+    const response: FoldersResponse = await httpClient.get("/mails/folders");
+    return response.data;
+  },
+
+  /**
+   * Crée un nouveau dossier
+   */
+  async createFolder(payload: CreateFolderPayload): Promise<CreateFolderResponse> {
+    return httpClient.post("/mails/folders", payload);
   },
 
   /**

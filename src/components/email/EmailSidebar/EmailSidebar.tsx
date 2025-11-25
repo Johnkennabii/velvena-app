@@ -1,9 +1,10 @@
 import LabelList from "./LabelList";
 import MailBox from "./MailBox";
 import FilterList from "./FilterList";
+import FolderList from "./FolderList";
 import SimpleBar from "simplebar-react";
 import { useModal } from "../../../hooks/useModal";
-import EmailComposeModal from "../EmailCompose/EmailComposeModal";
+import EmailComposeDrawer from "../EmailCompose/EmailComposeDrawer";
 
 interface EmailSidebarProps {
   onMailboxSelect: (mailbox: string) => void;
@@ -58,6 +59,15 @@ export default function EmailSidebar({ onMailboxSelect, selectedMailbox, onEmail
           </div>
           {/* <!--== Mailbox Group End ==--> */}
 
+          {/* <!--== Folders Group Start ==--> */}
+          <div>
+            <FolderList
+              onFolderSelect={onMailboxSelect}
+              selectedFolder={selectedMailbox}
+            />
+          </div>
+          {/* <!--== Folders Group End ==--> */}
+
           {/* <!--== Filter Group Start ==--> */}
           <div>
             <h3 className="mb-3 text-xs font-medium uppercase leading-[18px] text-gray-700 dark:text-gray-400">
@@ -79,7 +89,7 @@ export default function EmailSidebar({ onMailboxSelect, selectedMailbox, onEmail
         {/* // <!--== Inbox Menu End ==--> */}
       </SimpleBar>
 
-      <EmailComposeModal
+      <EmailComposeDrawer
         isOpen={composeModal.isOpen}
         onClose={composeModal.closeModal}
         onEmailSent={onEmailSent}

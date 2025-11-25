@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { ContractsAPI } from "../../api/endpoints/contracts";
 import Button from "../ui/button/Button";
 import * as XLSX from "xlsx";
+import { formatCurrency, formatDateTime } from "../../utils/formatters";
 
 interface UnpaidContract {
   id: string;
@@ -20,20 +21,6 @@ interface UnpaidContract {
   days_until_start: number;
   urgency: "critical" | "high" | "medium" | "low";
 }
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(value);
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
 const getUrgencyLevel = (daysUntilStart: number): "critical" | "high" | "medium" | "low" => {
   if (daysUntilStart < 0) return "critical"; // Date dépassée
@@ -181,8 +168,8 @@ export default function UnpaidPaymentsWidget() {
       "Client": contract.customer_name,
       "Email": contract.customer_email,
       "Téléphone": contract.customer_phone,
-      "Début contrat": formatDate(contract.start_datetime),
-      "Fin contrat": formatDate(contract.end_datetime),
+      "Début contrat": formatDateTime(contract.start_datetime),
+      "Fin contrat": formatDateTime(contract.end_datetime),
       "Jours avant début": contract.days_until_start,
       "Urgence": getUrgencyConfig(contract.urgency).label,
       "Acompte TTC": contract.account_ttc,
@@ -346,7 +333,7 @@ export default function UnpaidPaymentsWidget() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>
-                          {formatDate(contract.start_datetime)} → {formatDate(contract.end_datetime)}
+                          {formatDateTime(contract.start_datetime)} → {formatDateTime(contract.end_datetime)}
                         </span>
                       </div>
                     </div>
