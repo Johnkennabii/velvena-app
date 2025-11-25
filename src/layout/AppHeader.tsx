@@ -74,18 +74,21 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link to="/" className="xl:hidden">
-            <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
-          </Link>
+<Link to="/" className="xl:hidden">
+  <span
+    className="
+      font-[400]
+      text-3xl
+      tracking-wide
+      dark:text-white 
+      text-gray-900
+      select-none
+    "
+    style={{ fontFamily: '"Great Vibes", cursive' }}
+  >
+    Allure Creation
+  </span>
+</Link>
 
           <button
             onClick={toggleApplicationMenu}

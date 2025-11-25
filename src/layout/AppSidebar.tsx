@@ -541,39 +541,42 @@ const AppSidebar: React.FC = () => {
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`py-8  flex ${
-          !isExpanded && !isHovered ? "xl:justify-center" : "justify-start"
-        }`}
+<div
+  className={`py-8 flex ${
+    !isExpanded && !isHovered ? "xl:justify-center" : "justify-start"
+  }`}
+>
+  <Link to="/">
+    {isExpanded || isHovered || isMobileOpen ? (
+      <span
+        className="
+          font-[400]
+          text-3xl
+          tracking-wide
+          dark:text-white 
+          text-gray-900
+          select-none
+        "
+        style={{ fontFamily: '"Great Vibes", cursive' }}
       >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
-          ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
-          )}
-        </Link>
-      </div>
+        Allure Creation
+      </span>
+    ) : (
+      <span
+        className="
+          text-xl
+          font-[400]
+          dark:text-white 
+          text-gray-900
+          select-none
+        "
+        style={{ fontFamily: '"Great Vibes", cursive' }}
+      >
+        AC
+      </span>
+    )}
+  </Link>
+</div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">

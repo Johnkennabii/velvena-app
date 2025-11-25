@@ -10,29 +10,33 @@ export default function ComingSoon() {
   return (
     <>
       <PageMeta
-        title="React.js Coming Soon Page | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Coming Soon Page page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="A venir - Allure Creation App"
+        description="Page bientôt disponible sur Allure Creation App."
       />
       <div className="relative flex flex-col items-center justify-center w-full min-h-screen p-6 overflow-hidden z-1">
         <GridShape />
 
         <div>
           <div className="mx-auto w-full max-w-[460px] text-center">
-            <Link to="/" className="inline-block mb-6">
-              <img
-                className="dark:hidden"
-                src="./images/logo/logo.svg"
-                alt="Logo"
-              />
-              <img
-                className="hidden dark:block"
-                src="./images/logo/logo-dark.svg"
-                alt="Logo"
-              />
-            </Link>
+<Link to="/" className="inline-block mb-6 select-none">
+  <span
+    className="
+      text-4xl 
+      font-[400]
+      text-gray-900 
+      dark:text-white
+      leading-none
+    "
+    style={{
+      fontFamily: '"Great Vibes", cursive',
+    }}
+  >
+    Allure Creation
+  </span>
+</Link>
 
             <h1 className="mb-3 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-xl">
-              Coming Soon
+              Bientôt ...
             </h1>
 
             <p className="text-base text-gray-500 mb-9 dark:text-gray-400">
