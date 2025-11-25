@@ -1,11 +1,12 @@
 import type React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCatalogueFilters } from "../../hooks/catalogue/useCatalogueFilters";
 import { useDressReferences } from "../../hooks/catalogue/useDressReferences";
 import { useDressViewAndDelete } from "../../hooks/catalogue/useDressViewAndDelete";
 import { useDressCreate } from "../../hooks/catalogue/useDressCreate";
 import { useDressEdit } from "../../hooks/catalogue/useDressEdit";
+import { useContractCreation, QUICK_CUSTOMER_DEFAULT } from "../../hooks/catalogue/useContractCreation";
 import { useDropzone } from "react-dropzone";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -36,10 +37,7 @@ import {
   ContractAddonsAPI,
   type ContractAddon as ContractAddonOption,
 } from "../../api/endpoints/contractAddons";
-import {
-  ContractPackagesAPI,
-  type ContractPackage,
-} from "../../api/endpoints/contractPackages";
+import { ContractPackagesAPI } from "../../api/endpoints/contractPackages";
 import { compressImages } from "../../utils/imageCompression";
 import { formatCurrency as formatCurrencyUtil } from "../../utils/formatters";
 import {
@@ -67,8 +65,6 @@ import { FaCheckCircle, FaTimesCircle, FaBarcode } from "react-icons/fa";
 import type { ContractType } from "../../api/endpoints/contractTypes";
 import { ContractsAPI, type ContractCreatePayload, type ContractFullView } from "../../api/endpoints/contracts";
 import {
-  type ContractDrawerDraft,
-  type ContractFormState,
   type ContractMode,
   type CatalogueFilters,
   type DressFormState,
@@ -184,17 +180,6 @@ const PAYMENT_METHOD_OPTIONS = [
   { value: "card", label: "Carte bancaire" },
   { value: "cash", label: "Espèces" },
 ];
-
-const QUICK_CUSTOMER_DEFAULT: QuickCustomerFormState = {
-  firstname: "",
-  lastname: "",
-  email: "",
-  phone: "",
-  city: "",
-  country: "",
-  address: "",
-  postal_code: "",
-};
 
 const getContractStatusMeta = (status?: string | null, deletedAt?: string | null) => {
   if (deletedAt) {
@@ -412,6 +397,46 @@ export default function Catalogue() {
     setEditUploadingImages,
   } = useDressEdit();
 
+  // Utilisation du hook de gestion de la création de contrats
+  const {
+    contractDrawer,
+    setContractDrawer,
+    contractForm,
+    setContractForm,
+    contractSubmitting,
+    setContractSubmitting,
+    contractAvailabilityStatus,
+    setContractAvailabilityStatus,
+    contractDraft,
+    setContractDraft,
+    contractAddons,
+    setContractAddons,
+    addonsLoading,
+    setAddonsLoading,
+    selectedAddonIds,
+    setSelectedAddonIds,
+    contractPackages,
+    setContractPackages,
+    contractPackagesLoading,
+    setContractPackagesLoading,
+    contractAddonsInitializedRef,
+    packageAddonDefaultsRef,
+    customerSearchTerm,
+    setCustomerSearchTerm,
+    customerResults,
+    setCustomerResults,
+    customerLoading,
+    setCustomerLoading,
+    showCustomerForm,
+    setShowCustomerForm,
+    customerForm,
+    setCustomerForm,
+    creatingCustomer,
+    setCreatingCustomer,
+    customerDrawer,
+    setCustomerDrawer,
+  } = useContractCreation();
+
   const [dresses, setDresses] = useState<DressDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserListItem[]>([]);
@@ -428,40 +453,9 @@ export default function Catalogue() {
   // editDrawerOpen, editDress, editForm, editLoading, editUploadingImages
   // sont maintenant fournis par le hook useDressEdit
 
-  const [contractDrawer, setContractDrawer] = useState<{
-    open: boolean;
-    mode: ContractMode;
-    dress: DressDetails | null;
-  }>({ open: false, mode: "daily", dress: null });
-  const [contractForm, setContractForm] = useState<ContractFormState | null>(null);
-  const [contractAddons, setContractAddons] = useState<ContractAddonOption[]>([]);
-  const [addonsLoading, setAddonsLoading] = useState(false);
-  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
-  const [contractPackages, setContractPackages] = useState<ContractPackage[]>([]);
-  const [contractPackagesLoading, setContractPackagesLoading] = useState(false);
-  const contractAddonsInitializedRef = useRef(false);
-  const [contractDraft, setContractDraft] = useState<ContractDrawerDraft>({
-    mode: "daily",
-    dressId: null,
-    startDate: null,
-    endDate: null,
-  });
-  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
-  const [customerResults, setCustomerResults] = useState<Customer[]>([]);
-  const [customerLoading, setCustomerLoading] = useState(false);
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [customerForm, setCustomerForm] = useState<QuickCustomerFormState>(QUICK_CUSTOMER_DEFAULT);
-  const [creatingCustomer, setCreatingCustomer] = useState(false);
-  const [contractSubmitting, setContractSubmitting] = useState(false);
-  const [customerDrawer, setCustomerDrawer] = useState<{
-    open: boolean;
-    contract: ContractFullView | null;
-    customer: Customer | null;
-  }>({ open: false, contract: null, customer: null });
-  const [contractAvailabilityStatus, setContractAvailabilityStatus] = useState<
-    "idle" | "checking" | "available" | "unavailable" | "error"
-  >("idle");
-  const packageAddonDefaultsRef = useRef<string[]>([]);
+  // contractDrawer, contractForm, contractAddons, contractPackages, contractDraft,
+  // customerSearchTerm, customerResults, customerLoading, customerForm, etc.
+  // sont maintenant fournis par le hook useContractCreation (17 états + 2 refs)
 
   // totalPages, availabilitySelected, availabilityDefaultDate, hasFiltersApplied
   // sont maintenant fournis par le hook useCatalogueFilters
