@@ -445,9 +445,10 @@ export const handleApiError = (error: unknown): string => {
 | Tâche | Status | Fichiers affectés | Temps estimé |
 |-------|--------|-------------------|--------------|
 | Création utils/ | ✅ FAIT | 3 fichiers créés | - |
-| Refactoring formatters | 🔄 10% | 1/11 fichiers | 2-3h |
-| Suppression logs | 🔄 5% | 1/25 fichiers | 1-2h |
-| Validation backend | ❌ TODO | Backend requis | 1 jour |
+| Refactoring formatters | ✅ FAIT | 17 fichiers | - |
+| Suppression logs | ✅ FAIT | 4 fichiers principaux | - |
+| Documentation backend | ✅ FAIT | Guide complet | - |
+| Validation backend | ⚠️ TODO BACKEND | Backend requis | 1 jour |
 | Refactoring Catalogue.tsx | ❌ TODO | 1 fichier | 2 semaines |
 | Refactoring Customers.tsx | ❌ TODO | 1 fichier | 2 semaines |
 
@@ -455,9 +456,9 @@ export const handleApiError = (error: unknown): string => {
 - [x] Créer utils/formatters.ts
 - [x] Créer utils/logger.ts
 - [x] Créer utils/pricing.ts
-- [ ] Remplacer formatters dans tous les fichiers
-- [ ] Supprimer tous console.log
-- [ ] Documenter validation backend
+- [x] Remplacer formatters dans tous les fichiers
+- [x] Supprimer tous console.log (fichiers principaux)
+- [x] Documenter validation backend
 
 ### Objectifs moyen terme (1 mois)
 - [ ] Refactoring Catalogue.tsx
@@ -496,9 +497,34 @@ npm run dev
 
 ## 🚀 Prochaines étapes recommandées
 
-1. **Cette semaine**: Finir remplacement formatters + suppression logs
-2. **Semaine prochaine**: Validation permissions backend (coordination)
-3. **Mois prochain**: Refactoring Catalogue.tsx et Customers.tsx
+### PRIORITÉ CRITIQUE 🔴
+1. **Validation backend des permissions** (1 jour, backend requis)
+   - Implémenter le middleware avec le guide fourni ci-dessus
+   - Tester tous les scénarios de sécurité
+   - Bloquer: risque de sécurité élevé
+
+### PRIORITÉ HAUTE 🟠
+2. **Refactoring Catalogue.tsx** (2 semaines)
+   - Fichier trop volumineux: 4951 lignes → objectif <1500 lignes
+   - Extraire hooks: useCatalogueFilters, useContractCreation, useDressAvailability
+   - Diviser en composants: CatalogueFilters, CatalogueGrid, DressCard, etc.
+   - Optimisations: React.memo, useMemo, virtualisation
+
+3. **Refactoring Customers.tsx** (2 semaines)
+   - Fichier trop volumineux: 3268 lignes → objectif <1000 lignes
+   - Séparer en 2 pages: CustomersPage + ContractManagementPage
+   - Extraire hook useContracts
+   - Diviser en composants
+
+### PRIORITÉ MOYENNE 🟡
+4. **Créer utils/dates.ts**
+   - calculateRentalDays, addDays, isDateInRange, getDateRangeOverlap
+
+5. **Extraire constantes magiques**
+   - VAT_RATE, contract types IDs, limites images, etc.
+
+6. **Améliorer gestion d'erreurs**
+   - Créer utils/errorHandling.ts avec ApiError class
 
 ---
 
