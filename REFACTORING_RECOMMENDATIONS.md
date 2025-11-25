@@ -97,44 +97,211 @@ const PERMISSIONS_MATRIX = {
 2. Tester qu'un COLLABORATOR ne peut pas générer de PDF
 3. Tester qu'un utilisateur non authentifié est rejeté
 
-#### 2. Supprimer logs debug production (10+ fichiers)
+**Guide d'implémentation backend** (Node.js/Express):
 
-**Fichiers restants avec console.log**:
-- `src/pages/Customers/Customers.tsx` (lignes ~1526, 1535, 1644)
-- `src/pages/Public/ContractSignPage.tsx` (lignes ~138, 139, 148, 307)
-- `src/pages/Users/UserList.tsx`
-- `src/hooks/useSocketNotifications.ts`
-- Et ~20 autres fichiers (voir résultats Grep ci-dessus)
+1. **Créer un middleware de validation de permissions**:
+```javascript
+// middleware/contractPermissions.js
+const { PERMISSIONS_MATRIX } = require('../config/permissions');
 
-**Action**:
-1. Remplacer `console.log()` par `logger.debug()` pour logs utiles en dev
-2. Supprimer complètement les logs obsolètes
-3. Garder uniquement `console.error()` pour erreurs critiques
+async function checkContractPermission(req, res, next, requiredPermission) {
+  try {
+    const { id: contractId } = req.params;
+    const user = req.user; // Depuis JWT/session
 
-**Commande pour trouver tous les console.log**:
-```bash
-grep -rn "console.log" src/ --include="*.ts" --include="*.tsx"
+    // Récupérer le contrat
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+      return res.status(404).json({ error: 'Contrat introuvable' });
+    }
+
+    const userRole = user.role.toUpperCase();
+    const contractStatus = contract.status.toUpperCase();
+
+    // Vérifier les permissions
+    const permissions = PERMISSIONS_MATRIX[userRole]?.[contractStatus] || [];
+    const hasPermission = permissions.includes('all') || permissions.includes(requiredPermission);
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        error: 'Permission refusée',
+        details: `${userRole} ne peut pas ${requiredPermission} un contrat ${contractStatus}`
+      });
+    }
+
+    req.contract = contract; // Passer le contrat au handler
+    next();
+  } catch (error) {
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
+// Helpers pour chaque permission
+module.exports = {
+  canEdit: (req, res, next) => checkContractPermission(req, res, next, 'edit'),
+  canGeneratePdf: (req, res, next) => checkContractPermission(req, res, next, 'generatePdf'),
+  canSendSignature: (req, res, next) => checkContractPermission(req, res, next, 'sendSignature'),
+  canUploadSigned: (req, res, next) => checkContractPermission(req, res, next, 'uploadSigned'),
+  canDelete: (req, res, next) => checkContractPermission(req, res, next, 'delete'),
+  canViewSigned: (req, res, next) => checkContractPermission(req, res, next, 'viewSigned'),
+};
 ```
 
-#### 3. Remplacer fonctions de formatage dupliquées (9+ fichiers)
+2. **Appliquer les middlewares aux routes**:
+```javascript
+// routes/contracts.js
+const express = require('express');
+const router = express.Router();
+const contractPermissions = require('../middleware/contractPermissions');
+const authenticate = require('../middleware/authenticate');
 
-**Fichiers restants**:
-- `src/pages/Catalogue/Catalogue.tsx` (4951 lignes) - formatCurrency locale
-- `src/pages/Customers/Customers.tsx` (3268 lignes) - formatCurrency + formatDate
-- `src/pages/Public/ContractSignPage.tsx` - formatCurrency + formatDate
-- `src/components/contracts/OptionsSection.tsx` - formatCurrency
-- `src/components/contracts/RentalPeriodSection.tsx` - formatCurrency
-- `src/components/contracts/ContractInfoSection.tsx` - formatCurrency
-- `src/pages/Calendar.tsx` - formatDate
-- Et autres...
+// Éditer un contrat
+router.put('/:id',
+  authenticate,
+  contractPermissions.canEdit,
+  async (req, res) => {
+    // req.contract est déjà chargé par le middleware
+    // Mettre à jour le contrat
+  }
+);
 
-**Action**:
-1. Chercher `const formatCurrency` ou `function formatCurrency` dans chaque fichier
-2. Remplacer par `import { formatCurrency } from "../../utils/formatters"`
-3. Supprimer la fonction locale
-4. Idem pour `formatDate`, `formatDateTime`, etc.
+// Générer PDF
+router.post('/:id/generate-pdf',
+  authenticate,
+  contractPermissions.canGeneratePdf,
+  async (req, res) => {
+    // Logique de génération PDF
+  }
+);
 
-**Attention**: Certains fichiers ont des variantes spécifiques (avec/sans symbole €, format date différent). Adapter si nécessaire.
+// Envoyer pour signature
+router.post('/:id/generate-signature',
+  authenticate,
+  contractPermissions.canSendSignature,
+  async (req, res) => {
+    // Logique d'envoi signature
+  }
+);
+
+// Upload PDF signé
+router.post('/:id/upload-signed-pdf',
+  authenticate,
+  contractPermissions.canUploadSigned,
+  async (req, res) => {
+    // Logique upload PDF signé
+  }
+);
+
+// Soft delete
+router.patch('/:id/delete',
+  authenticate,
+  contractPermissions.canDelete,
+  async (req, res) => {
+    // Logique soft delete
+  }
+);
+
+// Télécharger PDF signé
+router.get('/:id/download',
+  authenticate,
+  contractPermissions.canViewSigned,
+  async (req, res) => {
+    // Logique téléchargement
+  }
+);
+```
+
+3. **Créer des tests unitaires**:
+```javascript
+// tests/contractPermissions.test.js
+describe('Contract Permissions', () => {
+  it('MANAGER ne peut pas éditer un contrat SIGNED', async () => {
+    const res = await request(app)
+      .put('/contracts/123')
+      .set('Authorization', `Bearer ${managerToken}`)
+      .send({ /* données */ });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toContain('Permission refusée');
+  });
+
+  it('COLLABORATOR ne peut pas générer de PDF', async () => {
+    const res = await request(app)
+      .post('/contracts/123/generate-pdf')
+      .set('Authorization', `Bearer ${collaboratorToken}`);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('ADMIN peut tout faire', async () => {
+    const res = await request(app)
+      .put('/contracts/123')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ /* données */ });
+
+    expect(res.status).not.toBe(403);
+  });
+});
+```
+
+4. **Logger les tentatives non autorisées**:
+```javascript
+// Dans le middleware checkContractPermission
+if (!hasPermission) {
+  logger.warn('Tentative non autorisée', {
+    userId: user.id,
+    userRole,
+    contractId,
+    contractStatus,
+    requiredPermission,
+    ip: req.ip,
+    timestamp: new Date()
+  });
+
+  return res.status(403).json({ error: 'Permission refusée' });
+}
+```
+
+**Checklist d'implémentation**:
+- [ ] Créer config/permissions.js avec PERMISSIONS_MATRIX
+- [ ] Créer middleware/contractPermissions.js
+- [ ] Appliquer middlewares à toutes les routes /contracts
+- [ ] Créer tests unitaires pour chaque scénario
+- [ ] Tester manuellement avec Postman/curl
+- [ ] Ajouter logging des tentatives non autorisées
+- [ ] Documenter dans README backend
+
+#### 2. Supprimer logs debug production ✅ (FAIT)
+Nettoyage des console.log de débogage dans les fichiers principaux:
+- `UserList.tsx` - Supprimé ~50 console.log
+- `Customers.tsx` - Supprimé 9 console.log
+- `ContractSignPage.tsx` - Supprimé 11 console.log
+- `useSocketNotifications.ts` - Supprimé 2 console.log
+- Conservé console.error pour les erreurs légitimes
+- Logs restants uniquement dans composants d'exemple non utilisés
+
+#### 3. Finaliser suppression logs debug (fichiers restants)
+
+**Fichiers restants avec console.log** (30 occurrences):
+- Principalement dans composants d'exemple: UiExample/, form/example-form/, etc.
+- Ces composants ne sont pas utilisés en production
+- Optionnel: nettoyer ou remplacer par `logger.debug()`
+
+**Note**: Les fichiers de production principaux sont maintenant propres.
+
+#### 4. Remplacer fonctions de formatage dupliquées ✅ (FAIT)
+
+**Fichiers mis à jour**:
+- `src/pages/Catalogue/Catalogue.tsx` - Wrapper pour formatCurrency
+- `src/pages/Customers/Customers.tsx` - Remplacé formatDateTime par formatDateTimeShort
+- `src/pages/Public/ContractSignPage.tsx` - Import formatCurrency et formatDate
+- `src/components/contracts/OptionsSection.tsx` - Import formatCurrency
+- `src/components/contracts/RentalPeriodSection.tsx` - Import formatCurrency
+- `src/components/contracts/ContractInfoSection.tsx` - Import formatCurrency
+- `src/pages/Calendar.tsx` - Import formatDate
+- Et 10+ autres fichiers
+
+**Résultat**: ~250 lignes de code dupliqué supprimées
 
 ### PRIORITÉ HAUTE
 
