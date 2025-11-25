@@ -2,6 +2,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCatalogueFilters } from "../../hooks/catalogue/useCatalogueFilters";
+import { useDressReferences } from "../../hooks/catalogue/useDressReferences";
 import { useDropzone } from "react-dropzone";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -36,13 +37,6 @@ import {
   ContractPackagesAPI,
   type ContractPackage,
 } from "../../api/endpoints/contractPackages";
-import { DressTypesAPI, type DressType } from "../../api/endpoints/dressTypes";
-import { DressSizesAPI, type DressSize } from "../../api/endpoints/dressSizes";
-import {
-  DressConditionsAPI,
-  type DressCondition,
-} from "../../api/endpoints/dressConditions";
-import { DressColorsAPI, type DressColor } from "../../api/endpoints/dressColors";
 import { compressImages } from "../../utils/imageCompression";
 import { formatCurrency as formatCurrencyUtil } from "../../utils/formatters";
 import {
@@ -67,7 +61,7 @@ import {
 import { IoEyeOutline } from "react-icons/io5";
 import { FaCheckCircle, FaTimesCircle, FaBarcode } from "react-icons/fa";
 
-import { ContractTypesAPI, type ContractType } from "../../api/endpoints/contractTypes";
+import type { ContractType } from "../../api/endpoints/contractTypes";
 import { ContractsAPI, type ContractCreatePayload, type ContractFullView } from "../../api/endpoints/contracts";
 import {
   type ContractDrawerDraft,
@@ -370,6 +364,10 @@ export default function Catalogue() {
     hasFiltersApplied,
   } = useCatalogueFilters(defaultFilters);
 
+  // Utilisation du hook de gestion des données de référence
+  const { dressTypes, dressSizes, dressConditions, dressColors, contractTypes, fetchReferenceData } =
+    useDressReferences();
+
   const [dresses, setDresses] = useState<DressDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserListItem[]>([]);
@@ -390,13 +388,8 @@ export default function Catalogue() {
   const [editLoading, setEditLoading] = useState(false);
   const [editUploadingImages, setEditUploadingImages] = useState(false);
 
-  const [dressTypes, setDressTypes] = useState<DressType[]>([]);
-  const [dressSizes, setDressSizes] = useState<DressSize[]>([]);
-  const [dressConditions, setDressConditions] = useState<DressCondition[]>([]);
-  const [dressColors, setDressColors] = useState<DressColor[]>([]);
-  const [referencesLoading, setReferencesLoading] = useState(false);
-  const [contractTypes, setContractTypes] = useState<ContractType[]>([]);
-  const [contractTypesLoading, setContractTypesLoading] = useState(false);
+  // dressTypes, dressSizes, dressConditions, dressColors, referencesLoading,
+  // contractTypes, contractTypesLoading sont maintenant fournis par le hook useDressReferences
 
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "soft" | "hard";
@@ -953,31 +946,7 @@ export default function Catalogue() {
     setDresses((prev) => prev.map((dress) => (dress.id === updated.id ? { ...dress, ...updated } : dress)));
   }, []);
 
-  const fetchReferenceData = useCallback(async () => {
-    if (referencesLoading || dressTypes.length) return;
-    setReferencesLoading(true);
-    try {
-      const [types, sizes, conditions, colors] = await Promise.all([
-        DressTypesAPI.list(),
-        DressSizesAPI.list(),
-        DressConditionsAPI.list(),
-        DressColorsAPI.list(),
-      ]);
-      setDressTypes(types);
-      setDressSizes(sizes);
-      setDressConditions(conditions);
-      setDressColors(colors);
-    } catch (error) {
-      console.error("Impossible de charger les données de référence :", error);
-      notify(
-        "error",
-        "Erreur",
-        "Impossible de charger les listes de types, tailles, états ou couleurs.",
-      );
-    } finally {
-      setReferencesLoading(false);
-    }
-  }, [dressTypes.length, notify, referencesLoading]);
+  // fetchReferenceData et fetchContractTypes sont maintenant fournis par le hook useDressReferences
 
   const fetchContractAddons = useCallback(async () => {
     setAddonsLoading(true);
@@ -1005,20 +974,6 @@ export default function Catalogue() {
       setContractPackagesLoading(false);
     }
   }, [contractPackagesLoading, contractPackages.length, notify]);
-
-  const fetchContractTypes = useCallback(async () => {
-    if (contractTypesLoading || contractTypes.length) return;
-    setContractTypesLoading(true);
-    try {
-      const types = await ContractTypesAPI.list();
-      setContractTypes(types);
-    } catch (error) {
-      console.error("Impossible de charger les types de contrat :", error);
-      notify("error", "Erreur", "Les types de contrat n'ont pas pu être chargés.");
-    } finally {
-      setContractTypesLoading(false);
-    }
-  }, [contractTypesLoading, contractTypes.length, notify]);
 
   const handleOpenCreate = useCallback(() => {
     fetchReferenceData();
@@ -1402,9 +1357,7 @@ export default function Catalogue() {
     fetchContractPackages();
   }, [fetchContractPackages]);
 
-  useEffect(() => {
-    fetchContractTypes();
-  }, [fetchContractTypes]);
+  // Le chargement automatique des types de contrat est maintenant géré par le hook useDressReferences
 
   useEffect(() => {
     const handleOpenDress = () => {
