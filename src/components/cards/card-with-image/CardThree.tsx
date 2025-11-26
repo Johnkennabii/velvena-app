@@ -70,7 +70,7 @@ export default function CardThree({
   const computedFooter = footer === undefined ? <DefaultFooter /> : footer;
 
   return (
-    <div className="group h-full w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:shadow-lg hover:ring-black/10 dark:bg-gray-900/50 dark:ring-white/10 dark:hover:ring-white/20">
+    <div className="group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:shadow-lg hover:ring-black/10 dark:bg-gray-900/50 dark:ring-white/10 dark:hover:ring-white/20">
       {/* Image Section - iOS style */}
       <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
         <div className="relative w-full overflow-hidden">
@@ -98,7 +98,7 @@ export default function CardThree({
       </div>
 
       {/* Content Section - iOS spacing and typography */}
-      <div className={clsx("flex flex-col gap-4 p-5", bodyClassName)}>
+      <div className={clsx("flex flex-1 flex-col gap-4 p-5", bodyClassName)}>
         {/* Badges */}
         {badges && (
           <div className="flex flex-wrap gap-2">
