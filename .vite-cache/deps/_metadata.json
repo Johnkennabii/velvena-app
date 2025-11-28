@@ -1,214 +1,202 @@
 {
-  "hash": "5243a99e",
+  "hash": "4f4145f5",
   "configHash": "68b10410",
-  "lockfileHash": "d2a1c905",
-  "browserHash": "90d594de",
+  "lockfileHash": "70dbfa6d",
+  "browserHash": "10bb593e",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "d158c6fe",
+      "fileHash": "01d6d2e4",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "b5c33112",
+      "fileHash": "dba715ae",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "5fcdc8af",
+      "fileHash": "7a1e17c9",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "1f2ea8aa",
+      "fileHash": "fbb6d064",
       "needsInterop": true
     },
     "@fullcalendar/core/locales/fr": {
       "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
       "file": "@fullcalendar_core_locales_fr.js",
-      "fileHash": "1683bef7",
+      "fileHash": "5f4faf00",
       "needsInterop": false
     },
     "@fullcalendar/daygrid": {
       "src": "../../node_modules/@fullcalendar/daygrid/index.js",
       "file": "@fullcalendar_daygrid.js",
-      "fileHash": "8c0f505b",
+      "fileHash": "faa14c30",
       "needsInterop": false
     },
     "@fullcalendar/interaction": {
       "src": "../../node_modules/@fullcalendar/interaction/index.js",
       "file": "@fullcalendar_interaction.js",
-      "fileHash": "36c2f141",
+      "fileHash": "06d002c3",
       "needsInterop": false
     },
     "@fullcalendar/react": {
       "src": "../../node_modules/@fullcalendar/react/dist/index.js",
       "file": "@fullcalendar_react.js",
-      "fileHash": "051eae78",
+      "fileHash": "c69ecb51",
       "needsInterop": false
     },
     "@fullcalendar/timegrid": {
       "src": "../../node_modules/@fullcalendar/timegrid/index.js",
       "file": "@fullcalendar_timegrid.js",
-      "fileHash": "f2745ee6",
+      "fileHash": "a4332925",
       "needsInterop": false
     },
     "@react-jvectormap/core": {
       "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
       "file": "@react-jvectormap_core.js",
-      "fileHash": "d8fe3c51",
+      "fileHash": "5002fa35",
       "needsInterop": true
     },
     "@react-jvectormap/world": {
       "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
       "file": "@react-jvectormap_world.js",
-      "fileHash": "ead0bbdd",
+      "fileHash": "24f5135c",
       "needsInterop": false
     },
     "clsx": {
       "src": "../../node_modules/clsx/dist/clsx.mjs",
       "file": "clsx.js",
-      "fileHash": "cc76a6d1",
+      "fileHash": "16fa93e1",
       "needsInterop": false
     },
     "flatpickr": {
       "src": "../../node_modules/flatpickr/dist/esm/index.js",
       "file": "flatpickr.js",
-      "fileHash": "0bf383a4",
+      "fileHash": "fb047641",
       "needsInterop": false
     },
     "flatpickr/dist/l10n/fr.js": {
       "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
       "file": "flatpickr_dist_l10n_fr__js.js",
-      "fileHash": "7291452a",
+      "fileHash": "640e646f",
       "needsInterop": true
-    },
-    "html2canvas": {
-      "src": "../../node_modules/html2canvas/dist/html2canvas.esm.js",
-      "file": "html2canvas.js",
-      "fileHash": "e1b05a12",
-      "needsInterop": false
-    },
-    "jspdf": {
-      "src": "../../node_modules/jspdf/dist/jspdf.es.min.js",
-      "file": "jspdf.js",
-      "fileHash": "05a3e556",
-      "needsInterop": false
     },
     "react-apexcharts": {
       "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
       "file": "react-apexcharts.js",
-      "fileHash": "9bbd215a",
+      "fileHash": "d32badb7",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "aeb58878",
+      "fileHash": "d7016888",
       "needsInterop": true
     },
     "react-dropzone": {
       "src": "../../node_modules/react-dropzone/dist/es/index.js",
       "file": "react-dropzone.js",
-      "fileHash": "27ed62e5",
+      "fileHash": "ff80e638",
       "needsInterop": false
     },
     "react-helmet-async": {
       "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
       "file": "react-helmet-async.js",
-      "fileHash": "d5afecdd",
+      "fileHash": "6e9cc5fc",
       "needsInterop": false
     },
     "react-icons/fa": {
       "src": "../../node_modules/react-icons/fa/index.mjs",
       "file": "react-icons_fa.js",
-      "fileHash": "79eabc63",
+      "fileHash": "ea197b66",
       "needsInterop": false
     },
     "react-icons/fi": {
       "src": "../../node_modules/react-icons/fi/index.mjs",
       "file": "react-icons_fi.js",
-      "fileHash": "75850065",
+      "fileHash": "aafb6721",
       "needsInterop": false
     },
     "react-icons/hi2": {
       "src": "../../node_modules/react-icons/hi2/index.mjs",
       "file": "react-icons_hi2.js",
-      "fileHash": "9c9d915f",
+      "fileHash": "ac9219a8",
       "needsInterop": false
     },
     "react-icons/io5": {
       "src": "../../node_modules/react-icons/io5/index.mjs",
       "file": "react-icons_io5.js",
-      "fileHash": "fd772325",
+      "fileHash": "6f422f83",
       "needsInterop": false
     },
     "react-icons/pi": {
       "src": "../../node_modules/react-icons/pi/index.mjs",
       "file": "react-icons_pi.js",
-      "fileHash": "cc9c13ca",
+      "fileHash": "8e172931",
       "needsInterop": false
     },
     "react-router": {
       "src": "../../node_modules/react-router/dist/development/index.mjs",
       "file": "react-router.js",
-      "fileHash": "37ef911e",
+      "fileHash": "7abf8efd",
       "needsInterop": false
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "49574ea1",
+      "fileHash": "b26d03f2",
       "needsInterop": false
     },
     "simplebar-react": {
       "src": "../../node_modules/simplebar-react/dist/index.mjs",
       "file": "simplebar-react.js",
-      "fileHash": "3ec379c0",
+      "fileHash": "0df2b491",
       "needsInterop": false
     },
     "socket.io-client": {
       "src": "../../node_modules/socket.io-client/build/esm/index.js",
       "file": "socket__io-client.js",
-      "fileHash": "ab95492f",
+      "fileHash": "807e583a",
       "needsInterop": false
     },
     "swiper/modules": {
       "src": "../../node_modules/swiper/modules/index.mjs",
       "file": "swiper_modules.js",
-      "fileHash": "e49331d7",
+      "fileHash": "8691b421",
       "needsInterop": false
     },
     "swiper/react": {
       "src": "../../node_modules/swiper/swiper-react.mjs",
       "file": "swiper_react.js",
-      "fileHash": "5fb78779",
+      "fileHash": "42c185f5",
       "needsInterop": false
     },
     "tailwind-merge": {
       "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
       "file": "tailwind-merge.js",
-      "fileHash": "cee6148d",
+      "fileHash": "b9c23d93",
       "needsInterop": false
     },
     "xlsx": {
       "src": "../../node_modules/xlsx/xlsx.mjs",
       "file": "xlsx.js",
-      "fileHash": "2ad97f2f",
+      "fileHash": "d4f34c05",
       "needsInterop": false
     }
   },
   "chunks": {
-    "purify.es-NT3CXYAF": {
-      "file": "purify__es-NT3CXYAF.js"
+    "chunk-T7OI7B56": {
+      "file": "chunk-T7OI7B56.js"
     },
-    "index.es-2HWCOOLK": {
-      "file": "index__es-2HWCOOLK.js"
+    "chunk-5I6MPOC6": {
+      "file": "chunk-5I6MPOC6.js"
     },
     "chunk-XLOWEJT4": {
       "file": "chunk-XLOWEJT4.js"
@@ -216,23 +204,14 @@
     "chunk-JL2MEAST": {
       "file": "chunk-JL2MEAST.js"
     },
-    "chunk-T7OI7B56": {
-      "file": "chunk-T7OI7B56.js"
-    },
-    "chunk-5I6MPOC6": {
-      "file": "chunk-5I6MPOC6.js"
-    },
-    "chunk-SITVF2AJ": {
-      "file": "chunk-SITVF2AJ.js"
+    "chunk-D5I3RLC3": {
+      "file": "chunk-D5I3RLC3.js"
     },
     "chunk-XVPNPNLI": {
       "file": "chunk-XVPNPNLI.js"
     },
     "chunk-W24JOBID": {
       "file": "chunk-W24JOBID.js"
-    },
-    "chunk-D5I3RLC3": {
-      "file": "chunk-D5I3RLC3.js"
     },
     "chunk-XXR5GDEA": {
       "file": "chunk-XXR5GDEA.js"

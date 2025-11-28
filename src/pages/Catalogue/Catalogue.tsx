@@ -1202,10 +1202,6 @@ export default function Catalogue() {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-        console.log("🔍 Vérification disponibilité aujourd'hui:", {
-          todayStart: todayStart.toISOString(),
-          todayEnd: todayEnd.toISOString()
-        });
         const todayAvailabilityPromise = DressesAPI.listAvailability(
           todayStart.toISOString(),
           todayEnd.toISOString()
@@ -1239,15 +1235,7 @@ export default function Catalogue() {
           const todayAvailabilityMap = new Map(
             todayAvailabilityRes.data.map((item) => [item.id, item.isAvailable])
           );
-          console.log("📅 Disponibilité aujourd'hui:", {
-            total: todayAvailabilityRes.data.length,
-            reserved: todayAvailabilityRes.data.filter(d => !d.isAvailable).length,
-            data: todayAvailabilityRes.data.filter(d => !d.isAvailable).map(d => ({
-              id: d.id,
-              name: d.name,
-              isAvailable: d.isAvailable
-            }))
-          });
+
           setTodayAvailabilityInfo(todayAvailabilityMap);
         } else {
           setTodayAvailabilityInfo(new Map());

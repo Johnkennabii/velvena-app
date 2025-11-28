@@ -9,6 +9,7 @@ import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { NotificationProvider } from "./context/NotificationContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { LoadingProvider } from "./context/LoadingContext.tsx";
+import { CartProvider } from "./context/CartContext.tsx";
 import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")!).render(
@@ -18,9 +19,11 @@ createRoot(document.getElementById("root")!).render(
         <LoadingProvider>
           <BrowserRouter>
             <AuthProvider>
-              <AppWrapper>
-                <App />
-              </AppWrapper>
+              <CartProvider>
+                <AppWrapper>
+                  <App />
+                </AppWrapper>
+              </CartProvider>
             </AuthProvider>
           </BrowserRouter>
         </LoadingProvider>
