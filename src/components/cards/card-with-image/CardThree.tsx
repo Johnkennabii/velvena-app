@@ -88,9 +88,9 @@ export default function CardThree({
           {/* Subtle gradient overlay */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-          {/* Overlay badges - iOS style positioning */}
+          {/* Overlay badges - style iOS empilé */}
           {overlayBadges && (
-            <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center justify-end gap-2">
+            <div className="absolute left-2.5 top-2.5 z-10">
               {overlayBadges}
             </div>
           )}

@@ -22,6 +22,11 @@ interface UnpaidContract {
   urgency: "critical" | "high" | "medium" | "low";
 }
 
+interface UnpaidPaymentsWidgetProps {
+  onMarkAccountAsPaid?: (contractId: string) => Promise<void>;
+  onMarkCautionAsPaid?: (contractId: string) => Promise<void>;
+}
+
 const getUrgencyLevel = (daysUntilStart: number): "critical" | "high" | "medium" | "low" => {
   if (daysUntilStart < 0) return "critical"; // Date dépassée
   if (daysUntilStart <= 3) return "critical";
@@ -35,35 +40,42 @@ const getUrgencyConfig = (urgency: "critical" | "high" | "medium" | "low") => {
     case "critical":
       return {
         label: "Critique",
-        color: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400",
-        border: "border-red-200 dark:border-red-900/30",
+        color: "text-red-600 dark:text-red-400",
+        bg: "bg-red-50 dark:bg-red-900/10",
+        dot: "bg-red-500",
       };
     case "high":
       return {
         label: "Urgent",
-        color: "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400",
-        border: "border-orange-200 dark:border-orange-900/30",
+        color: "text-orange-600 dark:text-orange-400",
+        bg: "bg-orange-50 dark:bg-orange-900/10",
+        dot: "bg-orange-500",
       };
     case "medium":
       return {
         label: "Modéré",
-        color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400",
-        border: "border-yellow-200 dark:border-yellow-900/30",
+        color: "text-yellow-600 dark:text-yellow-400",
+        bg: "bg-yellow-50 dark:bg-yellow-900/10",
+        dot: "bg-yellow-500",
       };
     case "low":
       return {
         label: "Faible",
-        color: "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
-        border: "border-blue-200 dark:border-blue-900/30",
+        color: "text-blue-600 dark:text-blue-400",
+        bg: "bg-blue-50 dark:bg-blue-900/10",
+        dot: "bg-blue-500",
       };
   }
 };
 
-export default function UnpaidPaymentsWidget() {
+export default function UnpaidPaymentsWidget({
+  onMarkAccountAsPaid,
+  onMarkCautionAsPaid
+}: UnpaidPaymentsWidgetProps = {}) {
   const [contracts, setContracts] = useState<UnpaidContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [markingPaid, setMarkingPaid] = useState<string | null>(null);
+  const [markingPaid, setMarkingPaid] = useState<{ contractId: string; type: "account" | "caution" } | null>(null);
 
   useEffect(() => {
     fetchUnpaidContracts();
@@ -146,17 +158,51 @@ export default function UnpaidPaymentsWidget() {
 
   const handleMarkAccountPaid = async (contractId: string) => {
     try {
-      setMarkingPaid(contractId);
-      const contract = contracts.find((c) => c.id === contractId);
-      if (!contract) return;
+      setMarkingPaid({ contractId, type: "account" });
 
-      await ContractsAPI.markAccountAsPaid(contractId);
+      if (onMarkAccountAsPaid) {
+        await onMarkAccountAsPaid(contractId);
+      } else {
+        // Fallback vers l'API directe si pas de callback fourni
+        const contract = contracts.find((c) => c.id === contractId);
+        if (contract) {
+          await ContractsAPI.update(contractId, {
+            account_paid_ttc: contract.account_ttc,
+          });
+        }
+      }
 
       // Rafraîchir la liste
       await fetchUnpaidContracts();
     } catch (err) {
       console.error("Error marking account as paid:", err);
-      alert("Erreur lors de la mise à jour du paiement");
+      alert("Erreur lors de la mise à jour du paiement de l'acompte");
+    } finally {
+      setMarkingPaid(null);
+    }
+  };
+
+  const handleMarkCautionPaid = async (contractId: string) => {
+    try {
+      setMarkingPaid({ contractId, type: "caution" });
+
+      if (onMarkCautionAsPaid) {
+        await onMarkCautionAsPaid(contractId);
+      } else {
+        // Fallback vers l'API directe si pas de callback fourni
+        const contract = contracts.find((c) => c.id === contractId);
+        if (contract) {
+          await ContractsAPI.update(contractId, {
+            caution_paid_ttc: contract.caution_ttc,
+          });
+        }
+      }
+
+      // Rafraîchir la liste
+      await fetchUnpaidContracts();
+    } catch (err) {
+      console.error("Error marking caution as paid:", err);
+      alert("Erreur lors de la mise à jour du paiement de la caution");
     } finally {
       setMarkingPaid(null);
     }
@@ -226,134 +272,130 @@ export default function UnpaidPaymentsWidget() {
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-red-50/80 to-white/50 p-5 dark:border-gray-800 dark:from-red-950/10 dark:to-white/[0.01]">
+      {/* Header - style iOS */}
+      <div className="border-b border-gray-200 p-5 dark:border-gray-800">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-              <svg className="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Paiements en attente</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {sortedContracts.length} contrat{sortedContracts.length > 1 ? "s" : ""} avec paiements incomplets
-              </p>
-            </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Paiements en attente</h3>
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+              {sortedContracts.length} {sortedContracts.length > 1 ? "contrats" : "contrat"}
+            </p>
           </div>
           <Button onClick={exportToExcel} disabled={sortedContracts.length === 0} size="sm" variant="outline">
-            <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Exporter Excel
+            Excel
           </Button>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
+      {/* Liste compacte façon iOS */}
+      <div className="divide-y divide-gray-100 dark:divide-gray-800">
         {sortedContracts.length === 0 ? (
-          <div className="py-8 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Tous les paiements sont à jour</p>
+          <div className="py-12 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+              <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="mt-3 text-sm font-medium text-gray-900 dark:text-white">Tous les paiements sont à jour</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Aucun contrat avec paiement en attente</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {sortedContracts.map((contract) => {
-              const urgencyConfig = getUrgencyConfig(contract.urgency);
-              const isPaid = markingPaid === contract.id;
+          sortedContracts.map((contract) => {
+            const urgencyConfig = getUrgencyConfig(contract.urgency);
+            const isMarkingAccount = markingPaid?.contractId === contract.id && markingPaid?.type === "account";
+            const isMarkingCaution = markingPaid?.contractId === contract.id && markingPaid?.type === "caution";
 
-              return (
-                <div
-                  key={contract.id}
-                  className={`rounded-xl border ${urgencyConfig.border} bg-gradient-to-r from-white to-gray-50/50 p-4 transition-all hover:shadow-md dark:from-white/[0.02] dark:to-white/[0.01]`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      {/* Header row */}
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-white">{contract.contract_number}</span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${urgencyConfig.color}`}>
-                          {urgencyConfig.label}
-                        </span>
-                        {contract.days_until_start >= 0 ? (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            Dans {contract.days_until_start} jour{contract.days_until_start > 1 ? "s" : ""}
+            return (
+              <div
+                key={contract.id}
+                className="px-5 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+              >
+                <div className="flex items-start gap-4">
+                  {/* Indicateur urgence - dot coloré */}
+                  <div className="flex-shrink-0 pt-1.5">
+                    <div className={`h-2.5 w-2.5 rounded-full ${urgencyConfig.dot} animate-pulse`} />
+                  </div>
+
+                  {/* Contenu principal */}
+                  <div className="min-w-0 flex-1 space-y-2">
+                    {/* En-tête */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                            {contract.contract_number}
+                          </p>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${urgencyConfig.bg} ${urgencyConfig.color}`}>
+                            {urgencyConfig.label}
                           </span>
-                        ) : (
-                          <span className="text-xs font-semibold text-red-600 dark:text-red-400">Date dépassée !</span>
-                        )}
-                      </div>
-
-                      {/* Customer info */}
-                      <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                        <p className="font-medium">{contract.customer_name}</p>
-                        <div className="flex flex-col gap-0.5 text-xs text-gray-500 dark:text-gray-400">
-                          <div className="flex items-center gap-1.5">
-                            <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            <span>{contract.customer_email}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            <span>{contract.customer_phone}</span>
-                          </div>
                         </div>
-                      </div>
-
-                      {/* Payment details */}
-                      <div className="grid gap-2 text-xs sm:grid-cols-2">
-                        {contract.remaining_account > 0 && (
-                          <div className="rounded-lg bg-orange-50 p-2 dark:bg-orange-900/10">
-                            <p className="font-medium text-orange-700 dark:text-orange-400">Acompte manquant</p>
-                            <p className="text-orange-900 dark:text-orange-300">
-                              {formatCurrency(contract.remaining_account)} sur {formatCurrency(contract.account_ttc)}
-                            </p>
-                          </div>
-                        )}
-                        {contract.remaining_caution > 0 && (
-                          <div className="rounded-lg bg-amber-50 p-2 dark:bg-amber-900/10">
-                            <p className="font-medium text-amber-700 dark:text-amber-400">Caution manquante</p>
-                            <p className="text-amber-900 dark:text-amber-300">
-                              {formatCurrency(contract.remaining_caution)} sur {formatCurrency(contract.caution_ttc)}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Contract dates */}
-                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>
-                          {formatDateTime(contract.start_datetime)} → {formatDateTime(contract.end_datetime)}
-                        </span>
+                        <p className="mt-0.5 truncate text-sm text-gray-600 dark:text-gray-400">
+                          {contract.customer_name}
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-500">
+                          {contract.days_until_start >= 0 ? (
+                            <>Dans {contract.days_until_start} jour{contract.days_until_start > 1 ? "s" : ""}</>
+                          ) : (
+                            <span className="font-semibold text-red-600 dark:text-red-400">Date dépassée</span>
+                          )}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Action button */}
-                    {contract.remaining_account > 0 && (
-                      <Button
-                        onClick={() => handleMarkAccountPaid(contract.id)}
-                        disabled={isPaid}
-                        size="sm"
-                        variant="outline"
-                      >
-                        {isPaid ? "..." : "Marquer payé"}
-                      </Button>
-                    )}
+                    {/* Paiements - liste compacte */}
+                    <div className="space-y-1.5">
+                      {contract.remaining_account > 0 && (
+                        <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-50 px-3 py-2 dark:bg-blue-900/10">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Acompte</p>
+                            <p className="mt-0.5 text-sm font-semibold text-blue-900 dark:text-blue-300">
+                              {formatCurrency(contract.remaining_account)}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleMarkAccountPaid(contract.id)}
+                            disabled={isMarkingAccount}
+                            className="flex-shrink-0 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                          >
+                            {isMarkingAccount ? (
+                              <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                              "Payer"
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                      {contract.remaining_caution > 0 && (
+                        <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2 dark:bg-amber-900/10">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Caution</p>
+                            <p className="mt-0.5 text-sm font-semibold text-amber-900 dark:text-amber-300">
+                              {formatCurrency(contract.remaining_caution)}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleMarkCautionPaid(contract.id)}
+                            disabled={isMarkingCaution}
+                            className="flex-shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700 dark:hover:bg-amber-800"
+                          >
+                            {isMarkingCaution ? (
+                              <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                              "Payer"
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>

@@ -1202,6 +1202,10 @@ export default function Catalogue() {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+        console.log("🔍 Vérification disponibilité aujourd'hui:", {
+          todayStart: todayStart.toISOString(),
+          todayEnd: todayEnd.toISOString()
+        });
         const todayAvailabilityPromise = DressesAPI.listAvailability(
           todayStart.toISOString(),
           todayEnd.toISOString()
@@ -1235,6 +1239,15 @@ export default function Catalogue() {
           const todayAvailabilityMap = new Map(
             todayAvailabilityRes.data.map((item) => [item.id, item.isAvailable])
           );
+          console.log("📅 Disponibilité aujourd'hui:", {
+            total: todayAvailabilityRes.data.length,
+            reserved: todayAvailabilityRes.data.filter(d => !d.isAvailable).length,
+            data: todayAvailabilityRes.data.filter(d => !d.isAvailable).map(d => ({
+              id: d.id,
+              name: d.name,
+              isAvailable: d.isAvailable
+            }))
+          });
           setTodayAvailabilityInfo(todayAvailabilityMap);
         } else {
           setTodayAvailabilityInfo(new Map());
@@ -2533,14 +2546,100 @@ export default function Catalogue() {
             </div>
           ) : (
             <>
+              {/* Légende des badges - icône info avec tooltip */}
+              <div className="group/legend relative mb-4 inline-flex">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white/80 px-2.5 py-1.5 text-xs text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-white/[0.05]"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-medium">Légende des badges</span>
+                </button>
+
+                {/* Tooltip qui apparaît au hover */}
+                <div className="pointer-events-none invisible absolute left-0 top-full z-50 mt-2 w-max max-w-md opacity-0 transition-all duration-200 group-hover/legend:visible group-hover/legend:opacity-100">
+                  <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                    <div className="grid gap-3">
+                      {/* Badge Nouveau */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="relative overflow-hidden rounded-full backdrop-blur-md">
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/90 to-teal-600/90 dark:from-emerald-400/90 dark:to-teal-500/90" />
+                            <div className="relative flex items-center gap-1 px-2 py-0.5">
+                              <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <span className="text-[10px] font-bold text-white">Nouveau</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Robe ajoutée récemment (moins de 7 jours)</span>
+                      </div>
+
+                      {/* Badge Type */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="relative overflow-hidden rounded-full backdrop-blur-md">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/85 to-indigo-600/85 dark:from-blue-400/85 dark:to-indigo-500/85" />
+                            <div className="relative flex items-center gap-1 px-2 py-0.5">
+                              <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                              </svg>
+                              <span className="text-[10px] font-bold text-white">Type</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Indique le type de la robe (ex: Cocktail, Soirée...)</span>
+                      </div>
+
+                      {/* Badge Réservée */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="relative overflow-hidden rounded-full backdrop-blur-md">
+                            <div className="absolute inset-0 bg-gradient-to-br from-rose-500/90 to-red-600/90 dark:from-rose-400/90 dark:to-red-500/90" />
+                            <div className="relative flex items-center gap-1 px-2 py-0.5">
+                              <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span className="text-[10px] font-bold text-white">Réservée</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Robe réservée aujourd'hui (non disponible)</span>
+                      </div>
+
+                      {/* Badge Désactivée */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-2 py-0.5 dark:border-amber-500/30 dark:from-amber-950/50 dark:to-orange-950/50">
+                            <svg className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300">Désactivée</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-300">Robe temporairement désactivée du catalogue</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {dresses.map((dress) => (
+                {dresses.map((dress) => {
+                  const isReservedToday = todayAvailabilityInfo.get(dress.id) === false;
+                  if (isReservedToday) {
+                    console.log("🎯 Passing isReservedToday=true to DressCard:", dress.name, dress.id);
+                  }
+                  return (
                   <DressCard
                     key={dress.id}
                     dress={dress}
                     availabilityStatus={availabilityInfo.get(dress.id)}
                     availabilitySelected={availabilitySelected}
-                    isReservedToday={todayAvailabilityInfo.get(dress.id) === false}
+                    isReservedToday={isReservedToday}
                     canCreateContract={canCreateContract}
                     canManage={canManage}
                     isAdmin={isAdmin}
@@ -2551,7 +2650,8 @@ export default function Catalogue() {
                     onSoftDelete={(dress) => setDeleteTarget({ type: "soft", dress })}
                     onHardDelete={(dress) => setDeleteTarget({ type: "hard", dress })}
                   />
-                ))}
+                  );
+                })}
               </div>
 
               {totalPages > 1 ? (

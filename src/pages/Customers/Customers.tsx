@@ -248,6 +248,7 @@ const ContractCard = ({
   onSignature,
   onUploadSigned,
   onMarkAccountAsPaid,
+  onMarkCautionAsPaid,
   userRole,
   softDeletingId,
   signatureLoadingId,
@@ -264,6 +265,7 @@ const ContractCard = ({
   onSignature: (contract: ContractFullView) => void;
   onUploadSigned: (contract: ContractFullView) => void;
   onMarkAccountAsPaid: (contract: ContractFullView) => void;
+  onMarkCautionAsPaid: (contract: ContractFullView) => void;
   userRole: UserRole;
   softDeletingId: string | null;
   signatureLoadingId: string | null;
@@ -426,6 +428,15 @@ const ContractCard = ({
                   style={{ width: `${Math.min(cautionPercentage, 100)}%` }}
                 />
               </div>
+              {cautionPercentage < 100 && cautionTotal > 0 && (
+                <button
+                  onClick={() => onMarkCautionAsPaid(contract)}
+                  disabled={!permissions.canEdit}
+                  className="mt-3 w-full rounded-lg bg-amber-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700 dark:hover:bg-amber-800"
+                >
+                  Marquer comme payée complètement
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1651,6 +1662,41 @@ export default function Customers() {
     }
   };
 
+  const handleMarkCautionAsPaid = async (contract: ContractFullView) => {
+    if (!canManageContracts) {
+      notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
+      return;
+    }
+
+    try {
+      const cautionTTC = parseFloat(String(contract.caution_ttc || 0));
+
+      if (cautionTTC <= 0) {
+        notify("warning", "Attention", "Le montant de la caution est invalide.");
+        return;
+      }
+
+      // Mettre à jour directement le contrat
+      const payload = {
+        caution_paid_ttc: cautionTTC,
+      };
+
+      const updated = await ContractsAPI.update(contract.id, payload);
+
+      // Mettre à jour la liste des contrats
+      setViewContracts((prev) =>
+        prev.map((item) =>
+          item.id === contract.id ? { ...item, ...updated } : item
+        )
+      );
+
+      notify("success", "Succès", "La caution a été marquée comme payée complètement.");
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la caution:", error);
+      notify("error", "Erreur", "Impossible de mettre à jour la caution.");
+    }
+  };
+
   const handleSoftDeleteContract = async (contract: ContractFullView) => {
     const isDisabled = Boolean(contract.deleted_at);
 
@@ -2317,6 +2363,7 @@ export default function Customers() {
                       onSignature={handleSignature}
                       onUploadSigned={handleUploadSignedPdf}
                       onMarkAccountAsPaid={handleMarkAccountAsPaid}
+                      onMarkCautionAsPaid={handleMarkCautionAsPaid}
                       userRole={userRole}
                       softDeletingId={softDeletingContractId}
                       signatureLoadingId={signatureGeneratingContractId}
