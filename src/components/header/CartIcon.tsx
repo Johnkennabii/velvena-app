@@ -7,12 +7,12 @@ export default function CartIcon() {
   return (
     <Link
       to="/contract-builder"
-      className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300 lg:h-11 lg:w-11"
+      className="relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
       aria-label={`Panier de robes (${itemCount})`}
     >
       {/* Icône panier */}
       <svg
-        className="h-5 w-5 lg:h-6 lg:w-6"
+        className="h-5 w-5"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

@@ -15,7 +15,13 @@ import {
 import { useCart } from "../../../context/CartContext";
 import DressCartItem from "./DressCartItem";
 
-export default function DraggableDressList() {
+interface DraggableDressListProps {
+  isDailyContract?: boolean;
+  availabilityInfo?: Map<string, boolean>;
+  isPackageMode?: boolean;
+}
+
+export default function DraggableDressList({ isDailyContract = false, availabilityInfo, isPackageMode = false }: DraggableDressListProps = {}) {
   const { items, reorderDresses } = useCart();
 
   const sensors = useSensors(
@@ -75,6 +81,9 @@ export default function DraggableDressList() {
                 key={item.dress.id}
                 dress={item.dress}
                 index={index}
+                isDailyContract={isDailyContract}
+                isAvailable={availabilityInfo?.get(item.dress.id) ?? true}
+                isPackageMode={isPackageMode}
               />
             ))}
           </div>

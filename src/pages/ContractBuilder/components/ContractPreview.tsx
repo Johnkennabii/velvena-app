@@ -145,7 +145,7 @@ export default function ContractPreview({
             <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
               <div className="flex items-start justify-between text-sm">
                 <span className="font-medium text-blue-900 dark:text-blue-300">
-                  Acompte (30%)
+                  Acompte (50%)
                 </span>
                 <div className="text-right">
                   <div className="font-semibold text-blue-900 dark:text-blue-300">

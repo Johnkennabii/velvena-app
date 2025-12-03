@@ -2231,6 +2231,25 @@ export default function Catalogue() {
       setDeleteTarget({ type: "soft", dress: null });
     }
   };
+
+  const handlePublish = async (dress: DressDetails) => {
+    try {
+      const isCurrentlyPublished = dress.published_post;
+      const updated = isCurrentlyPublished
+        ? await DressesAPI.unpublish(dress.id)
+        : await DressesAPI.publish(dress.id);
+
+      updateDressInList(updated);
+      notify(
+        "success",
+        isCurrentlyPublished ? "Robe dépubliée" : "Robe publiée",
+        `${updated.name} a été ${isCurrentlyPublished ? "dépubliée" : "publiée"} avec succès.`,
+      );
+    } catch (error) {
+      console.error("Erreur lors de la publication :", error);
+      notify("error", "Erreur", "La publication de la robe a échoué.");
+    }
+  };
   const closeContractDrawer = () => {
     setContractDrawer({ open: false, mode: "daily", dress: null });
     setContractForm(null);
@@ -2634,6 +2653,7 @@ export default function Catalogue() {
                     onEdit={handleOpenEdit}
                     onSoftDelete={(dress) => setDeleteTarget({ type: "soft", dress })}
                     onHardDelete={(dress) => setDeleteTarget({ type: "hard", dress })}
+                    onPublish={handlePublish}
                   />
                   );
                 })}

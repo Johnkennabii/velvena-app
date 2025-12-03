@@ -3,6 +3,7 @@ const BASE_URL = "https://api.allure-creation.fr";
 
 interface CustomRequestInit extends RequestInit {
   _skipAuthRefresh?: boolean;
+  _skipErrorNotification?: boolean;
 }
 
 let logoutFn: (() => void) | null = null;
@@ -33,8 +34,9 @@ export const httpClientInit = (deps: {
 };
 
 async function performRequest(path: string, options: CustomRequestInit = {}, retry = true): Promise<any> {
-  const { _skipAuthRefresh, ...cleanOptions } = options as CustomRequestInit;
+  const { _skipAuthRefresh, _skipErrorNotification, ...cleanOptions } = options as CustomRequestInit;
   const skipRefresh = Boolean(_skipAuthRefresh);
+  const skipErrorNotification = Boolean(_skipErrorNotification);
   const isFormData = typeof FormData !== "undefined" && cleanOptions.body instanceof FormData;
 
   const token = localStorage.getItem("token");
@@ -95,7 +97,8 @@ async function performRequest(path: string, options: CustomRequestInit = {}, ret
 
     // Ne pas notifier automatiquement pour les erreurs de connexion (/auth/login)
     // car elles sont gérées spécifiquement dans AuthContext avec des messages personnalisés
-    if (!isLoginRequest) {
+    // Ou si _skipErrorNotification est passé en option
+    if (!isLoginRequest && !skipErrorNotification) {
       notifyFn?.("error", "Erreur API", `(${response.status}) ${errorText}`);
     }
 

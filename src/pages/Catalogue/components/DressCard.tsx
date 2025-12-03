@@ -7,13 +7,12 @@ import FlyingImage from "../../../components/animations/FlyingImage";
 import { useCart } from "../../../context/CartContext";
 import { FALLBACK_IMAGE, NEW_BADGE_THRESHOLD_MS } from "../../../constants/catalogue";
 import {
-  CheckLineIcon,
-  DollarLineIcon,
   PencilIcon,
   TimeIcon,
   TrashBinIcon,
 } from "../../../icons";
-import { IoEyeOutline } from "react-icons/io5";
+import { IoEyeOutline, IoCloudUploadOutline } from "react-icons/io5";
+import { LuPackagePlus } from "react-icons/lu";
 
 // Helper Components
 const IconTooltip = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -101,6 +100,7 @@ interface DressCardProps {
   onEdit: (dress: DressDetails) => void;
   onSoftDelete: (dress: DressDetails) => void;
   onHardDelete: (dress: DressDetails) => void;
+  onPublish: (dress: DressDetails) => void;
 }
 
 /**
@@ -121,6 +121,7 @@ const DressCard = memo<DressCardProps>(({
   onEdit,
   onSoftDelete,
   onHardDelete,
+  onPublish,
 }) => {
   const { addDress, hasDress } = useCart();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -250,25 +251,20 @@ const DressCard = memo<DressCardProps>(({
         onClick={handleAddToCart}
         disabled={isInCart}
         className={`
-          group relative w-full overflow-hidden rounded-lg px-4 py-3 text-sm font-semibold
-          transition-all duration-300
+          w-full rounded-lg border px-4 py-2.5 text-sm font-medium
+          transition-all
           ${
             isInCart
-              ? "cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
-              : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 active:scale-95 dark:from-blue-600 dark:to-indigo-700"
+              ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600"
+              : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-900 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
           }
         `}
         aria-label={isInCart ? "Déjà dans le panier" : "Ajouter au panier"}
       >
-        {/* Shine effect */}
-        {!isInCart && (
-          <span className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-        )}
-
-        <span className="relative flex items-center justify-center gap-2">
+        <span className="flex items-center justify-center gap-2">
           {isInCart ? (
             <>
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -279,11 +275,11 @@ const DressCard = memo<DressCardProps>(({
             </>
           ) : (
             <>
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M12 4v16m8-8H4"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
               Ajouter au panier
@@ -323,7 +319,7 @@ const DressCard = memo<DressCardProps>(({
               className={iconButtonClass()}
               aria-label="Location forfaitaire"
             >
-              <DollarLineIcon className="size-4" />
+              <LuPackagePlus className="size-4" />
             </button>
           </IconTooltip>
         </>
@@ -365,14 +361,14 @@ const DressCard = memo<DressCardProps>(({
         </IconTooltip>
       ) : null}
       {isAdmin ? (
-        <IconTooltip title="Publier (bientôt)">
+        <IconTooltip title={dress.published_post ? "Dépublier" : "Publier"}>
           <button
             type="button"
-            disabled
-            className={iconButtonClass()}
-            aria-label="Publier"
+            onClick={() => onPublish(dress)}
+            className={iconButtonClass(dress.published_post ? "warning" : "default")}
+            aria-label={dress.published_post ? "Dépublier" : "Publier"}
           >
-            <CheckLineIcon className="size-4" />
+            <IoCloudUploadOutline className="size-4" />
           </button>
         </IconTooltip>
       ) : null}

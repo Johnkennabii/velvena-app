@@ -17,6 +17,7 @@ import RightDrawer from "../../components/ui/drawer/RightDrawer";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
 import { CustomersAPI, type Customer, type CustomerListResponse } from "../../api/endpoints/customers";
+import { CustomerNotesAPI, type CustomerNote } from "../../api/endpoints/customerNotes";
 import { ContractsAPI, type ContractFullView, type ContractUpdatePayload } from "../../api/endpoints/contracts";
 import { ContractAddonsAPI, type ContractAddon as ContractAddonOption } from "../../api/endpoints/contractAddons";
 import { ContractPackagesAPI, type ContractPackage } from "../../api/endpoints/contractPackages";
@@ -759,6 +760,13 @@ export default function Customers() {
   const [viewContracts, setViewContracts] = useState<ContractFullView[]>([]);
   const [contractsLoading, setContractsLoading] = useState(false);
   const [contractsError, setContractsError] = useState<string | null>(null);
+  const [viewNotes, setViewNotes] = useState<CustomerNote[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesError, setNotesError] = useState<string | null>(null);
+  const [noteFormValue, setNoteFormValue] = useState("");
+  const [noteSubmitting, setNoteSubmitting] = useState(false);
+  const [noteEditing, setNoteEditing] = useState<CustomerNote | null>(null);
+  const [noteDeletingId, setNoteDeletingId] = useState<string | null>(null);
   const [softDeletingContractId, setSoftDeletingContractId] = useState<string | null>(null);
   const [signatureGeneratingContractId, setSignatureGeneratingContractId] = useState<string | null>(null);
   const [pdfGeneratingContractId, setPdfGeneratingContractId] = useState<string | null>(null);
@@ -779,6 +787,7 @@ export default function Customers() {
   const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState<string | null>(null);
   const [dressAvailability, setDressAvailability] = useState<Map<string, DressAvailability>>(new Map());
   const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [hardDeleteCheckId, setHardDeleteCheckId] = useState<string | null>(null);
 
   const { notify } = useNotification();
   const { hasRole, user } = useAuth();
@@ -882,6 +891,23 @@ export default function Customers() {
     },
     [users],
   );
+
+  const fetchCustomerNotes = useCallback(async (customerId: string) => {
+    setNotesLoading(true);
+    setNotesError(null);
+    try {
+      const notes = await CustomerNotesAPI.listByCustomer(customerId);
+      const sorted = [...notes].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+      setViewNotes(sorted);
+    } catch (error) {
+      console.error("❌ Chargement notes client :", error);
+      setNotesError("Impossible de charger les notes client.");
+    } finally {
+      setNotesLoading(false);
+    }
+  }, []);
 
   const contractEditDateRange = useMemo(() => {
     if (!contractEditForm?.startDate || !contractEditForm?.endDate) return undefined;
@@ -1139,6 +1165,13 @@ export default function Customers() {
       setContractsError(null);
       setViewContracts([]);
       setSoftDeletingContractId(null);
+      setViewNotes([]);
+      setNotesError(null);
+      setNoteFormValue("");
+      setNoteEditing(null);
+      setNoteDeletingId(null);
+      setNoteSubmitting(false);
+      void fetchCustomerNotes(customer.id);
       try {
         const [detail, contracts] = await Promise.all([
           CustomersAPI.getById(customer.id),
@@ -1179,7 +1212,7 @@ export default function Customers() {
         setContractsLoading(false);
       }
     },
-    [notify],
+    [fetchCustomerNotes, notify],
   );
 
   useEffect(() => {
@@ -1422,12 +1455,33 @@ export default function Customers() {
     setConfirmState({ mode: "soft", customer });
   };
 
-  const requestHardDelete = (customer: CustomerRow) => {
+  const requestHardDelete = async (customer: CustomerRow) => {
     if (!canHardDelete) {
       notify("warning", "Action non autorisée", "Seul un administrateur peut supprimer définitivement.");
       return;
     }
-    setConfirmState({ mode: "hard", customer });
+    setHardDeleteCheckId(customer.id);
+    try {
+      const contracts = await ContractsAPI.listByCustomer(customer.id);
+      const activeContracts = contracts.filter((contract) => !contract.deleted_at);
+      if (activeContracts.length > 0) {
+        notify(
+          "warning",
+          "Suppression impossible",
+          `Ce client possède encore ${activeContracts.length} contrat${
+            activeContracts.length > 1 ? "s" : ""
+          }. Supprimez ou archivez-les avant de supprimer définitivement le client.`,
+        );
+        return;
+      }
+
+      setConfirmState({ mode: "hard", customer });
+    } catch (error) {
+      console.error("❌ Vérification contrats client :", error);
+      notify("error", "Contrats du client", "Impossible de vérifier les contrats associés à ce client.");
+    } finally {
+      setHardDeleteCheckId(null);
+    }
   };
 
   const resetConfirm = () => setConfirmState({ mode: "soft", customer: null });
@@ -1486,6 +1540,68 @@ export default function Customers() {
     setViewContracts([]);
     setContractsError(null);
     setSoftDeletingContractId(null);
+    setViewNotes([]);
+    setNotesError(null);
+    setNoteFormValue("");
+    setNoteEditing(null);
+    setNoteDeletingId(null);
+    setNoteSubmitting(false);
+    setNotesLoading(false);
+  };
+
+  const handleStartNoteEdit = (note: CustomerNote) => {
+    setNoteEditing(note);
+    setNoteFormValue(note.content);
+  };
+
+  const handleCancelNoteEdit = () => {
+    setNoteEditing(null);
+    setNoteFormValue("");
+  };
+
+  const handleSubmitNote = async (event?: React.FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
+    if (!viewCustomer?.id) return;
+    const trimmed = noteFormValue.trim();
+    if (!trimmed.length) return;
+    setNoteSubmitting(true);
+    try {
+      if (noteEditing) {
+        const updated = await CustomerNotesAPI.update(noteEditing.id, { content: trimmed });
+        setViewNotes((prev) => prev.map((note) => (note.id === updated.id ? updated : note)));
+        notify("success", "Notes client", "Note mise à jour");
+      } else {
+        const created = await CustomerNotesAPI.create(viewCustomer.id, { content: trimmed });
+        setViewNotes((prev) => [created, ...prev]);
+        notify("success", "Notes client", "Note ajoutée");
+      }
+      setNoteFormValue("");
+      setNoteEditing(null);
+    } catch (error) {
+      console.error("❌ Sauvegarde note client :", error);
+      notify("error", "Notes client", "Impossible d'enregistrer la note.");
+    } finally {
+      setNoteSubmitting(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    if (!noteId) return;
+    setNoteDeletingId(noteId);
+    try {
+      await CustomerNotesAPI.delete(noteId);
+      setViewNotes((prev) => prev.filter((note) => note.id !== noteId));
+      if (noteEditing?.id === noteId) {
+        setNoteEditing(null);
+        setNoteFormValue("");
+      }
+      notify("success", "Notes client", "Note supprimée");
+    } catch (error) {
+      console.error("❌ Suppression note client :", error);
+      notify("error", "Notes client", "Impossible de supprimer la note.");
+    } finally {
+      setNoteDeletingId(null);
+    }
   };
 
   const handleGenerateContract = async (contract: ContractFullView) => {
@@ -2198,10 +2314,14 @@ export default function Customers() {
                           <TooltipWrapper title="Supprimer définitivement">
                             <button
                               type="button"
-                              onClick={() => requestHardDelete(customer)}
-                              disabled={processing.type === "hard" && processing.id === customer.id}
+                              onClick={() => void requestHardDelete(customer)}
+                              disabled={
+                                (processing.type === "hard" && processing.id === customer.id) ||
+                                hardDeleteCheckId === customer.id
+                              }
                               className={`inline-flex size-9 items-center justify-center rounded-lg border transition ${
-                                processing.type === "hard" && processing.id === customer.id
+                                (processing.type === "hard" && processing.id === customer.id) ||
+                                hardDeleteCheckId === customer.id
                                   ? "cursor-not-allowed border-gray-200 text-gray-400 opacity-60 dark:border-gray-700 dark:text-gray-500"
                                   : "border-gray-300 text-error-600 hover:bg-gray-50 hover:text-error-600 dark:border-gray-700 dark:text-error-400 dark:hover:bg-white/10"
                               }`}
@@ -2325,6 +2445,127 @@ export default function Customers() {
                   {viewCustomer.deleted_at ? "Désactivé" : "Actif"}
                 </Badge>
               </InfoCard>
+            </div>
+
+            <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.02]">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-white">Notes client</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Gardez une trace des préférences et informations importantes.
+                  </p>
+                </div>
+                {viewNotes.length > 0 && (
+                  <Badge variant="light" color="primary" size="sm">
+                    {viewNotes.length} note{viewNotes.length > 1 ? "s" : ""}
+                  </Badge>
+                )}
+              </div>
+
+              <form className="space-y-3" onSubmit={handleSubmitNote}>
+                <div>
+                  <Label htmlFor="customer-note-content">
+                    {noteEditing ? "Modifier la note" : "Ajouter une note"}
+                  </Label>
+                  <textarea
+                    id="customer-note-content"
+                    rows={3}
+                    className="mt-2 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                    placeholder="Ex: Préfère les couleurs vives, aime les modèles sirène..."
+                    value={noteFormValue}
+                    onChange={(event) => setNoteFormValue(event.target.value)}
+                    disabled={noteSubmitting || notesLoading || !viewCustomer}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  {noteEditing && (
+                    <Button type="button" variant="outline" onClick={handleCancelNoteEdit} disabled={noteSubmitting}>
+                      Annuler
+                    </Button>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={
+                      noteSubmitting || !viewCustomer || noteFormValue.trim().length === 0
+                    }
+                  >
+                    {noteSubmitting
+                      ? noteEditing
+                        ? "Mise à jour..."
+                        : "Ajout..."
+                      : noteEditing
+                      ? "Mettre à jour"
+                      : "Ajouter"}
+                  </Button>
+                </div>
+              </form>
+
+              {notesLoading ? (
+                <div className="flex justify-center py-6">
+                  <SpinnerOne />
+                </div>
+              ) : notesError ? (
+                <div className="rounded-xl border border-error-200 bg-error-50 p-4 text-sm text-error-600 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-200">
+                  {notesError}
+                </div>
+              ) : viewNotes.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Aucune note pour le moment. Utilisez le champ ci-dessus pour ajouter vos observations.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {viewNotes.map((note) => (
+                    <div
+                      key={note.id}
+                      className={`rounded-xl border p-4 transition ${
+                        noteEditing?.id === note.id
+                          ? "border-blue-200 bg-blue-50/70 dark:border-blue-500/40 dark:bg-blue-500/10"
+                          : "border-gray-200 bg-white/80 dark:border-gray-800 dark:bg-white/[0.03]"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="whitespace-pre-line text-sm text-gray-800 dark:text-gray-100">
+                            {note.content}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                            <span>Ajouté par {getUserFullName(note.created_by)}</span>
+                            <span>le {formatDateTimeShort(note.created_at)}</span>
+                            {note.updated_at && (
+                              <span className="text-gray-400">
+                                Mise à jour {formatDateTimeShort(note.updated_at)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleStartNoteEdit(note)}
+                            className="inline-flex size-9 items-center justify-center rounded-lg border border-gray-300 text-gray-600 transition hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                            aria-label="Modifier la note"
+                          >
+                            <PencilIcon className="size-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteNote(note.id)}
+                            disabled={noteDeletingId === note.id}
+                            className={`inline-flex size-9 items-center justify-center rounded-lg border text-error-600 transition dark:text-error-400 ${
+                              noteDeletingId === note.id
+                                ? "cursor-not-allowed border-gray-200 dark:border-gray-700"
+                                : "border-error-200 hover:bg-error-50 dark:border-error-500/40 dark:hover:bg-error-500/10"
+                            }`}
+                            aria-label="Supprimer la note"
+                          >
+                            <TrashBinIcon className="size-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
