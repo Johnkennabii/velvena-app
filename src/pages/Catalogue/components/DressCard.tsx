@@ -192,11 +192,6 @@ const DressCard = memo<DressCardProps>(({
     </div>
   ) : null;
 
-  // Log pour déboguer
-  if (isReservedToday) {
-    console.log("🔴 Robe réservée aujourd'hui:", dress.name, dress.id);
-  }
-
   // Construction des badges pour le composant empilé
   const overlayBadges = useMemo(() => {
     const badges = [];

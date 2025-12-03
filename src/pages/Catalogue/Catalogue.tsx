@@ -2618,9 +2618,6 @@ export default function Catalogue() {
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {dresses.map((dress) => {
                   const isReservedToday = todayAvailabilityInfo.get(dress.id) === false;
-                  if (isReservedToday) {
-                    console.log("🎯 Passing isReservedToday=true to DressCard:", dress.name, dress.id);
-                  }
                   return (
                   <DressCard
                     key={dress.id}

@@ -10,6 +10,7 @@ import { NotificationProvider } from "./context/NotificationContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { LoadingProvider } from "./context/LoadingContext.tsx";
 import { CartProvider } from "./context/CartContext.tsx";
+import { ProspectsProvider } from "./context/ProspectsContext.tsx";
 import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")!).render(
@@ -20,9 +21,11 @@ createRoot(document.getElementById("root")!).render(
           <BrowserRouter>
             <AuthProvider>
               <CartProvider>
-                <AppWrapper>
-                  <App />
-                </AppWrapper>
+                <ProspectsProvider>
+                  <AppWrapper>
+                    <App />
+                  </AppWrapper>
+                </ProspectsProvider>
               </CartProvider>
             </AuthProvider>
           </BrowserRouter>

@@ -24,7 +24,9 @@ import DressSizes from "./pages/Gestion/DressSizes";
 import DressConditions from "./pages/Gestion/DressConditions";
 import DressColors from "./pages/Gestion/DressColors";
 import Customers from "./pages/Customers/Customers";
+import Prospects from "./pages/Prospects/Prospects";
 import Catalogue from "./pages/Catalogue/Catalogue";
+import ContractBuilder from "./pages/ContractBuilder/ContractBuilder";
 import ContractSignPage from "./pages/Public/ContractSignPage";
 import Calendar from "./pages/Calendar";
 import Changelog from "./pages/Changelog";
@@ -137,10 +139,26 @@ export default function App() {
             }
           />
           <Route
+            path="/prospects"
+            element={
+              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <Prospects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/catalogue"
             element={
               <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
                 <Catalogue />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contract-builder"
+            element={
+              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <ContractBuilder />
               </ProtectedRoute>
             }
           />

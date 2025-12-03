@@ -1,217 +1,241 @@
 {
-  "hash": "4f4145f5",
+  "hash": "d0a2aa91",
   "configHash": "68b10410",
-  "lockfileHash": "70dbfa6d",
-  "browserHash": "10bb593e",
+  "lockfileHash": "d42e62de",
+  "browserHash": "ac76fa1b",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "01d6d2e4",
+      "fileHash": "5d4c8ed3",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "dba715ae",
+      "fileHash": "a65d0133",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "7a1e17c9",
+      "fileHash": "0362aae2",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "fbb6d064",
+      "fileHash": "b15074fd",
       "needsInterop": true
     },
     "@fullcalendar/core/locales/fr": {
       "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
       "file": "@fullcalendar_core_locales_fr.js",
-      "fileHash": "5f4faf00",
+      "fileHash": "7131576a",
       "needsInterop": false
     },
     "@fullcalendar/daygrid": {
       "src": "../../node_modules/@fullcalendar/daygrid/index.js",
       "file": "@fullcalendar_daygrid.js",
-      "fileHash": "faa14c30",
+      "fileHash": "25c6a294",
       "needsInterop": false
     },
     "@fullcalendar/interaction": {
       "src": "../../node_modules/@fullcalendar/interaction/index.js",
       "file": "@fullcalendar_interaction.js",
-      "fileHash": "06d002c3",
+      "fileHash": "b4523ba1",
       "needsInterop": false
     },
     "@fullcalendar/react": {
       "src": "../../node_modules/@fullcalendar/react/dist/index.js",
       "file": "@fullcalendar_react.js",
-      "fileHash": "c69ecb51",
+      "fileHash": "aab37e69",
       "needsInterop": false
     },
     "@fullcalendar/timegrid": {
       "src": "../../node_modules/@fullcalendar/timegrid/index.js",
       "file": "@fullcalendar_timegrid.js",
-      "fileHash": "a4332925",
+      "fileHash": "7546bb94",
       "needsInterop": false
     },
     "@react-jvectormap/core": {
       "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
       "file": "@react-jvectormap_core.js",
-      "fileHash": "5002fa35",
+      "fileHash": "937e7c0d",
       "needsInterop": true
     },
     "@react-jvectormap/world": {
       "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
       "file": "@react-jvectormap_world.js",
-      "fileHash": "24f5135c",
+      "fileHash": "99a53469",
       "needsInterop": false
     },
     "clsx": {
       "src": "../../node_modules/clsx/dist/clsx.mjs",
       "file": "clsx.js",
-      "fileHash": "16fa93e1",
+      "fileHash": "d76d80b7",
       "needsInterop": false
     },
     "flatpickr": {
       "src": "../../node_modules/flatpickr/dist/esm/index.js",
       "file": "flatpickr.js",
-      "fileHash": "fb047641",
+      "fileHash": "3cd061ce",
       "needsInterop": false
     },
     "flatpickr/dist/l10n/fr.js": {
       "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
       "file": "flatpickr_dist_l10n_fr__js.js",
-      "fileHash": "640e646f",
+      "fileHash": "e562edfc",
       "needsInterop": true
     },
     "react-apexcharts": {
       "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
       "file": "react-apexcharts.js",
-      "fileHash": "d32badb7",
+      "fileHash": "86ee4ba6",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "d7016888",
+      "fileHash": "364f9700",
       "needsInterop": true
     },
     "react-dropzone": {
       "src": "../../node_modules/react-dropzone/dist/es/index.js",
       "file": "react-dropzone.js",
-      "fileHash": "ff80e638",
+      "fileHash": "ecafa834",
       "needsInterop": false
     },
     "react-helmet-async": {
       "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
       "file": "react-helmet-async.js",
-      "fileHash": "6e9cc5fc",
+      "fileHash": "ab28fb6b",
       "needsInterop": false
     },
     "react-icons/fa": {
       "src": "../../node_modules/react-icons/fa/index.mjs",
       "file": "react-icons_fa.js",
-      "fileHash": "ea197b66",
+      "fileHash": "b1f3fe6b",
       "needsInterop": false
     },
     "react-icons/fi": {
       "src": "../../node_modules/react-icons/fi/index.mjs",
       "file": "react-icons_fi.js",
-      "fileHash": "aafb6721",
+      "fileHash": "23e6beb5",
       "needsInterop": false
     },
     "react-icons/hi2": {
       "src": "../../node_modules/react-icons/hi2/index.mjs",
       "file": "react-icons_hi2.js",
-      "fileHash": "ac9219a8",
+      "fileHash": "9f204e05",
       "needsInterop": false
     },
     "react-icons/io5": {
       "src": "../../node_modules/react-icons/io5/index.mjs",
       "file": "react-icons_io5.js",
-      "fileHash": "6f422f83",
+      "fileHash": "4d1c6226",
       "needsInterop": false
     },
     "react-icons/pi": {
       "src": "../../node_modules/react-icons/pi/index.mjs",
       "file": "react-icons_pi.js",
-      "fileHash": "8e172931",
+      "fileHash": "a391f8e1",
       "needsInterop": false
     },
     "react-router": {
       "src": "../../node_modules/react-router/dist/development/index.mjs",
       "file": "react-router.js",
-      "fileHash": "7abf8efd",
+      "fileHash": "9dd16331",
       "needsInterop": false
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "b26d03f2",
+      "fileHash": "026ccc3d",
       "needsInterop": false
     },
     "simplebar-react": {
       "src": "../../node_modules/simplebar-react/dist/index.mjs",
       "file": "simplebar-react.js",
-      "fileHash": "0df2b491",
+      "fileHash": "73290c5c",
       "needsInterop": false
     },
     "socket.io-client": {
       "src": "../../node_modules/socket.io-client/build/esm/index.js",
       "file": "socket__io-client.js",
-      "fileHash": "807e583a",
+      "fileHash": "96d3c11b",
       "needsInterop": false
     },
     "swiper/modules": {
       "src": "../../node_modules/swiper/modules/index.mjs",
       "file": "swiper_modules.js",
-      "fileHash": "8691b421",
+      "fileHash": "ecee3baf",
       "needsInterop": false
     },
     "swiper/react": {
       "src": "../../node_modules/swiper/swiper-react.mjs",
       "file": "swiper_react.js",
-      "fileHash": "42c185f5",
+      "fileHash": "039cbdc9",
       "needsInterop": false
     },
     "tailwind-merge": {
       "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
       "file": "tailwind-merge.js",
-      "fileHash": "b9c23d93",
+      "fileHash": "eff49f48",
       "needsInterop": false
     },
     "xlsx": {
       "src": "../../node_modules/xlsx/xlsx.mjs",
       "file": "xlsx.js",
-      "fileHash": "d4f34c05",
+      "fileHash": "44966c6a",
+      "needsInterop": false
+    },
+    "@dnd-kit/core": {
+      "src": "../../node_modules/@dnd-kit/core/dist/core.esm.js",
+      "file": "@dnd-kit_core.js",
+      "fileHash": "5d1d206d",
+      "needsInterop": false
+    },
+    "@dnd-kit/sortable": {
+      "src": "../../node_modules/@dnd-kit/sortable/dist/sortable.esm.js",
+      "file": "@dnd-kit_sortable.js",
+      "fileHash": "e67af940",
+      "needsInterop": false
+    },
+    "@dnd-kit/utilities": {
+      "src": "../../node_modules/@dnd-kit/utilities/dist/utilities.esm.js",
+      "file": "@dnd-kit_utilities.js",
+      "fileHash": "3e68e346",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-T7OI7B56": {
-      "file": "chunk-T7OI7B56.js"
-    },
-    "chunk-5I6MPOC6": {
-      "file": "chunk-5I6MPOC6.js"
-    },
     "chunk-XLOWEJT4": {
       "file": "chunk-XLOWEJT4.js"
+    },
+    "chunk-T7OI7B56": {
+      "file": "chunk-T7OI7B56.js"
     },
     "chunk-JL2MEAST": {
       "file": "chunk-JL2MEAST.js"
     },
-    "chunk-D5I3RLC3": {
-      "file": "chunk-D5I3RLC3.js"
+    "chunk-5I6MPOC6": {
+      "file": "chunk-5I6MPOC6.js"
+    },
+    "chunk-GRNKHRFD": {
+      "file": "chunk-GRNKHRFD.js"
+    },
+    "chunk-FQXNJXS4": {
+      "file": "chunk-FQXNJXS4.js"
     },
     "chunk-XVPNPNLI": {
       "file": "chunk-XVPNPNLI.js"
     },
     "chunk-W24JOBID": {
       "file": "chunk-W24JOBID.js"
+    },
+    "chunk-D5I3RLC3": {
+      "file": "chunk-D5I3RLC3.js"
     },
     "chunk-XXR5GDEA": {
       "file": "chunk-XXR5GDEA.js"

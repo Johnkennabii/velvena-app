@@ -23,6 +23,7 @@ import {
 import {  PiDress } from "react-icons/pi";
 import { FiUsers , FiUserPlus} from "react-icons/fi";
 import { IoCalendarNumberOutline } from "react-icons/io5";
+import { HiOutlineUserGroup } from "react-icons/hi2";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useAuth } from "../context/AuthContext";
@@ -67,6 +68,12 @@ const navItems: NavItem[] = [
     icon: <FiUserPlus />,
     name: "Clients",
     path: "/customers",
+    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+  },
+  {
+    icon: <HiOutlineUserGroup />,
+    name: "Prospects",
+    path: "/prospects",
     requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
   },
   {

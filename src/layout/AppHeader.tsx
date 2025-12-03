@@ -7,6 +7,7 @@ import UserDropdown from "../components/header/UserDropdown";
 import QuickSearchBar from "../components/header/QuickSearchBar";
 import QuickActionsDropdown from "../components/header/QuickActionsDropdown";
 import CartIcon from "../components/header/CartIcon";
+import ProspectsIcon from "../components/header/ProspectsIcon";
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -121,6 +122,8 @@ const AppHeader: React.FC = () => {
           } items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            {/* <!-- Prospects Icon --> */}
+            <ProspectsIcon />
             {/* <!-- Cart Icon --> */}
             <CartIcon />
             {/* <!-- Dark Mode Toggler --> */}

@@ -363,4 +363,20 @@ export const DressesAPI = {
       },
     };
   },
+
+  async publish(dressId: string): Promise<DressDetails> {
+    const res = await httpClient.post(`/dresses/${dressId}/publish`, {});
+    if (res?.data && typeof res.data === "object") {
+      return normalizeDress(res.data);
+    }
+    return normalizeDress(res);
+  },
+
+  async unpublish(dressId: string): Promise<DressDetails> {
+    const res = await httpClient.post(`/dresses/${dressId}/unpublish`, {});
+    if (res?.data && typeof res.data === "object") {
+      return normalizeDress(res.data);
+    }
+    return normalizeDress(res);
+  },
 };
