@@ -128,9 +128,9 @@ export default function MaintenanceModeCard() {
             ...
           </span>
         ) : status.enabled ? (
-          <span className="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-1 text-xs font-medium text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
-            <span className="mr-1 h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
-            Maintenance
+          <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+            <span className="mr-1 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            Hors ligne
           </span>
         ) : (
           <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
