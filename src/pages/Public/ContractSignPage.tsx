@@ -114,7 +114,26 @@ export default function ContractSignPage() {
   const isSigned = useMemo(() => {
     if (!contract) return false;
     const status = (contract.status ?? "").toUpperCase();
-    const signed = SIGNED_STATUSES.has(status);
+    const signedByStatus = SIGNED_STATUSES.has(status);
+    const signedByTimestamp = Boolean(contract.signed_at);
+    const signedByReference = Boolean(contract.signature_reference);
+
+    // Un contrat est signé si:
+    // 1. Le statut est dans SIGNED_STATUSES OU
+    // 2. Il y a une date de signature (signed_at) OU
+    // 3. Il y a une référence de signature (signature_reference)
+    const signed = signedByStatus || signedByTimestamp || signedByReference;
+
+    console.log("📝 Vérification signature:", {
+      status_original: contract.status,
+      status_uppercase: status,
+      signedByStatus,
+      signedByTimestamp,
+      signedByReference,
+      signed,
+      signed_at: contract.signed_at,
+      signature_reference: contract.signature_reference
+    });
     return signed;
   }, [contract]);
 
@@ -134,9 +153,19 @@ export default function ContractSignPage() {
     setSigning(true);
     try {
       const updated = await ContractsAPI.signByToken(token);
+      console.log("✅ Contrat mis à jour après signature:", {
+        status: updated.status,
+        signed_at: updated.signed_at,
+        signature_reference: updated.signature_reference
+      });
       setContract(updated);
       setModalOpen(false);
       notify("success", "Signature confirmée", "Le contrat a été signé électroniquement.");
+
+      // Force un refresh de la page après 1 seconde pour être sûr que le statut est à jour
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       console.error("Signature électronique impossible :", err);
       notify("error", "Erreur", "La signature électronique n'a pas pu être enregistrée.");
