@@ -143,10 +143,7 @@ export default function MaintenanceModeCard() {
       }
       customActions={
         <>
-          <MaintenanceSettingsModal
-            onRefresh={fetchStatus}
-            currentMessage={status.message}
-          />
+          <MaintenanceSettingsModal currentMessage={status.message} />
           <button
             onClick={fetchStatus}
             disabled={loading || checking}

@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { useModal } from "../../hooks/useModal";
 
 interface MaintenanceSettingsModalProps {
-  onRefresh: () => void;
   currentMessage?: string;
 }
 
 export default function MaintenanceSettingsModal({
-  onRefresh,
   currentMessage,
 }: MaintenanceSettingsModalProps) {
   const { isOpen, openModal, closeModal } = useModal();
