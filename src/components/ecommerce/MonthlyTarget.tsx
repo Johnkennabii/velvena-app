@@ -75,7 +75,7 @@ export default function MonthlyTarget() {
         const calculatedPercentage = lastMonthTotal > 0
           ? (currentMonthTotal / lastMonthTotal) * 100
           : 0;
-        setPercentage(Math.min(calculatedPercentage, 100)); // Max 100%
+        setPercentage(calculatedPercentage);
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
       } finally {
@@ -86,7 +86,9 @@ export default function MonthlyTarget() {
     fetchData();
   }, []);
 
-  const series = [percentage];
+  // Limiter l'affichage du graphique à 100% max, mais garder le vrai pourcentage pour les calculs
+  const displayPercentage = Math.min(percentage, 100);
+  const series = [displayPercentage];
   const options: ApexOptions = {
     colors: ["#465FFF"],
     chart: {
@@ -118,8 +120,9 @@ export default function MonthlyTarget() {
             fontWeight: "600",
             offsetY: -40,
             color: "#1D2939",
-            formatter: function (val) {
-              return val.toFixed(1) + "%";
+            formatter: function () {
+              // Afficher le vrai pourcentage, pas le displayPercentage
+              return percentage.toFixed(1) + "%";
             },
           },
         },
