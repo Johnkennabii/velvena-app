@@ -258,6 +258,7 @@ export default function Catalogue() {
   const { hasRole } = useAuth();
   const canManage = hasRole("ADMIN", "MANAGER");
   const canCreateContract = hasRole("ADMIN", "MANAGER", "COLLABORATOR");
+  const canPublish = hasRole("ADMIN", "MANAGER");
   const isAdmin = hasRole("ADMIN");
   const navigate = useNavigate();
   const location = useLocation();
@@ -2646,6 +2647,7 @@ export default function Catalogue() {
                     isReservedToday={isReservedToday}
                     canCreateContract={canCreateContract}
                     canManage={canManage}
+                    canPublish={canPublish}
                     isAdmin={isAdmin}
                     onView={handleOpenView}
                     onDailyContract={(dress) => openContractDrawer("daily", dress)}

@@ -93,6 +93,7 @@ interface DressCardProps {
   isReservedToday?: boolean;
   canCreateContract: boolean;
   canManage: boolean;
+  canPublish: boolean;
   isAdmin: boolean;
   onView: (dress: DressDetails) => void;
   onDailyContract: (dress: DressDetails) => void;
@@ -114,6 +115,7 @@ const DressCard = memo<DressCardProps>(({
   isReservedToday,
   canCreateContract,
   canManage,
+  canPublish,
   isAdmin,
   onView,
   onDailyContract,
@@ -360,7 +362,7 @@ const DressCard = memo<DressCardProps>(({
           </button>
         </IconTooltip>
       ) : null}
-      {isAdmin ? (
+      {canPublish ? (
         <IconTooltip title={dress.published_post ? "Dépublier" : "Publier"}>
           <button
             type="button"
