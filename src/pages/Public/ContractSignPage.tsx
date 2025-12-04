@@ -55,10 +55,87 @@ export default function ContractSignPage() {
         const response = await ContractsAPI.getSignatureByToken(token);
         if (cancelled) return;
         setContract(response);
-      } catch (err) {
+        console.log("✅ Contrat récupéré:", {
+          status: response.status,
+          signed_at: response.signed_at,
+          signature_reference: response.signature_reference
+        });
+      } catch (err: any) {
         console.error("Impossible de récupérer le contrat à signer :", err);
+
+        // Vérifier si l'erreur indique que le contrat est déjà signé
+        const errorMessage = err?.message || err?.response?.data?.message || "";
+        const errorData = err?.response?.data;
+        const isAlreadySigned =
+          errorMessage.toLowerCase().includes("déjà signé") ||
+          errorMessage.toLowerCase().includes("already signed") ||
+          err?.response?.status === 403;
+
         if (!cancelled) {
-          setError("Ce lien de signature n'est plus valide ou a déjà été utilisé.");
+          if (isAlreadySigned) {
+            // Si le contrat est déjà signé, vérifier si les données du contrat sont dans la réponse d'erreur
+            console.log("ℹ️ Contrat déjà signé, tentative de récupération des données...", errorData);
+
+            // Le backend pourrait retourner les données du contrat dans l'erreur
+            let contractData = null;
+
+            // Essayer différentes structures de réponse
+            if (errorData?.contract && typeof errorData.contract === "object") {
+              contractData = errorData.contract;
+            } else if (errorData?.data?.contract && typeof errorData.data.contract === "object") {
+              contractData = errorData.data.contract;
+            } else if (errorData?.data && typeof errorData.data === "object" && errorData.data.id) {
+              contractData = errorData.data;
+            }
+
+            // Si on a trouvé les données du contrat, les utiliser
+            if (contractData) {
+              console.log("✅ Données du contrat récupérées depuis la réponse d'erreur");
+
+              // Mapper les données comme dans getSignatureByToken
+              if (contractData.customer && typeof contractData.customer === "object") {
+                const customer = contractData.customer;
+                contractData.customer_firstname = customer.firstname;
+                contractData.customer_lastname = customer.lastname;
+                contractData.customer_email = customer.email;
+                contractData.customer_phone = customer.phone;
+                contractData.customer_city = customer.city;
+                contractData.customer_country = customer.country;
+                contractData.customer_address = customer.address;
+                contractData.customer_postal_code = customer.postal_code;
+                contractData.customer_birthday = customer.birthday;
+              }
+
+              // Mapper les robes
+              if (contractData.dresses && Array.isArray(contractData.dresses)) {
+                contractData.dresses = contractData.dresses.map((dressItem: any) => {
+                  const dress = dressItem?.dress || dressItem;
+                  return {
+                    ...dress,
+                    type_name: dress?.type?.name || dress?.type_name,
+                    size_name: dress?.size?.name || dress?.size_name,
+                    color_name: dress?.color?.name || dress?.color_name,
+                    condition_name: dress?.condition?.name || dress?.condition_name,
+                  };
+                });
+              }
+
+              // Mapper les addons
+              if (contractData.addon_links && Array.isArray(contractData.addon_links)) {
+                contractData.addons = contractData.addon_links
+                  .map((link: any) => link?.addon)
+                  .filter((addon: any) => Boolean(addon));
+              }
+
+              setContract(contractData);
+            } else {
+              // Pas de données de contrat dans la réponse
+              console.log("❌ Aucune donnée de contrat trouvée dans la réponse d'erreur");
+              setError("Ce contrat a déjà été signé. Si vous souhaitez le consulter, veuillez contacter l'entreprise.");
+            }
+          } else {
+            setError("Ce lien de signature n'est plus valide ou a expiré.");
+          }
         }
       } finally {
         if (!cancelled) {
