@@ -1,211 +1,217 @@
 {
-  "hash": "d0a2aa91",
-  "configHash": "68b10410",
-  "lockfileHash": "d42e62de",
-  "browserHash": "ac76fa1b",
+  "hash": "ac901315",
+  "configHash": "8caaf8dc",
+  "lockfileHash": "69d95138",
+  "browserHash": "8f534ebd",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "5d4c8ed3",
+      "fileHash": "2d32b7eb",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "a65d0133",
+      "fileHash": "8a151720",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "0362aae2",
+      "fileHash": "a654f9ac",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "b15074fd",
+      "fileHash": "aa136d4a",
       "needsInterop": true
-    },
-    "@fullcalendar/core/locales/fr": {
-      "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
-      "file": "@fullcalendar_core_locales_fr.js",
-      "fileHash": "7131576a",
-      "needsInterop": false
-    },
-    "@fullcalendar/daygrid": {
-      "src": "../../node_modules/@fullcalendar/daygrid/index.js",
-      "file": "@fullcalendar_daygrid.js",
-      "fileHash": "25c6a294",
-      "needsInterop": false
-    },
-    "@fullcalendar/interaction": {
-      "src": "../../node_modules/@fullcalendar/interaction/index.js",
-      "file": "@fullcalendar_interaction.js",
-      "fileHash": "b4523ba1",
-      "needsInterop": false
-    },
-    "@fullcalendar/react": {
-      "src": "../../node_modules/@fullcalendar/react/dist/index.js",
-      "file": "@fullcalendar_react.js",
-      "fileHash": "aab37e69",
-      "needsInterop": false
-    },
-    "@fullcalendar/timegrid": {
-      "src": "../../node_modules/@fullcalendar/timegrid/index.js",
-      "file": "@fullcalendar_timegrid.js",
-      "fileHash": "7546bb94",
-      "needsInterop": false
-    },
-    "@react-jvectormap/core": {
-      "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
-      "file": "@react-jvectormap_core.js",
-      "fileHash": "937e7c0d",
-      "needsInterop": true
-    },
-    "@react-jvectormap/world": {
-      "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
-      "file": "@react-jvectormap_world.js",
-      "fileHash": "99a53469",
-      "needsInterop": false
-    },
-    "clsx": {
-      "src": "../../node_modules/clsx/dist/clsx.mjs",
-      "file": "clsx.js",
-      "fileHash": "d76d80b7",
-      "needsInterop": false
-    },
-    "flatpickr": {
-      "src": "../../node_modules/flatpickr/dist/esm/index.js",
-      "file": "flatpickr.js",
-      "fileHash": "3cd061ce",
-      "needsInterop": false
-    },
-    "flatpickr/dist/l10n/fr.js": {
-      "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
-      "file": "flatpickr_dist_l10n_fr__js.js",
-      "fileHash": "e562edfc",
-      "needsInterop": true
-    },
-    "react-apexcharts": {
-      "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
-      "file": "react-apexcharts.js",
-      "fileHash": "86ee4ba6",
-      "needsInterop": true
-    },
-    "react-dom/client": {
-      "src": "../../node_modules/react-dom/client.js",
-      "file": "react-dom_client.js",
-      "fileHash": "364f9700",
-      "needsInterop": true
-    },
-    "react-dropzone": {
-      "src": "../../node_modules/react-dropzone/dist/es/index.js",
-      "file": "react-dropzone.js",
-      "fileHash": "ecafa834",
-      "needsInterop": false
-    },
-    "react-helmet-async": {
-      "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
-      "file": "react-helmet-async.js",
-      "fileHash": "ab28fb6b",
-      "needsInterop": false
-    },
-    "react-icons/fa": {
-      "src": "../../node_modules/react-icons/fa/index.mjs",
-      "file": "react-icons_fa.js",
-      "fileHash": "b1f3fe6b",
-      "needsInterop": false
-    },
-    "react-icons/fi": {
-      "src": "../../node_modules/react-icons/fi/index.mjs",
-      "file": "react-icons_fi.js",
-      "fileHash": "23e6beb5",
-      "needsInterop": false
-    },
-    "react-icons/hi2": {
-      "src": "../../node_modules/react-icons/hi2/index.mjs",
-      "file": "react-icons_hi2.js",
-      "fileHash": "9f204e05",
-      "needsInterop": false
-    },
-    "react-icons/io5": {
-      "src": "../../node_modules/react-icons/io5/index.mjs",
-      "file": "react-icons_io5.js",
-      "fileHash": "4d1c6226",
-      "needsInterop": false
-    },
-    "react-icons/pi": {
-      "src": "../../node_modules/react-icons/pi/index.mjs",
-      "file": "react-icons_pi.js",
-      "fileHash": "a391f8e1",
-      "needsInterop": false
-    },
-    "react-router": {
-      "src": "../../node_modules/react-router/dist/development/index.mjs",
-      "file": "react-router.js",
-      "fileHash": "9dd16331",
-      "needsInterop": false
-    },
-    "react-router-dom": {
-      "src": "../../node_modules/react-router-dom/dist/index.mjs",
-      "file": "react-router-dom.js",
-      "fileHash": "026ccc3d",
-      "needsInterop": false
-    },
-    "simplebar-react": {
-      "src": "../../node_modules/simplebar-react/dist/index.mjs",
-      "file": "simplebar-react.js",
-      "fileHash": "73290c5c",
-      "needsInterop": false
-    },
-    "socket.io-client": {
-      "src": "../../node_modules/socket.io-client/build/esm/index.js",
-      "file": "socket__io-client.js",
-      "fileHash": "96d3c11b",
-      "needsInterop": false
-    },
-    "swiper/modules": {
-      "src": "../../node_modules/swiper/modules/index.mjs",
-      "file": "swiper_modules.js",
-      "fileHash": "ecee3baf",
-      "needsInterop": false
-    },
-    "swiper/react": {
-      "src": "../../node_modules/swiper/swiper-react.mjs",
-      "file": "swiper_react.js",
-      "fileHash": "039cbdc9",
-      "needsInterop": false
-    },
-    "tailwind-merge": {
-      "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
-      "file": "tailwind-merge.js",
-      "fileHash": "eff49f48",
-      "needsInterop": false
-    },
-    "xlsx": {
-      "src": "../../node_modules/xlsx/xlsx.mjs",
-      "file": "xlsx.js",
-      "fileHash": "44966c6a",
-      "needsInterop": false
     },
     "@dnd-kit/core": {
       "src": "../../node_modules/@dnd-kit/core/dist/core.esm.js",
       "file": "@dnd-kit_core.js",
-      "fileHash": "5d1d206d",
+      "fileHash": "ee62a8fc",
       "needsInterop": false
     },
     "@dnd-kit/sortable": {
       "src": "../../node_modules/@dnd-kit/sortable/dist/sortable.esm.js",
       "file": "@dnd-kit_sortable.js",
-      "fileHash": "e67af940",
+      "fileHash": "d3bc4876",
       "needsInterop": false
     },
     "@dnd-kit/utilities": {
       "src": "../../node_modules/@dnd-kit/utilities/dist/utilities.esm.js",
       "file": "@dnd-kit_utilities.js",
-      "fileHash": "3e68e346",
+      "fileHash": "a09c4254",
+      "needsInterop": false
+    },
+    "@fullcalendar/core/locales/fr": {
+      "src": "../../node_modules/@fullcalendar/core/locales/fr.js",
+      "file": "@fullcalendar_core_locales_fr.js",
+      "fileHash": "0f4f9eac",
+      "needsInterop": false
+    },
+    "@fullcalendar/daygrid": {
+      "src": "../../node_modules/@fullcalendar/daygrid/index.js",
+      "file": "@fullcalendar_daygrid.js",
+      "fileHash": "7200cb9b",
+      "needsInterop": false
+    },
+    "@fullcalendar/interaction": {
+      "src": "../../node_modules/@fullcalendar/interaction/index.js",
+      "file": "@fullcalendar_interaction.js",
+      "fileHash": "c7d010c9",
+      "needsInterop": false
+    },
+    "@fullcalendar/react": {
+      "src": "../../node_modules/@fullcalendar/react/dist/index.js",
+      "file": "@fullcalendar_react.js",
+      "fileHash": "856bf989",
+      "needsInterop": false
+    },
+    "@fullcalendar/timegrid": {
+      "src": "../../node_modules/@fullcalendar/timegrid/index.js",
+      "file": "@fullcalendar_timegrid.js",
+      "fileHash": "b7a87087",
+      "needsInterop": false
+    },
+    "@react-jvectormap/core": {
+      "src": "../../node_modules/@react-jvectormap/core/dist/index.js",
+      "file": "@react-jvectormap_core.js",
+      "fileHash": "fd56828b",
+      "needsInterop": true
+    },
+    "@react-jvectormap/world": {
+      "src": "../../node_modules/@react-jvectormap/world/dist/index.js",
+      "file": "@react-jvectormap_world.js",
+      "fileHash": "308092fb",
+      "needsInterop": false
+    },
+    "clsx": {
+      "src": "../../node_modules/clsx/dist/clsx.mjs",
+      "file": "clsx.js",
+      "fileHash": "c2f54348",
+      "needsInterop": false
+    },
+    "flatpickr": {
+      "src": "../../node_modules/flatpickr/dist/esm/index.js",
+      "file": "flatpickr.js",
+      "fileHash": "074bbd28",
+      "needsInterop": false
+    },
+    "flatpickr/dist/l10n/fr.js": {
+      "src": "../../node_modules/flatpickr/dist/l10n/fr.js",
+      "file": "flatpickr_dist_l10n_fr__js.js",
+      "fileHash": "e0b2a4a7",
+      "needsInterop": true
+    },
+    "react-apexcharts": {
+      "src": "../../node_modules/react-apexcharts/dist/react-apexcharts.min.js",
+      "file": "react-apexcharts.js",
+      "fileHash": "d2f5a1d0",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "64f0f570",
+      "needsInterop": true
+    },
+    "react-dropzone": {
+      "src": "../../node_modules/react-dropzone/dist/es/index.js",
+      "file": "react-dropzone.js",
+      "fileHash": "3eff1e2e",
+      "needsInterop": false
+    },
+    "react-helmet-async": {
+      "src": "../../node_modules/react-helmet-async/lib/index.esm.js",
+      "file": "react-helmet-async.js",
+      "fileHash": "d898d77a",
+      "needsInterop": false
+    },
+    "react-icons/fa": {
+      "src": "../../node_modules/react-icons/fa/index.mjs",
+      "file": "react-icons_fa.js",
+      "fileHash": "1fb781b0",
+      "needsInterop": false
+    },
+    "react-icons/fi": {
+      "src": "../../node_modules/react-icons/fi/index.mjs",
+      "file": "react-icons_fi.js",
+      "fileHash": "6bb0f623",
+      "needsInterop": false
+    },
+    "react-icons/hi2": {
+      "src": "../../node_modules/react-icons/hi2/index.mjs",
+      "file": "react-icons_hi2.js",
+      "fileHash": "4a3f9036",
+      "needsInterop": false
+    },
+    "react-icons/io5": {
+      "src": "../../node_modules/react-icons/io5/index.mjs",
+      "file": "react-icons_io5.js",
+      "fileHash": "ddea0c43",
+      "needsInterop": false
+    },
+    "react-icons/lu": {
+      "src": "../../node_modules/react-icons/lu/index.mjs",
+      "file": "react-icons_lu.js",
+      "fileHash": "2a928352",
+      "needsInterop": false
+    },
+    "react-icons/pi": {
+      "src": "../../node_modules/react-icons/pi/index.mjs",
+      "file": "react-icons_pi.js",
+      "fileHash": "f1bbbfb1",
+      "needsInterop": false
+    },
+    "react-router": {
+      "src": "../../node_modules/react-router/dist/development/index.mjs",
+      "file": "react-router.js",
+      "fileHash": "cc197c9b",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "9ab31f36",
+      "needsInterop": false
+    },
+    "simplebar-react": {
+      "src": "../../node_modules/simplebar-react/dist/index.mjs",
+      "file": "simplebar-react.js",
+      "fileHash": "455d6299",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "704df8e5",
+      "needsInterop": false
+    },
+    "swiper/modules": {
+      "src": "../../node_modules/swiper/modules/index.mjs",
+      "file": "swiper_modules.js",
+      "fileHash": "1843dc50",
+      "needsInterop": false
+    },
+    "swiper/react": {
+      "src": "../../node_modules/swiper/swiper-react.mjs",
+      "file": "swiper_react.js",
+      "fileHash": "0f37c2d8",
+      "needsInterop": false
+    },
+    "tailwind-merge": {
+      "src": "../../node_modules/tailwind-merge/dist/bundle-mjs.mjs",
+      "file": "tailwind-merge.js",
+      "fileHash": "abf8f1eb",
+      "needsInterop": false
+    },
+    "xlsx": {
+      "src": "../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "2ec2c060",
       "needsInterop": false
     }
   },
@@ -216,11 +222,11 @@
     "chunk-T7OI7B56": {
       "file": "chunk-T7OI7B56.js"
     },
-    "chunk-JL2MEAST": {
-      "file": "chunk-JL2MEAST.js"
-    },
     "chunk-5I6MPOC6": {
       "file": "chunk-5I6MPOC6.js"
+    },
+    "chunk-JL2MEAST": {
+      "file": "chunk-JL2MEAST.js"
     },
     "chunk-GRNKHRFD": {
       "file": "chunk-GRNKHRFD.js"
