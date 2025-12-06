@@ -10,6 +10,7 @@ interface User {
   id: string;
   email: string;
   role: string;
+  organizationId: string;
   profile?: any;
 }
 
@@ -65,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: res.id,
         email: res.email,
         role: res.role,
+        organizationId: res.organizationId,
         profile: res.profile,
       });
       return res.token;
@@ -120,6 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: res.id,
         email: res.email,
         role: res.role,
+        organizationId: res.organizationId,
         profile: res.profile,
       });
       setSessionExpired(false);

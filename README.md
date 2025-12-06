@@ -1,168 +1,113 @@
-# TailAdmin Pro - React.js (v2.2.0)
+# Velvena App
 
-[TailAdmin](https://tailadmin.com) is a modern, responsive, and customizable admin dashboard template built using Tailwind CSS and React.js. It is designed to help developers build beautiful and functional dashboards quickly and easily.
+Multi-tenant dress rental management application built with React, TypeScript, and Tailwind CSS.
 
-## Quick Links
+## Features
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🌐 Live Site](https://react-demo.tailadmin.com)
+- **Multi-tenant Architecture**: Full support for multiple organizations with data isolation
+- **Authentication & Authorization**: JWT-based auth with role-based access control
+- **Dress Management**: Complete catalog system for dress inventory
+- **Customer Management**: Customer profiles, notes, and history
+- **Contract Management**: Rental contracts with packages and addons
+- **Real-time Updates**: WebSocket integration for live data synchronization
+- **Modern UI**: Beautiful, responsive interface with dark mode support
 
-## Installation
+## Tech Stack
+
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS 4** - Styling
+- **React Router 7** - Routing
+- **Socket.IO Client** - Real-time communication
+- **FullCalendar** - Calendar and scheduling
+
+## Getting Started
 
 ### Prerequisites
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+- Node.js 18+ and npm
+- Access to Velvena API (https://api.velvena.fr)
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
+### Installation
 
-### Getting Started
+```bash
+# Install dependencies
+npm install
 
-1. Install dependencies:
+# Copy environment file
+cp .env.example .env.development
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+# Start development server
+npm run dev
+```
 
-   > Use the `--legacy-peer-deps` flag if you encounter peer-deps error during installation.
+### Environment Variables
 
-2. Start the development server:
+```env
+VITE_API_URL=http://localhost:3000
+VITE_APP_NAME=Velvena
+VITE_APP_ENVIRONMENT=development
+```
 
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
+### Build for Production
 
-   Runs the app in the development mode.\
-   Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+npm run build
+```
 
-## Changelog
+## Project Structure
 
-### Version 2.2.0 - [July 30, 2025]
+```
+src/
+├── api/              # API client and endpoints
+├── components/       # Reusable UI components
+├── context/          # React contexts (Auth, Organization, etc.)
+├── hooks/            # Custom React hooks
+├── layout/           # Layout components
+├── pages/            # Page components
+├── types/            # TypeScript type definitions
+└── utils/            # Utility functions
+```
 
-* Fixed reported minor bugs and UI issues
-* Updated packages
-#### 🧭 **Logistics Dashboard** – *Added*
+## Multi-tenancy
 
-* Redesigned logistics dashboard interface
-* Delivery activity table
-* Delivery tracking timeline
-* Total revenue earned chart
+The application supports full multi-tenancy with:
 
-#### 🛍️ **E-commerce Pages** – *Added*
+- Organization-level data isolation
+- Organization context available throughout the app via `useOrganization()` hook
+- User authentication includes `organizationId`
+- All API requests automatically scoped to the user's organization
 
-* **Products**:
+## Development
 
-  * Product list table
-  * Add product form
-* **Invoices**:
+```bash
+# Run development server
+npm run dev
 
-  * Invoice list table
-  * Single invoice view
-  * View invoice modal
-  * Create invoice form
-* **Transactions**:
+# Run linter
+npm run lint
 
-  * Transaction list table
-  * Single transaction detail view
+# Build for production
+npm run build
 
-#### 🧠 **AI Assistant Suite (New App Example)** – *Newly Added*
+# Preview production build
+npm run preview
+```
 
-* Text generator
-* Image generator
-* Code generator
-* Video generator
+## API Integration
 
-#### 🔑 **API Key Management** – *Newly Added*
+The app connects to the Velvena API (https://github.com/Johnkennabii/velvena-api):
 
-* API key dashboard
-* API key table view
-* Add API key modal
-
-#### 🔌 **Integrations (Pages)** – *Newly Added*
-
-* Integration cards UI
-* Integration details modal
-* Add integration modal
-* Integration settings modal
-* Delete integration confirmation modal
-
-### ⚙️ **Support (New App Example)** – *Newly Added*
-
-* Support ticket list page
-* Support ticket reply interface
-
-#### 📊 **Charts & Visuals** - *Imporoved*
-
-* New bar chart design added
-
-### Version 2.1.2 - [Jun 02, 2025]
-
-#### Update Overview
-
-- Basic Table 3 Dropdown (cropped) update
-- Popover and Tooltip component overflow (cropped) issue update
-
-### Version 2.1.1 - [March 25, 2025]
-
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
-
-### Version 2.1.0 - [March 10, 2025]
-
-#### Update Overview
-
-- Added new dashboard design for saas product.
-- New Metrics card
-- Product performance tab with charts
-
-### Version 2.0.1 - [February 27, 2025]
-
-#### Update Overview
-
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
-
-#### Next Steps
-
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
-
-### Version 2.0.0 - [February 2025]
-
-A major update with comprehensive redesign and modern React patterns implementation.
-
-#### Major Improvements
-
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
-
-#### Key Features
-
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
-
-#### Breaking Changes
-
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
-
-[Read more](https://tailadmin.com/docs/update-logs/react) on the changelog.
+- RESTful endpoints for CRUD operations
+- JWT authentication with automatic token refresh
+- WebSocket connection for real-time updates
+- Multi-tenant request handling
 
 ## License
 
-Refer to our [LICENSE](https://tailadmin.com/license) page for more information.
+Private - All rights reserved
+
+## Support
+
+For questions or issues, please contact the development team.

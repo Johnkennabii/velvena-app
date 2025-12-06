@@ -1,5 +1,5 @@
 // src/api/httpClient.ts
-const BASE_URL = "https://api.allure-creation.fr";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://api.velvena.fr";
 
 interface CustomRequestInit extends RequestInit {
   _skipAuthRefresh?: boolean;
