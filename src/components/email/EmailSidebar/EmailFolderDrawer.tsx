@@ -169,7 +169,7 @@ export default function EmailFolderDrawer({ isOpen, onClose, onFolderCreated }: 
             </Button>
             <Button
               type="button"
-              onClick={handleSubmit}
+              onClick={() => handleSubmit({} as React.FormEvent)}
               variant="primary"
               disabled={creating || !folderName.trim()}
             >

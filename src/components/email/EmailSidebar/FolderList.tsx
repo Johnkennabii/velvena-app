@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { EmailsAPI, EmailFolder } from "../../../api/endpoints/emails";
-import { useNotification } from "../../../context/NotificationContext";
 import { useAuth } from "../../../context/AuthContext";
 import EmailFolderDrawer from "./EmailFolderDrawer";
 
@@ -20,7 +19,6 @@ export default function FolderList({ onFolderSelect, selectedFolder }: FolderLis
   const [loading, setLoading] = useState(true);
   const [showDrawer, setShowDrawer] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const { notify } = useNotification();
   const { user } = useAuth();
 
   const fetchFolders = async () => {

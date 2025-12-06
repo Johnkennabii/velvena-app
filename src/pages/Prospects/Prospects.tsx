@@ -159,7 +159,7 @@ const Prospects: React.FC = () => {
   }, [loadProspects]);
 
   // Charger les robes disponibles avec vérification de disponibilité par dates
-  const loadDressOptionsWithAvailability = useCallback(async (reservationId: string, startDate: string, endDate: string) => {
+  const loadDressOptionsWithAvailability = useCallback(async (_reservationId: string, startDate: string, endDate: string) => {
     if (!startDate || !endDate) {
       // Si pas de dates, on charge toutes les robes sans vérification de disponibilité
       try {
