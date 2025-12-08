@@ -271,7 +271,7 @@ export default function BillingSettings() {
         </div>
       </div>
 
-      {/* All Available Plans - Désactivé temporairement car l'endpoint /subscription-plans n'existe pas encore */}
+      {/* All Available Plans - Désactivé temporairement */}
       {/*
       <div className="mt-10">
         <div className="mb-6">

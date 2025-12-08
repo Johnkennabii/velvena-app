@@ -16,7 +16,7 @@ export const SubscriptionAPI = {
    */
   listPlans: async (): Promise<SubscriptionPlan[]> => {
     try {
-      const response = await httpClient.get("/subscription-plans");
+      const response = await httpClient.get("/billing/plans");
 
       // Gérer différentes structures de réponse
       if (response?.data?.data && Array.isArray(response.data.data)) {
@@ -40,7 +40,7 @@ export const SubscriptionAPI = {
    * Récupérer les détails d'un plan
    */
   getPlan: async (id: string): Promise<SubscriptionPlan> => {
-    const response = await httpClient.get(`/subscription-plans/${id}`);
+    const response = await httpClient.get(`/billing/plans/${id}`);
     return response.data.data;
   },
 

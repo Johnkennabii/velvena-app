@@ -32,8 +32,8 @@
 - `GET /organizations` - Lister toutes les organisations (SUPER_ADMIN)
 
 **Subscription API :**
-- `GET /subscription-plans` - Lister les plans publics
-- `GET /organizations/me/subscription/status` - Statut d'abonnement
+- `GET /billing/plans` - Lister les plans publics
+- `GET /billing/status` - Statut d'abonnement
 - `GET /organizations/me/usage` - Usage actuel
 - `GET /organizations/me/quotas/:resourceType` - Vérifier un quota
 - `GET /organizations/me/features/:featureName` - Vérifier une fonctionnalité
@@ -342,11 +342,11 @@ import { OrganizationProvider } from "./context/OrganizationContext";
 S'assurer que le backend a les endpoints suivants :
 - ✅ `/organizations/me`
 - ✅ `/organizations/me/stats`
-- ✅ `/organizations/me/subscription/status`
+- ✅ `/billing/status`
 - ✅ `/organizations/me/usage`
 - ✅ `/organizations/me/quotas/:resourceType`
 - ✅ `/organizations/me/features/:featureName`
-- ✅ `/subscription-plans`
+- ✅ `/billing/plans`
 
 ## 📝 Notes Importantes
 
