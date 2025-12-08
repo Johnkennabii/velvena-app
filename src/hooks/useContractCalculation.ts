@@ -2,9 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { PricingRulesAPI } from "../api/endpoints/pricingRules";
 import type { PriceCalculation, ContractAmounts, ServiceTypeConfig } from "../types/businessLogic";
 import {
-  htToTtc,
   ttcToHt,
-  calculateDurationDays,
   calculateDeposit,
   calculateCaution,
   calculateRemainingAmount,
@@ -154,7 +152,7 @@ export function useContractCalculation(options: UseContractCalculationOptions = 
 
     // Acompte suggéré
     const suggested_deposit_ttc = calculateDeposit(total_price_ttc, depositPercentage);
-    const suggested_deposit_ht = ttcToHt(suggested_deposit_ttc);
+    const _suggested_deposit_ht = ttcToHt(suggested_deposit_ttc); // Non utilisé pour l'instant
 
     // Caution
     const caution_ttc = calculateCaution(total_price_ttc, serviceTypeConfig);

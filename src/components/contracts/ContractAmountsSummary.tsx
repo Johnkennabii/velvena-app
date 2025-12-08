@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { FiDollarSign, FiAlertCircle } from "react-icons/fi";
 import type { ContractAmounts } from "../../types/businessLogic";
-import { formatCurrency, calculateRemainingAmount } from "../../types/businessLogic";
+import { formatCurrency } from "../../types/businessLogic";
 import { useContractPayments } from "../../hooks/useContractCalculation";
 
 interface ContractAmountsSummaryProps {

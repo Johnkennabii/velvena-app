@@ -43,7 +43,7 @@ export function FeatureGuard({
   notificationMessage,
   showNotification = true,
 }: FeatureGuardProps) {
-  const { hasFeature, subscriptionStatus, loading } = useOrganization();
+  const { hasFeature, loading } = useOrganization();
   const { notify } = useNotification();
 
   const isAvailable = hasFeature(feature);

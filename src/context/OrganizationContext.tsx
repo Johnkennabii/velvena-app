@@ -72,7 +72,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
       // Utiliser l'endpoint dashboard qui retourne tout en une fois
       const dashboard = await SubscriptionAPI.getDashboard();
 
-      const { quotas, features, subscription: status } = dashboard;
+      const { quotas, subscription: status } = dashboard;
 
       // Le plan est maintenant fourni par l'API avec toutes les infos
       // Ajouter les quotas à current_usage
@@ -177,7 +177,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
    */
   const hasFeature = useCallback(
     (featureName: string): boolean => {
-      if (!subscriptionStatus) return false;
+      if (!subscriptionStatus || !subscriptionStatus.plan) return false;
       return subscriptionStatus.plan.features[featureName as keyof typeof subscriptionStatus.plan.features] === true;
     },
     [subscriptionStatus]

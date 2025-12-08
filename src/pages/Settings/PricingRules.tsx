@@ -178,7 +178,7 @@ export default function PricingRules() {
         calculationConfig = {
           tiers: tiers.map(tier => ({
             ...tier,
-            max_days: tier.max_days === "" || tier.max_days === null ? null : Number(tier.max_days),
+            max_days: tier.max_days === null ? null : Number(tier.max_days),
           })),
           apply_tax: true,
           tax_rate: 20,
@@ -502,7 +502,7 @@ export default function PricingRules() {
                           onClick={() => removeTier(index)}
                           className="p-2 text-red-600 hover:text-red-700"
                         >
-                          <FiTrash2 className="w-4 h-4" />
+                          <TrashBinIcon className="w-4 h-4" />
                         </button>
                       )}
                     </div>

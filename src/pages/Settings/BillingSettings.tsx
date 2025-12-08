@@ -10,7 +10,6 @@ import ChangePlanModal from "../../components/subscription/ChangePlanModal";
 
 export default function BillingSettings() {
   const { organization, subscriptionStatus, loading, isTrialActive, getTrialDaysRemaining, refreshOrganization, refreshSubscription } = useOrganization();
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
 
   if (loading) {

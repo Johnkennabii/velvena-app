@@ -43,7 +43,6 @@ import {
   type ContractAddon as ContractAddonOption,
 } from "../../api/endpoints/contractAddons";
 import { ContractPackagesAPI } from "../../api/endpoints/contractPackages";
-import { PricingRulesAPI } from "../../api/endpoints/pricingRules";
 import { compressImages } from "../../utils/imageCompression";
 import { formatCurrency as formatCurrencyUtil } from "../../utils/formatters";
 import {
@@ -418,8 +417,8 @@ export default function Catalogue() {
   // Hook pour le calcul automatique des prix via PricingRules API
   const {
     calculation: priceCalculation,
-    loading: priceCalculating,
-    error: priceCalculationError,
+    loading: _priceCalculating,
+    error: _priceCalculationError,
   } = usePricingCalculation({
     dressId: contractDrawer.dress?.id || null,
     startDate: contractForm?.startDate ? new Date(contractForm.startDate) : null,

@@ -1,5 +1,4 @@
 import { httpClient } from "../httpClient";
-import type { ApiResponse } from "../types";
 
 export interface ServiceType {
   id: string;

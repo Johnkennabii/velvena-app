@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { FiCheck } from "react-icons/fi";
 import { SubscriptionAPI } from "../../api/endpoints/subscription";
 import type { SubscriptionPlan } from "../../types/subscription";
-import { useOrganization } from "../../context/OrganizationContext";
 
 interface BillingPricingTableProps {
   currentPlan: string;
