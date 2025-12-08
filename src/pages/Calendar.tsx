@@ -114,7 +114,7 @@ const Calendar: React.FC = () => {
   return (
     <>
       <PageMeta
-        title="Calendrier des contrats - Allure Creation App"
+        title="Calendrier des contrats - Velvena App"
         description="Vue calendrier de tous les contrats de location"
       />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

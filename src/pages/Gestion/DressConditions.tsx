@@ -250,7 +250,7 @@ export default function DressConditions() {
 
   return (
     <>
-      <PageMeta title="Etats de robe - Allure Creation App" description="Administration des etats de robe." />
+      <PageMeta title="Etats de robe - Velvena App" description="Administration des etats de robe." />
       <PageBreadcrumb pageTitle="Etats de robe" />
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

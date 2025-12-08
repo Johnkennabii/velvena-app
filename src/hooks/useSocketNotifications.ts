@@ -1,7 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { io } from "socket.io-client";
-
-const SOCKET_URL = "https://api.allure-creation.fr";
+import { createSocketConnection } from "../utils/socketClient";
 
 export interface Notification {
   id: string;
@@ -29,7 +27,7 @@ export function useSocketNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, { transports: ["websocket"] });
+    const socket = createSocketConnection();
 
     socket.on("notification", (notif: Omit<Notification, "id" | "read">) => {
       const newNotification: Notification = {

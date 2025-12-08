@@ -7,7 +7,7 @@
  * - L'état de suppression du contrat
  */
 
-export type UserRole = 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
 
 export type ContractStatus =
   | 'DRAFT'
@@ -70,8 +70,9 @@ export function getContractPermissions(
     canViewSigned: true,
   };
 
-  // ADMIN a tous les droits sauf restrictions spécifiques par statut
-  const isAdmin = userRole === 'ADMIN';
+  // SUPER_ADMIN et ADMIN ont tous les droits sauf restrictions spécifiques par statut
+  const isSuperAdmin = userRole === 'SUPER_ADMIN';
+  const isAdmin = userRole === 'ADMIN' || isSuperAdmin;
   const isManager = userRole === 'MANAGER';
 
   switch (contractStatus) {
@@ -157,6 +158,7 @@ export function getPermissionErrorMessage(
   };
 
   const roleLabels: Record<UserRole, string> = {
+    SUPER_ADMIN: 'Super Administrateur',
     ADMIN: 'Administrateur',
     MANAGER: 'Manager',
     COLLABORATOR: 'Collaborateur',

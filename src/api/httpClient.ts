@@ -114,7 +114,7 @@ export async function httpClient(path: string, options: CustomRequestInit = {}) 
   return performRequest(path, options);
 }
 
-httpClient.get = (url: string, options: CustomRequestInit = {}) => httpClient(url, { method: "GET", ...options });
+httpClient.get = (url: string, options?: CustomRequestInit) => httpClient(url, { method: "GET", ...options });
 httpClient.post = (url: string, body: any, options: CustomRequestInit = {}) =>
   httpClient(url, { method: "POST", body: JSON.stringify(body), ...options });
 httpClient.put = (url: string, body: any, options: CustomRequestInit = {}) =>

@@ -22,9 +22,10 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
     return <Navigate to="/signin" replace />;
   }
 
-  // 🚫 Rôle non autorisé → redirige vers une page d’erreur
-  if (roles && hasRole && !hasRole(...roles)) {
-    return <Navigate to="/NotFound" replace />;
+  // 🚫 Rôle non autorisé → redirige vers une page d'erreur
+  // SUPER_ADMIN a accès à tout automatiquement
+  if (roles && user.role !== "SUPER_ADMIN" && hasRole && !hasRole(...roles)) {
+    return <Navigate to="/not-found" replace />;
   }
 
   // ✅ Autorisé

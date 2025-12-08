@@ -101,6 +101,20 @@ export type DressUpdatePayload = {
   images: string[];
 };
 
+export type DressCreateFormDataPayload = {
+  name: string;
+  reference: string;
+  price_ht: number;
+  price_ttc: number;
+  price_per_day_ht?: number | null;
+  price_per_day_ttc?: number | null;
+  type_id: string;
+  size_id: string;
+  condition_id: string;
+  color_id?: string | null;
+  images?: File[] | string[];
+};
+
 type DressDetailsListParams = {
   page?: number;
   limit?: number;
@@ -110,6 +124,8 @@ type DressDetailsListParams = {
   priceMin?: number;
   priceMax?: number;
   search?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 const sanitizeImages = (value: unknown): string[] => {
@@ -226,6 +242,8 @@ export const DressesAPI = {
     search.set("page", String(page));
     if (typeof params.limit === "number") search.set("limit", String(params.limit));
     if (params.search) search.set("search", params.search);
+    if (params.startDate) search.set("startDate", params.startDate);
+    if (params.endDate) search.set("endDate", params.endDate);
 
     const appendListParam = (key: string, value?: string | string[]) => {
       if (!value) return;
@@ -253,6 +271,54 @@ export const DressesAPI = {
 
   async create(payload: DressUpdatePayload): Promise<DressDetails> {
     const res = await httpClient.post("/dresses", payload);
+    if (res?.data && typeof res.data === "object") {
+      return normalizeDress(res.data);
+    }
+    return normalizeDress(res);
+  },
+
+  async createWithFormData(payload: DressCreateFormDataPayload): Promise<DressDetails> {
+    const formData = new FormData();
+
+    // Champs obligatoires
+    formData.append("name", payload.name);
+    formData.append("reference", payload.reference);
+    formData.append("price_ht", String(payload.price_ht));
+    formData.append("price_ttc", String(payload.price_ttc));
+    formData.append("type_id", payload.type_id);
+    formData.append("size_id", payload.size_id);
+    formData.append("condition_id", payload.condition_id);
+
+    // Champs optionnels
+    if (payload.price_per_day_ht != null) {
+      formData.append("price_per_day_ht", String(payload.price_per_day_ht));
+    }
+    if (payload.price_per_day_ttc != null) {
+      formData.append("price_per_day_ttc", String(payload.price_per_day_ttc));
+    }
+    if (payload.color_id) {
+      formData.append("color_id", payload.color_id);
+    }
+
+    // Images (File[] ou string[])
+    if (payload.images && Array.isArray(payload.images)) {
+      payload.images.forEach((image) => {
+        if (image instanceof File) {
+          formData.append("images", image);
+        } else if (typeof image === "string") {
+          formData.append("images", image);
+        }
+      });
+    }
+
+    const res = await httpClient("/dresses", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
     if (res?.data && typeof res.data === "object") {
       return normalizeDress(res.data);
     }
@@ -304,6 +370,28 @@ export const DressesAPI = {
     return extractUploadList(res);
   },
 
+  async addImages(dressId: string, files: File[]): Promise<DressDetails> {
+    if (!files.length) throw new Error("Aucun fichier à ajouter");
+
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    const res = await httpClient(`/dresses/${dressId}/images`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (res?.data && typeof res.data === "object") {
+      return normalizeDress(res.data);
+    }
+    return normalizeDress(res);
+  },
+
   async deleteImage(dressId: string, imageId: string): Promise<DressDetails> {
     const res = await httpClient(
       `/dresses/${dressId}/images`,
@@ -339,29 +427,41 @@ export const DressesAPI = {
   },
 
   async listAvailability(start: string, end: string): Promise<DressAvailabilityResponse> {
-    const search = new URLSearchParams({ start, end });
-    const res = await httpClient.get(`/dresses/availability?${search.toString()}`);
-    const entries = extractArray(res).map((item) => ({
-      id: String(item.id),
-      name: item.name ?? undefined,
-      reference: item.reference ?? undefined,
-      price_ht: item.price_ht ?? undefined,
-      price_ttc: item.price_ttc ?? undefined,
-      price_per_day_ht: item.price_per_day_ht ?? undefined,
-      price_per_day_ttc: item.price_per_day_ttc ?? undefined,
-      images: sanitizeImages(item.images),
-      isAvailable: Boolean(item.isAvailable),
-      current_contract: item.current_contract ?? null,
-    }));
+    try {
+      const search = new URLSearchParams({ start, end });
+      const res = await httpClient.get(`/dresses/availability?${search.toString()}`, {
+        _skipErrorNotification: true,
+      });
+      const entries = extractArray(res).map((item) => ({
+        id: String(item.id),
+        name: item.name ?? undefined,
+        reference: item.reference ?? undefined,
+        price_ht: item.price_ht ?? undefined,
+        price_ttc: item.price_ttc ?? undefined,
+        price_per_day_ht: item.price_per_day_ht ?? undefined,
+        price_per_day_ttc: item.price_per_day_ttc ?? undefined,
+        images: sanitizeImages(item.images),
+        isAvailable: Boolean(item.isAvailable),
+        current_contract: item.current_contract ?? null,
+      }));
 
-    return {
-      data: entries,
-      count: Number(res?.count ?? entries.length),
-      filters: {
-        start: res?.filters?.start ?? start,
-        end: res?.filters?.end ?? end,
-      },
-    };
+      return {
+        data: entries,
+        count: Number(res?.count ?? entries.length),
+        filters: {
+          start: res?.filters?.start ?? start,
+          end: res?.filters?.end ?? end,
+        },
+      };
+    } catch (error: any) {
+      console.warn("Endpoint /dresses/availability non disponible ou erreur:", error?.message);
+      // Retourner une réponse vide au lieu de propager l'erreur
+      return {
+        data: [],
+        count: 0,
+        filters: { start, end },
+      };
+    }
   },
 
   async publish(dressId: string): Promise<DressDetails> {

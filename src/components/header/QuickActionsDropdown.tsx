@@ -6,11 +6,13 @@ import { PiDress } from "react-icons/pi";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useAuth } from "../../context/AuthContext";
+import { useOrganization } from "../../context/OrganizationContext";
 import { useLocation, useNavigate } from "react-router";
 
 export default function QuickActionsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { hasRole } = useAuth();
+  const { hasFeature } = useOrganization();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,21 +48,25 @@ export default function QuickActionsDropdown() {
 
       <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-56">
         <div className="py-2">
-          <DropdownItem
-            onItemClick={() => triggerQuickAction("open-create-customer", "/customers")}
-            baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
-          >
-            <FiUserPlus className="size-4" />
-            Ajouter un client
-          </DropdownItem>
-          <DropdownItem
-            onItemClick={() => triggerQuickAction("open-contract-drawer", "/catalogue", { mode: "daily" })}
-            baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
-          >
-            <HiOutlineTicket className="size-4" />
-            Ajouter un contrat
-          </DropdownItem>
-          {hasRole("ADMIN", "MANAGER") && (
+          {hasFeature("customer_portal") && (
+            <DropdownItem
+              onItemClick={() => triggerQuickAction("open-create-customer", "/customers")}
+              baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
+            >
+              <FiUserPlus className="size-4" />
+              Ajouter un client
+            </DropdownItem>
+          )}
+          {hasFeature("contract_generation") && (
+            <DropdownItem
+              onItemClick={() => triggerQuickAction("open-contract-drawer", "/catalogue", { mode: "daily" })}
+              baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"
+            >
+              <HiOutlineTicket className="size-4" />
+              Ajouter un contrat
+            </DropdownItem>
+          )}
+          {hasRole("ADMIN", "MANAGER","SUPER_ADMIN") && hasFeature("inventory_management") && (
             <DropdownItem
               onItemClick={() => triggerQuickAction("open-create-dress", "/catalogue")}
               baseClassName="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-white/[0.08]"

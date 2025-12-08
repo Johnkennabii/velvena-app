@@ -14,6 +14,7 @@ import AppLayout from "./layout/AppLayout";
 import AlternativeLayout from "./layout/AlternativeLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { FeatureGuard } from "./components/guards/FeatureGuard";
 import UserProfiles from "./pages/UserProfiles";
 import UserList from "./pages/Users/UserList";
 import ContractAddons from "./pages/Gestion/ContractAddons";
@@ -31,12 +32,20 @@ import ContractSignPage from "./pages/Public/ContractSignPage";
 import Calendar from "./pages/Calendar";
 import Changelog from "./pages/Changelog";
 import Inbox from "./pages/Email/EmailInbox";
+import OrganizationSettings from "./pages/Settings/OrganizationSettings";
+import BillingSettings from "./pages/Settings/BillingSettings";
+import ServiceTypes from "./pages/Settings/ServiceTypes";
+import PricingRules from "./pages/Settings/PricingRules";
+import Pricing from "./pages/Public/Pricing";
 
 export default function App() {
   return (
     <>
       <ScrollToTop />
       <Routes>
+        {/* --- Public Pages --- */}
+        <Route path="/pricing" element={<Pricing />} />
+
         {/* --- Auth Pages --- */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
@@ -52,8 +61,10 @@ export default function App() {
             index
             path="/"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
-                <Ecommerce />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
+                <FeatureGuard feature="dashboard" fallback="/catalogue">
+                  <Ecommerce />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
@@ -61,7 +72,7 @@ export default function App() {
             index
             path="/changelog"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <Changelog />
               </ProtectedRoute>
             }
@@ -69,7 +80,7 @@ export default function App() {
           <Route
             path="/analytics"
             element={
-              <ProtectedRoute roles={["ADMIN"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN"]}>
                 <Analytics />
               </ProtectedRoute>
             }
@@ -77,7 +88,7 @@ export default function App() {
           <Route
             path="/inbox"
             element={
-              <ProtectedRoute roles={["ADMIN"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN"]}>
                 <Inbox />
               </ProtectedRoute>
             }
@@ -85,7 +96,7 @@ export default function App() {
           <Route
             path="/crm"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <Crm />
               </ProtectedRoute>
             }
@@ -93,7 +104,7 @@ export default function App() {
           <Route
             path="/stocks"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <Stocks />
               </ProtectedRoute>
             }
@@ -101,7 +112,7 @@ export default function App() {
           <Route
             path="/saas"
             element={
-              <ProtectedRoute roles={["ADMIN"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN"]}>
                 <Saas />
               </ProtectedRoute>
             }
@@ -109,7 +120,7 @@ export default function App() {
           <Route
             path="/logistics"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <Logistics />
               </ProtectedRoute>
             }
@@ -117,7 +128,7 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
                 <UserProfiles />
               </ProtectedRoute>
             }
@@ -125,7 +136,7 @@ export default function App() {
           <Route
             path="/users/list"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <UserList />
               </ProtectedRoute>
             }
@@ -133,47 +144,57 @@ export default function App() {
           <Route
             path="/customers"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
-                <Customers />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <FeatureGuard feature="customer_portal" fallback="/catalogue">
+                  <Customers />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
           <Route
             path="/prospects"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
-                <Prospects />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <FeatureGuard feature="prospect_management" fallback="/catalogue">
+                  <Prospects />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
           <Route
             path="/catalogue"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
-                <Catalogue />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <FeatureGuard feature="inventory_management" fallback="/">
+                  <Catalogue />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
           <Route
             path="/contract-builder"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
-                <ContractBuilder />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <FeatureGuard feature="contract_generation" fallback="/catalogue">
+                  <ContractBuilder />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
           <Route
             path="/calendar"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER", "COLLABORATOR"]}>
-                <Calendar />
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <FeatureGuard feature="planning" fallback="/catalogue">
+                  <Calendar />
+                </FeatureGuard>
               </ProtectedRoute>
             }
           />
           <Route
             path="/gestion/contract-addons"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <ContractAddons />
               </ProtectedRoute>
             }
@@ -181,7 +202,7 @@ export default function App() {
           <Route
             path="/gestion/contract-package"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <ContractPackages />
               </ProtectedRoute>
             }
@@ -189,7 +210,7 @@ export default function App() {
           <Route
             path="/gestion/contract-types"
             element={
-              <ProtectedRoute roles={["ADMIN"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN"]}>
                 <ContractTypes />
               </ProtectedRoute>
             }
@@ -197,7 +218,7 @@ export default function App() {
           <Route
             path="/gestion/dress-types"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <DressTypes />
               </ProtectedRoute>
             }
@@ -205,7 +226,7 @@ export default function App() {
           <Route
             path="/gestion/dress-sizes"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <DressSizes />
               </ProtectedRoute>
             }
@@ -213,7 +234,7 @@ export default function App() {
           <Route
             path="/gestion/dress-conditions"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <DressConditions />
               </ProtectedRoute>
             }
@@ -221,8 +242,40 @@ export default function App() {
           <Route
             path="/gestion/dress-colors"
             element={
-              <ProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
                 <DressColors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/organization"
+            element={
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN","MANAGER"]}>
+                <OrganizationSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/billing"
+            element={
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+                <BillingSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/service-types"
+            element={
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
+                <ServiceTypes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/pricing-rules"
+            element={
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER"]}>
+                <PricingRules />
               </ProtectedRoute>
             }
           />

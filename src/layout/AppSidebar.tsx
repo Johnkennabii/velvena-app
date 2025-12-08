@@ -21,12 +21,13 @@ import {
   UserCircleIcon,
 } from "../icons";
 import {  PiDress } from "react-icons/pi";
-import { FiUsers , FiUserPlus} from "react-icons/fi";
+import { FiUsers , FiUserPlus, FiSettings } from "react-icons/fi";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { HiOutlineUserGroup } from "react-icons/hi2";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useAuth } from "../context/AuthContext";
+import { useOrganization } from "../context/OrganizationContext";
 
 type NavItem = {
   name: string;
@@ -34,12 +35,15 @@ type NavItem = {
   path?: string;
   new?: boolean;
   requiredRoles?: string[];
+  requiredFeature?: keyof import("../types/subscription").SubscriptionFeatures;
   subItems?: {
     name: string;
     path?: string;
     pro?: boolean;
     new?: boolean;
+    noActive?: boolean;
     requiredRoles?: string[];
+    requiredFeature?: keyof import("../types/subscription").SubscriptionFeatures;
     isLabel?: boolean;
   }[];
 };
@@ -50,67 +54,83 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     path: "/",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
+    requiredFeature: "dashboard",
   },
     {
     icon: <PiDress />,
     name: "Catalogue",
     path: "/catalogue",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredFeature: "inventory_management",
   },
   {
     icon: <IoCalendarNumberOutline />,
     name: "Calendrier",
     path: "/calendar",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredFeature: "planning",
   },
     {
     icon: <FiUserPlus />,
     name: "Clients",
     path: "/customers",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredFeature: "customer_portal",
   },
   {
     icon: <HiOutlineUserGroup />,
     name: "Prospects",
     path: "/prospects",
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
+    requiredFeature: "prospect_management",
   },
   {
     icon: <FiUsers/>,
     name: "Utilisateurs",
     path: "/users/list",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
   },
 
 
   {
     icon: <PlugInIcon />,
     name: "Gestion",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
     subItems: [
-      { name: "Gestion contrat", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["ADMIN"] },
-      { name: "Référence robe", isLabel: true, requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Etats de robe", path: "/gestion/dress-conditions", requiredRoles: ["ADMIN", "MANAGER"] },
-      { name: "Couleurs de robe", path: "/gestion/dress-colors", requiredRoles: ["ADMIN", "MANAGER"] },
+      { name: "Gestion contrat", isLabel: true, requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "Référence robe", isLabel: true, requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Etats de robe", path: "/gestion/dress-conditions", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Couleurs de robe", path: "/gestion/dress-colors", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
     ],
   },
   {
     icon: <UserCircleIcon />,
     name: "Mon profile",
     path: "/profile",
-    requiredRoles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
+  },
+  {
+    icon: <FiSettings />,
+    name: "Paramètres",
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
+    subItems: [
+      { name: "Organisation", path: "/settings/organization", requiredRoles: ["SUPER_ADMIN", "ADMIN","MANAGER"] },
+      { name: "Facturation", path: "/settings/billing", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"] },
+      { name: "Types de service", path: "/settings/service-types", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+      { name: "Règles de tarification", path: "/settings/pricing-rules", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
+    ],
   },
   {
     name: "AI Assistant",
     icon: <AiIcon />,
     new: true,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Text Generator", path: "/text-generator" },
       { name: "Image Generator", path: "/image-generator" },
@@ -122,7 +142,7 @@ const navItems: NavItem[] = [
     name: "E-commerce",
     icon: <CartIcon />,
     new: true,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Products", path: "/products-list" },
       { name: "Add Product", path: "/add-product" },
@@ -137,7 +157,7 @@ const navItems: NavItem[] = [
   {
     name: "Task",
     icon: <TaskIcon />,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "List", path: "/task-list", pro: true },
       { name: "Kanban", path: "/task-kanban", pro: true },
@@ -146,7 +166,7 @@ const navItems: NavItem[] = [
   {
     name: "Forms",
     icon: <ListIcon />,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Form Elements", path: "/form-elements", pro: false },
       { name: "Form Layout", path: "/form-layout", pro: true },
@@ -155,7 +175,7 @@ const navItems: NavItem[] = [
   {
     name: "Tables",
     icon: <TableIcon />,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Basic Tables", path: "/basic-tables", pro: false },
       { name: "Data Tables", path: "/data-tables", pro: true },
@@ -164,7 +184,7 @@ const navItems: NavItem[] = [
   {
     name: "Pages",
     icon: <PageIcon />,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "File Manager", path: "/file-manager" },
       { name: "Pricing Tables", path: "/pricing-tables" },
@@ -186,7 +206,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PieChartIcon />,
     name: "Charts",
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Line Chart", path: "/line-chart", pro: true },
       { name: "Bar Chart", path: "/bar-chart", pro: true },
@@ -196,7 +216,7 @@ const othersItems: NavItem[] = [
   {
     icon: <BoxCubeIcon />,
     name: "UI Elements",
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Alerts", path: "/alerts", pro: false },
       { name: "Avatar", path: "/avatars", pro: false },
@@ -225,7 +245,7 @@ const othersItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
     name: "Authentication",
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Sign In", path: "/signin", pro: false },
       { name: "Sign Up", path: "/signup", pro: false },
@@ -243,7 +263,7 @@ const supportItems: NavItem[] = [
   {
     name: "E-commerce",
     icon: <PageIcon />,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Integrations", path: "/integrations", new: true },
     ],
@@ -252,20 +272,20 @@ const supportItems: NavItem[] = [
     icon: <MailIcon />,
     name: "Email",
     path: "/inbox",
-    requiredRoles: ["ADMIN", "MANAGER"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
     new: true,
   },
   {
     icon: <ChatIcon />,
     name: "Chat",
     path: "/chat",
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
   },
   {
     icon: <CallIcon />,
     name: "Support Ticket",
     new: true,
-    requiredRoles: ["ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     subItems: [
       { name: "Ticket List", path: "/support-tickets" , new: true },
       { name: "Ticket Reply", path: "/support-ticket-reply" },
@@ -278,6 +298,7 @@ const AppSidebar: React.FC = () => {
     useSidebar();
   const location = useLocation();
   const { user } = useAuth();
+  const { organization, hasFeature } = useOrganization();
   const userRole = user?.role ?? null;
 
   const canAccess = useCallback(
@@ -289,13 +310,23 @@ const AppSidebar: React.FC = () => {
     [userRole],
   );
 
+  const canAccessFeature = useCallback(
+    (requiredFeature?: keyof import("../types/subscription").SubscriptionFeatures) => {
+      if (!requiredFeature) return true;
+      return hasFeature(requiredFeature);
+    },
+    [hasFeature],
+  );
+
   const filterNavItems = useCallback(
     (items: NavItem[]) =>
       items
-        .filter((nav) => canAccess(nav.requiredRoles))
+        .filter((nav) => canAccess(nav.requiredRoles) && canAccessFeature(nav.requiredFeature))
         .map((nav) => {
           if (nav.subItems) {
-            const visibleSubItems = nav.subItems.filter((sub) => canAccess(sub.requiredRoles));
+            const visibleSubItems = nav.subItems.filter(
+              (sub) => canAccess(sub.requiredRoles) && canAccessFeature(sub.requiredFeature)
+            );
             return { ...nav, subItems: visibleSubItems };
           }
           return nav;
@@ -306,7 +337,7 @@ const AppSidebar: React.FC = () => {
           }
           return true;
         }),
-    [canAccess],
+    [canAccess, canAccessFeature],
   );
 
   const mainMenuItems = useMemo(() => filterNavItems(navItems), [filterNavItems]);
@@ -525,6 +556,17 @@ const AppSidebar: React.FC = () => {
                                 pro
                               </span>
                             )}
+                                                        {subItem.noActive && (
+                              <span
+                                className={`ml-auto ${
+                                  isActive(subItem.path)
+                                    ? "menu-dropdown-badge-pro-active"
+                                    : "menu-dropdown-badge-pro-inactive"
+                                } menu-dropdown-badge-pro`}
+                              >
+                                Non activé
+                              </span>
+                            )}
                           </span>
                         </Link>
                       )
@@ -560,33 +602,49 @@ const AppSidebar: React.FC = () => {
   }`}
 >
   <Link to="/">
-    {isExpanded || isHovered || isMobileOpen ? (
-      <span
-        className="
-          font-[400]
-          text-3xl
-          tracking-wide
-          dark:text-white 
-          text-gray-900
-          select-none
-        "
-        style={{ fontFamily: '"Great Vibes", cursive' }}
-      >
-        Allure Creation
-      </span>
+    {organization?.logo_url ? (
+      // Si logo_url existe, afficher l'image
+      <img
+        src={organization.logo_url}
+        alt={organization.name}
+        className={`object-contain ${
+          isExpanded || isHovered || isMobileOpen
+            ? "h-12 max-w-[200px]"
+            : "h-10 w-10"
+        }`}
+      />
     ) : (
-      <span
-        className="
-          text-xl
-          font-[400]
-          dark:text-white 
-          text-gray-900
-          select-none
-        "
-        style={{ fontFamily: '"Great Vibes", cursive' }}
-      >
-        AC
-      </span>
+      // Si pas de logo_url, afficher le nom de l'organisation
+      <>
+        {isExpanded || isHovered || isMobileOpen ? (
+          <span
+            className="
+              font-[400]
+              text-3xl
+              tracking-wide
+              dark:text-white
+              text-gray-900
+              select-none
+            "
+            style={{ fontFamily: '"Great Vibes", cursive' }}
+          >
+            {organization?.name || "Velvena"}
+          </span>
+        ) : (
+          <span
+            className="
+              text-xl
+              font-[400]
+              dark:text-white
+              text-gray-900
+              select-none
+            "
+            style={{ fontFamily: '"Great Vibes", cursive' }}
+          >
+            {organization?.name?.substring(0, 2).toUpperCase() || "VV"}
+          </span>
+        )}
+      </>
     )}
   </Link>
 </div>

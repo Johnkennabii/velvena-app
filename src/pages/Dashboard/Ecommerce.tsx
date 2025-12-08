@@ -11,8 +11,8 @@ export default function Ecommerce() {
   return (
     <>
       <PageMeta
-        title="Tableau de bord - Allure Creation App"
-        description="Tableau de bord pour Allure Creation App"
+        title="Tableau de bord - Velvena App"
+        description="Tableau de bord pour Velvena App"
       />
       <div className="grid grid-cols-12 gap-4 md:gap-6">
         <div className="col-span-12 space-y-6 xl:col-span-7">

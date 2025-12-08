@@ -456,7 +456,7 @@ export const ContractsAPI = {
 
   downloadContractPdf: async (contractId: string, signatureReference: string): Promise<Blob> => {
     const token = localStorage.getItem("token");
-    const BASE_URL = "https://api.allure-creation.fr";
+    const BASE_URL = import.meta.env.VITE_API_URL || "https://api.velvena.fr";
     const url = `${BASE_URL}/contracts/download/${contractId}/${signatureReference}`;
 
     const response = await fetch(url, {

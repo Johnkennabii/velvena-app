@@ -36,11 +36,10 @@ const calculateDays = (start: Date | null, end: Date | null): number => {
 };
 
 const generateContractNumber = (): string => {
-  // Format: CT-AC-XXXXXXX (7 chiffres aléatoires)
-  const random = Math.floor(Math.random() * 10000000)
-    .toString()
-    .padStart(7, "0");
-  return `CT-AC-${random}`;
+  // Format: CTR-XX-XXXXXXX (XX = année, XXXXXXX = 7 chiffres aléatoires)
+  const year = new Date().getFullYear().toString().slice(-2);
+  const random = Math.floor(1000000 + Math.random() * 9000000);
+  return `CTR-${year}-${random}`;
 };
 
 type QuickCustomerFormState = {

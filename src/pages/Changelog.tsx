@@ -343,18 +343,18 @@ const helpSections: HelpSection[] = [
     features: [
       {
         name: "Rôles et permissions",
-        description: "3 rôles disponibles : ADMIN (tous droits), MANAGER (gestion complète), COLLABORATOR (consultation et création limitée)",
-        roles: ["ADMIN"],
+        description: "4 rôles disponibles : SUPER_ADMIN (accès à toutes les organisations), ADMIN (tous droits dans son organisation), MANAGER (gestion complète), COLLABORATOR (consultation et création limitée)",
+        roles: ["SUPER_ADMIN", "ADMIN"],
       },
       {
         name: "Création d'utilisateurs",
         description: "Ajoutez des membres de l'équipe avec leurs rôles",
-        roles: ["ADMIN"],
+        roles: ["SUPER_ADMIN", "ADMIN"],
       },
       {
         name: "Profil utilisateur",
         description: "Chaque utilisateur peut modifier son profil et ses informations",
-        roles: ["ADMIN", "MANAGER", "COLLABORATOR"],
+        roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
       },
     ],
   },
@@ -486,8 +486,8 @@ export default function Changelog() {
   return (
     <div>
       <PageMeta
-        title="Changelog & Aide - Allure Creation App"
-        description="Retrouvez ici toutes les modifications et mises à jour de l'application Allure Creation ainsi que le guide des fonctionnalités."
+        title="Changelog & Aide - Velvena App"
+        description="Retrouvez ici toutes les modifications et mises à jour de l'application Velvena ainsi que le guide des fonctionnalités."
       />
       <PageBreadcrumb pageTitle="Changelog & Aide" />
 
@@ -529,7 +529,7 @@ export default function Changelog() {
                   Guide des fonctionnalités
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Découvrez toutes les fonctionnalités de l'application Allure Creation et comment les utiliser efficacement.
+                  Découvrez toutes les fonctionnalités de l'application Velvena et comment les utiliser efficacement.
                 </p>
               </div>
 
@@ -583,7 +583,7 @@ export default function Changelog() {
                   Historique des versions
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Suivez l'évolution de l'application Allure Creation avec toutes les nouveautés et corrections.
+                  Suivez l'évolution de l'application Velvena avec toutes les nouveautés et corrections.
                 </p>
               </div>
 

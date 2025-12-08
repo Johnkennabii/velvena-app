@@ -338,7 +338,7 @@ export default function ContractAddons() {
 
   return (
     <>
-      <PageMeta title="Gestion des options - Allure Creation App" description="Administration des options contractuelles." />
+      <PageMeta title="Gestion des options - Velvena App" description="Administration des options contractuelles." />
       <PageBreadcrumb pageTitle="Options" />
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">

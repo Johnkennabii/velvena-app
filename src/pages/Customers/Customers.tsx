@@ -16,6 +16,9 @@ import PaginationWithIcon from "../../components/tables/DataTables/TableOne/Pagi
 import RightDrawer from "../../components/ui/drawer/RightDrawer";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
+import { useOrganization } from "../../context/OrganizationContext";
+import { useQuotaCheck } from "../../hooks/useQuotaCheck";
+import UpgradeRequiredModal from "../../components/subscription/UpgradeRequiredModal";
 import { CustomersAPI, type Customer, type CustomerListResponse } from "../../api/endpoints/customers";
 import { CustomerNotesAPI, type CustomerNote } from "../../api/endpoints/customerNotes";
 import { ContractsAPI, type ContractFullView, type ContractUpdatePayload } from "../../api/endpoints/contracts";
@@ -27,7 +30,7 @@ import { PencilIcon, CloseLineIcon, TrashBinIcon } from "../../icons";
 import { IoEyeOutline } from "react-icons/io5";
 import DatePicker from "../../components/form/date-picker";
 import type { QuickSearchNavigationPayload } from "../../types/quickSearch";
-import { io } from "socket.io-client";
+import { createSocketConnection } from "../../utils/socketClient";
 import { getContractPermissions, type UserRole, type ContractStatus } from "../../utils/contractPermissions";
 import { formatCurrency, formatDateTimeShort, formatDateShort } from "../../utils/formatters";
 
@@ -258,6 +261,7 @@ const ContractCard = ({
   hasPdfGenerated,
   getUserFullName,
   contractPackages,
+  hasElectronicSignature,
 }: {
   contract: ContractFullView;
   onGenerate: (contract: ContractFullView) => void;
@@ -275,6 +279,7 @@ const ContractCard = ({
   hasPdfGenerated: boolean;
   getUserFullName: (userId: string | null | undefined) => string;
   contractPackages: ContractPackage[];
+  hasElectronicSignature: boolean;
 }) => {
   // ✨ Système simplifié de permissions
   const permissions = getContractPermissions(
@@ -699,14 +704,16 @@ const ContractCard = ({
             ? "Activer contrat"
             : "Désactiver contrat"}
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!permissions.canSendSignature || signatureLoadingId === contract.id}
-          onClick={() => onSignature(contract)}
-        >
-          {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
-        </Button>
+        {hasElectronicSignature && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!permissions.canSendSignature || signatureLoadingId === contract.id}
+            onClick={() => onSignature(contract)}
+          >
+            {signatureLoadingId === contract.id ? "Envoi en cours..." : "Signature électronique"}
+          </Button>
+        )}
         </div>
       </div>
     </div>
@@ -729,6 +736,15 @@ const toCustomerRow = (customer: Customer): CustomerRow => ({
 });
 
 export default function Customers() {
+  const { hasFeature } = useOrganization();
+  const {
+    withQuotaCheck,
+    upgradeModalOpen,
+    closeUpgradeModal,
+    quotaExceeded,
+    getQuotaExceededMessage,
+    getUpgradeModalTitle,
+  } = useQuotaCheck();
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -807,7 +823,19 @@ export default function Customers() {
   const canHardDelete = hasRole("ADMIN");
   const createBirthdayId = "create-customer-birthday";
   const editBirthdayId = "edit-customer-birthday";
-  
+
+  const openCreateModal = useCallback(async () => {
+    if (!canManage) {
+      notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
+      return;
+    }
+
+    // Vérifier le quota avant d'ouvrir la modal
+    await withQuotaCheck("customers", () => {
+      setCreateForm(defaultFormState);
+      setCreateOpen(true);
+    });
+  }, [canManage, notify, withQuotaCheck]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(customerData.total / (customerData.limit || limit))),
@@ -853,9 +881,7 @@ export default function Customers() {
 
   // Écouter les notifications Socket.IO pour mettre à jour les contrats en temps réel
   useEffect(() => {
-    const socket = io("https://api.allure-creation.fr", {
-      transports: ["websocket"],
-    });
+    const socket = createSocketConnection();
 
     socket.on("notification", (notification: any) => {
       if (notification.type === "CONTRACT_SIGNED" && notification.contractId) {
@@ -1090,21 +1116,21 @@ export default function Customers() {
 
   useEffect(() => {
     const handleOpenCreateCustomer = () => {
-      setCreateOpen(true);
+      openCreateModal();
     };
     window.addEventListener("open-create-customer", handleOpenCreateCustomer);
     return () => {
       window.removeEventListener("open-create-customer", handleOpenCreateCustomer);
     };
-  }, []);
+  }, [openCreateModal]);
 
   useEffect(() => {
     const quickAction = (location.state as { quickAction?: string } | null)?.quickAction;
     if (quickAction === "open-create-customer") {
-      setCreateOpen(true);
+      openCreateModal();
       navigate(location.pathname, { replace: true, state: null });
     }
-  }, [location, navigate]);
+  }, [location, navigate, openCreateModal]);
 
   useEffect(() => {
     const state = location.state as { openCustomerDrawer?: boolean; customerId?: string } | null;
@@ -1412,15 +1438,6 @@ export default function Customers() {
       contractEditDefaultsAppliedRef.current = false;
     }
   }, [viewOpen]);
-
-  const openCreateModal = () => {
-    if (!canManage) {
-      notify("warning", "Action non autorisée", "Vous n'avez pas les droits suffisants.");
-      return;
-    }
-    setCreateForm(defaultFormState);
-    setCreateOpen(true);
-  };
 
   const closeCreateModal = () => {
     if (creating) return;
@@ -2155,7 +2172,7 @@ export default function Customers() {
 
   return (
     <>
-      <PageMeta title="Clients - Allure Creation App" description="Gestion des clients et contacts." />
+      <PageMeta title="Clients - Velvena App" description="Gestion des clients et contacts." />
       <PageBreadcrumb pageTitle="Clients" />
 
       <section className="flex flex-col gap-6">
@@ -2613,6 +2630,7 @@ export default function Customers() {
                       hasPdfGenerated={generatedPdfContracts.has(contract.id)}
                       getUserFullName={getUserFullName}
                       contractPackages={contractPackages}
+                      hasElectronicSignature={hasFeature("electronic_signature")}
                     />
                   ))}
                 </div>
@@ -3500,6 +3518,14 @@ export default function Customers() {
           </div>
         </form>
       </Modal>
+
+      {/* Modal d'upgrade si quota dépassé */}
+      <UpgradeRequiredModal
+        isOpen={upgradeModalOpen}
+        onClose={closeUpgradeModal}
+        title={quotaExceeded ? getUpgradeModalTitle(quotaExceeded.resourceType) : undefined}
+        description={quotaExceeded ? getQuotaExceededMessage(quotaExceeded.resourceType, quotaExceeded.quota) : undefined}
+      />
     </>
   );
 }

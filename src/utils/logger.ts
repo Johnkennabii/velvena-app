@@ -12,7 +12,7 @@ const isDevelopment = import.meta.env.DEV;
 /**
  * Préfixe pour tous les logs de l'application
  */
-const LOG_PREFIX = "[Allure Creation]";
+const LOG_PREFIX = "[Velvena]";
 
 /**
  * Utilitaire de logging avec niveaux de sévérité

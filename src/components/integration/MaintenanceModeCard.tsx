@@ -4,8 +4,9 @@ import IntegrationCard from "./IntegrationCard";
 import MaintenanceSettingsModal from "./MaintenanceSettingsModal";
 
 const WEBHOOK_SECRET = "b424e37efd29da5a71682bcd84a9a140ff17f597eaa56f45a058a644d4f8df29";
-const API_URL_POST = "https://api.allure-creation.fr/api/webhook/maintenance"; // Pour activer/désactiver
-const API_URL_GET = "https://www.allure-creation.fr/api/maintenance"; // Pour vérifier le statut
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.velvena.fr";
+const API_URL_POST = `${API_BASE_URL}/api/webhook/maintenance`; // Pour activer/désactiver
+const API_URL_GET = `${API_BASE_URL.replace("api.", "www.")}/api/maintenance`; // Pour vérifier le statut
 
 interface MaintenanceStatus {
   enabled: boolean;
@@ -115,7 +116,7 @@ export default function MaintenanceModeCard() {
     <IntegrationCard
       title="Mode Maintenance E-commerce"
       icon={<MaintenanceIcon />}
-      description="Activer/désactiver le mode maintenance du site public www.allure-creation.fr. Le site se redémarre automatiquement après 3-5 minutes."
+      description="Activer/désactiver le mode maintenance du site public www.velvena.fr. Le site se redémarre automatiquement après 3-5 minutes."
       connect={status.enabled}
       onToggle={toggleMaintenance}
       loading={loading || checking}

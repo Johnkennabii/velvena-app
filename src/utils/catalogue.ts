@@ -3,17 +3,23 @@
  */
 
 /**
- * Génère un numéro de contrat unique basé sur le timestamp
+ * Génère un numéro de contrat au format CTR-XX-XXXXXXX
+ * Exemple: CTR-25-1234567
  */
 export const generateContractNumber = (): string => {
-  return `CTR-${Date.now()}`;
+  const year = new Date().getFullYear().toString().slice(-2); // 2 derniers chiffres de l'année
+  const random = Math.floor(1000000 + Math.random() * 9000000); // 7 chiffres aléatoires
+  return `CTR-${year}-${random}`;
 };
 
 /**
- * Génère une référence alphanumérique aléatoire
+ * Génère une référence de robe au format RB-XX-XXXXXXX
+ * Exemple: RB-25-1234567
  */
 export const generateReference = (): string => {
-  return Math.random().toString(36).substring(2, 10).toUpperCase();
+  const year = new Date().getFullYear().toString().slice(-2); // 2 derniers chiffres de l'année
+  const random = Math.floor(1000000 + Math.random() * 9000000); // 7 chiffres aléatoires
+  return `RB-${year}-${random}`;
 };
 
 /**

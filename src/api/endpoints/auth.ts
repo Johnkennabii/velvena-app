@@ -2,7 +2,7 @@ import { httpClient } from "../httpClient";
 
 /**
  * API Auth - centralisation de tous les endpoints liés à l'authentification.
- * Compatible avec le backend Allure Création (https://api.allure-creation.fr)
+ * Compatible avec le backend Velvena (https://api.velvena.fr)
  */
 export const AuthAPI = {
   /**
@@ -32,7 +32,7 @@ export const AuthAPI = {
   register: async (data: {
     email: string;
     password: string;
-    roleName: "ADMIN" | "MANAGER" | "COLLABORATOR" | "USER";
+    roleName: "ADMIN" | "MANAGER" | "COLLABORATOR" | "SUPER_ADMIN";
     firstName: string;
     lastName: string;
   }) => {

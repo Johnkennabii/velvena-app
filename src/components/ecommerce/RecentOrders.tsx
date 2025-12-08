@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { useOrganization } from "../../context/OrganizationContext";
 import { DressesAPI, DressDetails } from "../../api/endpoints/dresses";
 import { ContractsAPI } from "../../api/endpoints/contracts";
 import * as XLSX from "xlsx";
@@ -19,6 +20,7 @@ interface DressRentalStats {
 }
 
 export default function RecentOrders() {
+  const { hasFeature } = useOrganization();
   const [dressStats, setDressStats] = useState<DressRentalStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [limit, setLimit] = useState(5);
@@ -128,25 +130,27 @@ export default function RecentOrders() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportExcel}
-            disabled={isLoading || dressStats.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            <svg
-              className="stroke-current"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+          {hasFeature("export_data") && (
+            <button
+              onClick={handleExportExcel}
+              disabled={isLoading || dressStats.length === 0}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
             >
-              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 10L12 15L17 10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 15V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Exporter Excel
-          </button>
+              <svg
+                className="stroke-current"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 10L12 15L17 10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 15V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Exporter Excel
+            </button>
+          )}
           <button
             onClick={() => setLimit(limit === 5 ? dressStats.length : 5)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"

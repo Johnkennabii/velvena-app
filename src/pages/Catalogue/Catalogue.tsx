@@ -7,6 +7,8 @@ import { useDressViewAndDelete } from "../../hooks/catalogue/useDressViewAndDele
 import { useDressCreate } from "../../hooks/catalogue/useDressCreate";
 import { useDressEdit } from "../../hooks/catalogue/useDressEdit";
 import { useContractCreation, QUICK_CUSTOMER_DEFAULT } from "../../hooks/catalogue/useContractCreation";
+import { usePricingCalculation } from "../../hooks/catalogue/usePricingCalculation";
+import { useQuotaCheck } from "../../hooks/useQuotaCheck";
 import { useDropzone } from "react-dropzone";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -18,6 +20,7 @@ import CreateDressDrawer from "./components/CreateDressDrawer";
 import EditDressDrawer from "./components/EditDressDrawer";
 import CustomerDetailsDrawer from "./components/CustomerDetailsDrawer";
 import ContractDrawer from "./components/ContractDrawer";
+import UpgradeRequiredModal from "../../components/subscription/UpgradeRequiredModal";
 import SpinnerOne from "../../components/ui/spinner/SpinnerOne";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
@@ -26,6 +29,7 @@ import DatePicker from "../../components/form/date-picker";
 import PaginationWithIcon from "../../components/tables/DataTables/TableOne/PaginationWithIcon";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
+import { useOrganization } from "../../context/OrganizationContext";
 import {
   DressesAPI,
   type DressAvailabilityResponse,
@@ -39,6 +43,7 @@ import {
   type ContractAddon as ContractAddonOption,
 } from "../../api/endpoints/contractAddons";
 import { ContractPackagesAPI } from "../../api/endpoints/contractPackages";
+import { PricingRulesAPI } from "../../api/endpoints/pricingRules";
 import { compressImages } from "../../utils/imageCompression";
 import { formatCurrency as formatCurrencyUtil } from "../../utils/formatters";
 import {
@@ -137,8 +142,9 @@ const calculateRentalDays = (start: Date, end: Date): number => {
 };
 
 const generateContractNumber = () => {
+  const year = new Date().getFullYear().toString().slice(-2);
   const random = Math.floor(1000000 + Math.random() * 9000000);
-  return `CT-AC-${random}`;
+  return `CTR-${year}-${random}`;
 };
 
 const selectContractTypeIdForMode = (types: ContractType[], mode: ContractMode): string | null => {
@@ -174,8 +180,9 @@ const extractStorageId = (url: string): string => {
 };
 
 const generateReference = (): string => {
+  const year = new Date().getFullYear().toString().slice(-2);
   const randomDigits = Math.floor(1000000 + Math.random() * 9000000);
-  return `AC-RB-${randomDigits}`;
+  return `RB-${year}-${randomDigits}`;
 };
 
 const buildDressFormState = (dress: DressDetails): DressFormState => ({
@@ -256,12 +263,21 @@ const IconTooltip = ({ title, children }: { title: string; children: React.React
 export default function Catalogue() {
   const { notify } = useNotification();
   const { hasRole } = useAuth();
-  const canManage = hasRole("ADMIN", "MANAGER");
-  const canCreateContract = hasRole("ADMIN", "MANAGER", "COLLABORATOR");
+  const { hasFeature } = useOrganization();
+  const canManage = hasRole("ADMIN", "MANAGER") && hasFeature("inventory_management");
+  const canCreateContract = hasRole("ADMIN", "MANAGER", "COLLABORATOR") && hasFeature("contract_generation");
   const canPublish = hasRole("ADMIN", "MANAGER");
   const isAdmin = hasRole("ADMIN");
   const navigate = useNavigate();
   const location = useLocation();
+  const {
+    withQuotaCheck,
+    upgradeModalOpen,
+    closeUpgradeModal,
+    quotaExceeded,
+    getQuotaExceededMessage,
+    getUpgradeModalTitle,
+  } = useQuotaCheck();
 
   // Utilisation du hook de gestion des filtres
   const {
@@ -399,6 +415,18 @@ export default function Catalogue() {
   // totalPages, availabilitySelected, availabilityDefaultDate, hasFiltersApplied
   // sont maintenant fournis par le hook useCatalogueFilters
 
+  // Hook pour le calcul automatique des prix via PricingRules API
+  const {
+    calculation: priceCalculation,
+    loading: priceCalculating,
+    error: priceCalculationError,
+  } = usePricingCalculation({
+    dressId: contractDrawer.dress?.id || null,
+    startDate: contractForm?.startDate ? new Date(contractForm.startDate) : null,
+    endDate: contractForm?.endDate ? new Date(contractForm.endDate) : null,
+    enabled: contractDrawer.open && contractDrawer.mode === "daily",
+  });
+
   const vatRatio = useMemo(() => {
     const activeDress = contractDrawer.dress;
     if (!activeDress) return 0.8333333333;
@@ -416,11 +444,23 @@ export default function Catalogue() {
     if (!dress) {
       return { ht: 0, ttc: 0 };
     }
+
+    // Si on est en mode "daily" (location) et qu'on a un calcul API
+    if (contractDrawer.mode === "daily" && priceCalculation) {
+      // Utiliser le prix calculé par l'API divisé par le nombre de jours
+      const days = priceCalculation.duration_days || 1;
+      return {
+        ht: priceCalculation.final_price_ht / days,
+        ttc: priceCalculation.final_price_ttc / days,
+      };
+    }
+
+    // Sinon, utiliser les prix par défaut de la robe
     return {
       ht: toNumeric(dress.price_per_day_ht ?? dress.price_per_day_ttc ?? dress.price_ht ?? 0),
       ttc: toNumeric(dress.price_per_day_ttc ?? dress.price_per_day_ht ?? dress.price_ttc ?? 0),
     };
-  }, [contractDrawer.dress]);
+  }, [contractDrawer.dress, contractDrawer.mode, priceCalculation]);
 
   const contractDateRange = useMemo(() => {
     if (!contractForm?.startDate || !contractForm?.endDate) return undefined;
@@ -756,29 +796,32 @@ export default function Catalogue() {
   );
 
   const openContractDrawer = useCallback(
-    (mode: ContractMode, dress?: DressDetails, range?: { startDate?: string | null; endDate?: string | null }) => {
-      const startDate = range?.startDate ?? null;
-      const endDate = range?.endDate ?? null;
-      if (dress) {
-        setContractDraft({ mode, dressId: dress.id, startDate, endDate });
-        initializeContractContext(dress, mode, { startDate, endDate });
-        setContractDrawer({ open: true, mode, dress });
-      } else {
-        setContractDraft({ mode, dressId: null, startDate, endDate });
-        setContractDrawer({ open: true, mode, dress: null });
-        setContractForm(null);
-        setSelectedAddonIds([]);
-        contractAddonsInitializedRef.current = false;
-        packageAddonDefaultsRef.current = [];
-        setCustomerResults([]);
-        setCustomerSearchTerm("");
-        setCustomerForm(QUICK_CUSTOMER_DEFAULT);
-        setShowCustomerForm(false);
-        setContractSubmitting(false);
-        setContractAvailabilityStatus("idle");
-      }
+    async (mode: ContractMode, dress?: DressDetails, range?: { startDate?: string | null; endDate?: string | null }) => {
+      // Vérifier le quota avant d'ouvrir le drawer de contrat
+      await withQuotaCheck("contracts", () => {
+        const startDate = range?.startDate ?? null;
+        const endDate = range?.endDate ?? null;
+        if (dress) {
+          setContractDraft({ mode, dressId: dress.id, startDate, endDate });
+          initializeContractContext(dress, mode, { startDate, endDate });
+          setContractDrawer({ open: true, mode, dress });
+        } else {
+          setContractDraft({ mode, dressId: null, startDate, endDate });
+          setContractDrawer({ open: true, mode, dress: null });
+          setContractForm(null);
+          setSelectedAddonIds([]);
+          contractAddonsInitializedRef.current = false;
+          packageAddonDefaultsRef.current = [];
+          setCustomerResults([]);
+          setCustomerSearchTerm("");
+          setCustomerForm(QUICK_CUSTOMER_DEFAULT);
+          setShowCustomerForm(false);
+          setContractSubmitting(false);
+          setContractAvailabilityStatus("idle");
+        }
+      });
     },
-    [initializeContractContext],
+    [initializeContractContext, withQuotaCheck],
   );
 
   const draftDressComboboxOptions = useMemo(() => {
@@ -938,11 +981,14 @@ export default function Catalogue() {
     }
   }, [contractPackagesLoading, contractPackages.length, notify]);
 
-  const handleOpenCreate = useCallback(() => {
-    fetchReferenceData();
-    resetCreateState();
-    setCreateDrawerOpen(true);
-  }, [fetchReferenceData, resetCreateState]);
+  const handleOpenCreate = useCallback(async () => {
+    // Vérifier le quota avant d'ouvrir le drawer de création
+    await withQuotaCheck("dresses", () => {
+      fetchReferenceData();
+      resetCreateState();
+      setCreateDrawerOpen(true);
+    });
+  }, [fetchReferenceData, resetCreateState, withQuotaCheck]);
 
   const computeFilterUsage = useCallback(
     async (
@@ -1098,8 +1144,9 @@ export default function Catalogue() {
       return;
     }
 
-    const baseHT = pricePerDay.ht * days;
-    const baseTTC = pricePerDay.ttc * days;
+    // Si on a un calcul API, utiliser directement le prix final
+    const baseHT = priceCalculation?.final_price_ht ?? (pricePerDay.ht * days);
+    const baseTTC = priceCalculation?.final_price_ttc ?? (pricePerDay.ttc * days);
     const totalHT = baseHT + addonsTotals.chargeableHT;
     const totalTTC = baseTTC + addonsTotals.chargeableTTC;
     // Acompte TTC = Prix total TTC (100% du total) pour tous les types de contrat
@@ -1196,7 +1243,10 @@ export default function Catalogue() {
         const availabilityStartIso = toISOStringSafe(currentFilters.availabilityStart);
         const availabilityEndIso = toISOStringSafe(currentFilters.availabilityEnd);
         const availabilityPromise: Promise<DressAvailabilityResponse | null> = availabilityStartIso && availabilityEndIso
-          ? DressesAPI.listAvailability(availabilityStartIso, availabilityEndIso)
+          ? DressesAPI.listAvailability(availabilityStartIso, availabilityEndIso).catch((err) => {
+              console.warn("Erreur availability filter (ignorée):", err?.message);
+              return null;
+            })
           : Promise.resolve(null);
 
         // Vérifier la disponibilité pour aujourd'hui (pour le badge "Réservée")
@@ -1206,7 +1256,10 @@ export default function Catalogue() {
         const todayAvailabilityPromise = DressesAPI.listAvailability(
           todayStart.toISOString(),
           todayEnd.toISOString()
-        );
+        ).catch((err) => {
+          console.warn("Erreur today availability (ignorée):", err?.message);
+          return { data: [], count: 0, filters: { start: todayStart.toISOString(), end: todayEnd.toISOString() } };
+        });
 
         const [listRes, availabilityRes, todayAvailabilityRes, computedTypeUsage, computedSizeUsage, computedColorUsage] =
           await Promise.all([
@@ -1319,9 +1372,10 @@ export default function Catalogue() {
         _setLimit(listRes.limit ?? PAGE_SIZE);
         const computedTotal = availabilityRes ? resultingDresses.length : listRes.total ?? resultingDresses.length;
         setTotal(computedTotal);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Impossible de charger les robes :", error);
-        notify("error", "Erreur", "Le catalogue des robes n'a pas pu être chargé.");
+        const errorMessage = error?.message || "Le catalogue des robes n'a pas pu être chargé.";
+        notify("error", "Erreur", errorMessage);
       } finally {
         setLoading(false);
       }
@@ -2433,7 +2487,7 @@ export default function Catalogue() {
 
   return (
     <div className="space-y-6">
-      <PageMeta title="Catalogue - Allure Creation App" description="Gérez la visibilité, les visuels et les actions commerciales de votre dressing"/>
+      <PageMeta title="Catalogue - Velvena App" description="Gérez la visibilité, les visuels et les actions commerciales de votre dressing"/>
       <PageBreadcrumb pageTitle="Catalogue" />
 
       <div className="rounded-2xl border border-gray-200 bg-white px-5 py-6 shadow-theme-xs transition dark:border-white/10 dark:bg-white/[0.03] xl:px-10 xl:py-10">
@@ -2810,6 +2864,14 @@ export default function Catalogue() {
         deleteLoading={deleteLoading}
         onClose={() => setDeleteTarget({ type: "soft", dress: null })}
         onConfirm={handleConfirmDelete}
+      />
+
+      {/* Modal d'upgrade si quota dépassé */}
+      <UpgradeRequiredModal
+        isOpen={upgradeModalOpen}
+        onClose={closeUpgradeModal}
+        title={quotaExceeded ? getUpgradeModalTitle(quotaExceeded.resourceType) : undefined}
+        description={quotaExceeded ? getQuotaExceededMessage(quotaExceeded.resourceType, quotaExceeded.quota) : undefined}
       />
     </div>
   );

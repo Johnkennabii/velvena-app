@@ -30,13 +30,13 @@ export default function AuthLayout({
           fontFamily: '"Great Vibes", cursive',
         }}
       >
-        Allure Creation
+        VELVENA
       </span>
     </Link>
 
     <p className="text-center text-gray-400 dark:text-white/60">
-      Bienvenue sur Allure Creation App, votre solution complète pour gérer
-      vos clients, devis, factures et emails en toute simplicité.
+      Bienvenue sur Velvena App, votre solution complète pour gérer
+      vos clients, contrats,  et votre dressing en toute simplicité.
     </p>
   </div>
 </div>

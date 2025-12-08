@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
+import { useOrganization } from "../context/OrganizationContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
@@ -9,11 +10,15 @@ import QuickSearchBar from "../components/header/QuickSearchBar";
 import QuickActionsDropdown from "../components/header/QuickActionsDropdown";
 import CartIcon from "../components/header/CartIcon";
 import ProspectsIcon from "../components/header/ProspectsIcon";
+import { useAppName } from "../hooks/useAppName";
+
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
   const { hasRole } = useAuth();
-  const isAdmin = hasRole("ADMIN");
+  const { hasFeature } = useOrganization();
+  const isAdmin = hasRole("ADMIN","SUPER_ADMIN");
+  const appName = useAppName();
 
 
   const handleToggle = () => {
@@ -91,7 +96,7 @@ const AppHeader: React.FC = () => {
     "
     style={{ fontFamily: '"Great Vibes", cursive' }}
   >
-    Allure Creation
+    {appName}
   </span>
 </Link>
 
@@ -126,13 +131,13 @@ const AppHeader: React.FC = () => {
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Prospects Icon  --> */}
-            {isAdmin && <ProspectsIcon />}
+            {isAdmin && hasFeature("prospect_management") && <ProspectsIcon />}
             {/* <!-- Cart Icon  --> */}
             {isAdmin && <CartIcon />}
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            {hasFeature("notification_push") && <NotificationDropdown />}
             {/* <!-- Notification Menu Area --> */}
           </div>
           <QuickActionsDropdown />

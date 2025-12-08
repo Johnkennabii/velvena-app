@@ -298,8 +298,9 @@ export const EmailsAPI = {
    * Télécharge une pièce jointe
    */
   async downloadAttachment(emailUid: number, attachmentIndex: number, mailbox: string = "inbox"): Promise<Blob> {
+    const API_URL = import.meta.env.VITE_API_URL || "https://api.velvena.fr";
     const response = await fetch(
-      `https://api.allure-creation.fr/emails/${emailUid}/attachments/${attachmentIndex}?mailbox=${mailbox}`,
+      `${API_URL}/emails/${emailUid}/attachments/${attachmentIndex}?mailbox=${mailbox}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

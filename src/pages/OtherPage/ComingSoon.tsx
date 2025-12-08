@@ -10,8 +10,8 @@ export default function ComingSoon() {
   return (
     <>
       <PageMeta
-        title="A venir - Allure Creation App"
-        description="Page bientôt disponible sur Allure Creation App."
+        title="A venir - Velvena App"
+        description="Page bientôt disponible sur Velvena App."
       />
       <div className="relative flex flex-col items-center justify-center w-full min-h-screen p-6 overflow-hidden z-1">
         <GridShape />
@@ -31,7 +31,7 @@ export default function ComingSoon() {
       fontFamily: '"Great Vibes", cursive',
     }}
   >
-    Allure Creation
+    Velvena
   </span>
 </Link>
 

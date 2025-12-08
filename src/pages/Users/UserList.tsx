@@ -16,6 +16,8 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { PencilIcon, TrashBinIcon, CloseLineIcon } from "../../icons";
 import { PasswordValidator, validatePassword } from "../../components/common/PasswordValidator";
+import { useQuotaCheck } from "../../hooks/useQuotaCheck";
+import UpgradeRequiredModal from "../../components/subscription/UpgradeRequiredModal";
 
 const TooltipWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
@@ -106,6 +108,14 @@ export default function UserList() {
   const { notify } = useNotification();
   const { hasRole } = useAuth();
   const notifyRef = useRef(notify);
+  const {
+    withQuotaCheck,
+    upgradeModalOpen,
+    closeUpgradeModal,
+    quotaExceeded,
+    getQuotaExceededMessage,
+    getUpgradeModalTitle,
+  } = useQuotaCheck();
 
   useEffect(() => {
     notifyRef.current = notify;
@@ -376,18 +386,22 @@ const formatRoleLabel = (role?: string) => {
       roleId: "",
     });
 
-  const openCreateModal = () => {
+  const openCreateModal = async () => {
     if (!currentIsAdmin && !currentIsManager) {
       notify("warning", "Action non autorisée", "Seuls les administrateurs ou managers peuvent créer des utilisateurs.");
       return;
     }
-    resetCreateForm();
-    const availableRoles = currentIsAdmin
-      ? roleOptions
-      : roleOptions.filter((role) => normalizeRole(role.label) !== "ADMIN");
-    const defaultRole = availableRoles[0]?.value ?? "";
-    setCreateForm((prev) => ({ ...prev, roleId: defaultRole }));
-    setCreateOpen(true);
+
+    // Vérifier le quota avant d'ouvrir la modal
+    await withQuotaCheck("users", () => {
+      resetCreateForm();
+      const availableRoles = currentIsAdmin
+        ? roleOptions
+        : roleOptions.filter((role) => normalizeRole(role.label) !== "ADMIN");
+      const defaultRole = availableRoles[0]?.value ?? "";
+      setCreateForm((prev) => ({ ...prev, roleId: defaultRole }));
+      setCreateOpen(true);
+    });
   };
 
   const closeCreateModal = () => {
@@ -646,7 +660,7 @@ const formatRoleLabel = (role?: string) => {
 
   return (
     <>
-      <PageMeta title="Utilisateurs - Allure Creation App" description="Consultez l'ensemble des utilisateurs enregistrés sur Allure Création." />
+      <PageMeta title="Utilisateurs - Velvena App" description="Consultez l'ensemble des utilisateurs enregistrés sur Allure Création." />
       <PageBreadcrumb pageTitle="Uilisateurs" />
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
@@ -1085,6 +1099,14 @@ const formatRoleLabel = (role?: string) => {
           </div>
         </form>
       </Modal>
+
+      {/* Modal d'upgrade si quota dépassé */}
+      <UpgradeRequiredModal
+        isOpen={upgradeModalOpen}
+        onClose={closeUpgradeModal}
+        title={quotaExceeded ? getUpgradeModalTitle(quotaExceeded.resourceType) : undefined}
+        description={quotaExceeded ? getQuotaExceededMessage(quotaExceeded.resourceType, quotaExceeded.quota) : undefined}
+      />
     </>
   );
 }

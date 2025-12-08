@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       notify("success", "Connexion réussie", `Bienvenue ${res.email}`);
 
       // Redirect based on user role
-      if (res.role === "ADMIN" || res.role === "MANAGER") {
+      if (res.role === "SUPER_ADMIN" || res.role === "ADMIN" || res.role === "MANAGER") {
         navigate("/");
       } else if (res.role === "COLLABORATOR") {
         navigate("/catalogue");

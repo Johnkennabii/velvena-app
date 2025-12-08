@@ -11,6 +11,7 @@ import { AuthProvider } from "./context/AuthContext.tsx";
 import { LoadingProvider } from "./context/LoadingContext.tsx";
 import { CartProvider } from "./context/CartContext.tsx";
 import { ProspectsProvider } from "./context/ProspectsContext.tsx";
+import { OrganizationProvider } from "./context/OrganizationContext.tsx";
 import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")!).render(
@@ -20,13 +21,15 @@ createRoot(document.getElementById("root")!).render(
         <LoadingProvider>
           <BrowserRouter>
             <AuthProvider>
-              <CartProvider>
-                <ProspectsProvider>
-                  <AppWrapper>
-                    <App />
-                  </AppWrapper>
-                </ProspectsProvider>
-              </CartProvider>
+              <OrganizationProvider>
+                <CartProvider>
+                  <ProspectsProvider>
+                    <AppWrapper>
+                      <App />
+                    </AppWrapper>
+                  </ProspectsProvider>
+                </CartProvider>
+              </OrganizationProvider>
             </AuthProvider>
           </BrowserRouter>
         </LoadingProvider>

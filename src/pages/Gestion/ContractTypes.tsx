@@ -229,7 +229,7 @@ export default function ContractTypes() {
 
   return (
     <>
-      <PageMeta title="Types de contrat - Allure Creation App" description="Administration des types de contrat." />
+      <PageMeta title="Types de contrat - Velvena App" description="Administration des types de contrat." />
       <PageBreadcrumb pageTitle="Types de contrat" />
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { ContractsAPI } from "../../api/endpoints/contracts";
+import { useOrganization } from "../../context/OrganizationContext";
 import Button from "../ui/button/Button";
 import * as XLSX from "xlsx";
 import { formatCurrency, formatDateTime } from "../../utils/formatters";
@@ -72,6 +73,7 @@ export default function UnpaidPaymentsWidget({
   onMarkAccountAsPaid,
   onMarkCautionAsPaid
 }: UnpaidPaymentsWidgetProps = {}) {
+  const { hasFeature } = useOrganization();
   const [contracts, setContracts] = useState<UnpaidContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -281,12 +283,14 @@ export default function UnpaidPaymentsWidget({
               {sortedContracts.length} {sortedContracts.length > 1 ? "contrats" : "contrat"}
             </p>
           </div>
-          <Button onClick={exportToExcel} disabled={sortedContracts.length === 0} size="sm" variant="outline">
-            <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Excel
-          </Button>
+          {hasFeature("export_data") && (
+            <Button onClick={exportToExcel} disabled={sortedContracts.length === 0} size="sm" variant="outline">
+              <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Excel
+            </Button>
+          )}
         </div>
       </div>
 

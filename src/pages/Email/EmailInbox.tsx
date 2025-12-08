@@ -48,8 +48,8 @@ export default function EmailInbox() {
   return (
     <>
       <PageMeta
-        title="Mails - Allure Creation App"
-        description="Gérez vos emails efficacement via l'application Allure Creation App."
+        title="Mails - Velvena App"
+        description="Gérez vos emails efficacement via l'application Velvena App."
       />
       <div className="sm:h-[calc(100vh-174px)] h-screen xl:h-[calc(100vh-186px)]">
         <div className="flex flex-col gap-5 xl:grid xl:grid-cols-12 sm:gap-5">

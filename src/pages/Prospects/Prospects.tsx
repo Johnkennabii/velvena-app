@@ -13,6 +13,8 @@ import { Modal } from "../../components/ui/modal";
 import PaginationWithIcon from "../../components/tables/DataTables/TableOne/PaginationWithIcon";
 import { useNotification } from "../../context/NotificationContext";
 import { useProspects } from "../../context/ProspectsContext";
+import { useQuotaCheck } from "../../hooks/useQuotaCheck";
+import UpgradeRequiredModal from "../../components/subscription/UpgradeRequiredModal";
 import {
   ProspectsAPI,
   type Prospect,
@@ -32,6 +34,7 @@ interface ProspectRow extends Prospect {
   fullName: string;
   createdLabel: string;
   reservationCount: number;
+  requestCount: number;
   totalEstimatedCostValue: number;
 }
 
@@ -116,6 +119,14 @@ const computeLocalReservationEstimates = (reservation: DressReservationForm) => 
 const Prospects: React.FC = () => {
   const { notify } = useNotification();
   const { refreshNewProspectsCount } = useProspects();
+  const {
+    withQuotaCheck,
+    upgradeModalOpen,
+    closeUpgradeModal,
+    quotaExceeded,
+    getQuotaExceededMessage,
+    getUpgradeModalTitle,
+  } = useQuotaCheck();
 
   // États
   const [prospects, setProspects] = useState<Prospect[]>([]);
@@ -200,10 +211,13 @@ const Prospects: React.FC = () => {
   }, [loadDressOptionsWithAvailability]);
 
   // Gestion du formulaire
-  const openDrawerForCreate = () => {
-    setEditingProspect(null);
-    setFormState(createDefaultFormState());
-    setIsDrawerOpen(true);
+  const openDrawerForCreate = async () => {
+    // Vérifier le quota avant d'ouvrir le drawer
+    await withQuotaCheck("prospects", () => {
+      setEditingProspect(null);
+      setFormState(createDefaultFormState());
+      setIsDrawerOpen(true);
+    });
   };
 
   const openDrawerForEdit = (prospect: Prospect) => {
@@ -445,21 +459,31 @@ const Prospects: React.FC = () => {
   const prospectRows: ProspectRow[] = prospects.map((prospect) => {
     const reservationCount =
       prospect.dress_reservations?.length ?? prospect._count?.dress_reservations ?? 0;
+    const requestCount = prospect.requests?.length ?? prospect._count?.requests ?? 0;
+
     const fallbackTotal =
       prospect.dress_reservations?.reduce(
         (acc, reservation) => acc + toNumericValue(reservation.estimated_cost ?? 0),
         0,
       ) ?? 0;
+
+    const requestsTotal =
+      prospect.requests?.reduce(
+        (acc, request) => acc + toNumericValue(request.total_estimated_ttc ?? 0),
+        0,
+      ) ?? 0;
+
     const totalEstimatedCostValue =
       prospect.total_estimated_cost !== undefined && prospect.total_estimated_cost !== null
         ? toNumericValue(prospect.total_estimated_cost)
-        : fallbackTotal;
+        : fallbackTotal + requestsTotal;
 
     return {
       ...prospect,
       fullName: `${prospect.firstname} ${prospect.lastname}`,
       createdLabel: formatDateTimeShort(prospect.created_at),
       reservationCount,
+      requestCount,
       totalEstimatedCostValue,
     };
   });
@@ -469,8 +493,8 @@ const Prospects: React.FC = () => {
   return (
     <>
       <PageMeta
-        title="Prospects - Allure Creation"
-        description="Gérer et suivre vos prospects avec Allure Creation"
+        title="Prospects - Velvena"
+        description="Gérer et suivre vos prospects avec Velvena"
       />
       <PageBreadcrumb pageTitle="Prospects" />
 
@@ -563,7 +587,7 @@ const Prospects: React.FC = () => {
                       isHeader
                       className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
                     >
-                      Robes
+                      Demandes
                     </TableCell>
                     <TableCell
                       isHeader
@@ -600,14 +624,27 @@ const Prospects: React.FC = () => {
                         {prospect.source || "-"}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {prospect.reservationCount > 0 ? (
-                          <div>
-                            <p className="font-medium text-gray-800 dark:text-white/90">
-                              {prospect.reservationCount} robe{prospect.reservationCount > 1 ? "s" : ""}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Total {formatCurrency(prospect.totalEstimatedCostValue)}
-                            </p>
+                        {prospect.reservationCount > 0 || prospect.requestCount > 0 ? (
+                          <div className="space-y-1">
+                            {prospect.requestCount > 0 && (
+                              <div>
+                                <p className="font-medium text-gray-800 dark:text-white/90">
+                                  {prospect.requestCount} demande{prospect.requestCount > 1 ? "s" : ""}
+                                </p>
+                              </div>
+                            )}
+                            {prospect.reservationCount > 0 && (
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {prospect.reservationCount} robe{prospect.reservationCount > 1 ? "s" : ""} (ancien)
+                                </p>
+                              </div>
+                            )}
+                            {prospect.totalEstimatedCostValue > 0 && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Total {formatCurrency(prospect.totalEstimatedCostValue)}
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <span>-</span>
@@ -751,6 +788,14 @@ const Prospects: React.FC = () => {
         isOpen={!!viewingProspect}
         onClose={closeProspectDetails}
         prospect={viewingProspect}
+      />
+
+      {/* Modal d'upgrade si quota dépassé */}
+      <UpgradeRequiredModal
+        isOpen={upgradeModalOpen}
+        onClose={closeUpgradeModal}
+        title={quotaExceeded ? getUpgradeModalTitle(quotaExceeded.resourceType) : undefined}
+        description={quotaExceeded ? getQuotaExceededMessage(quotaExceeded.resourceType, quotaExceeded.quota) : undefined}
       />
     </>
   );
