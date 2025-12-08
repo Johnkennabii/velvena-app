@@ -6,7 +6,6 @@ import type {
   QuotaCheck,
   FeatureCheck,
 } from "../../types/subscription";
-import type { ApiResponse } from "../types";
 
 /**
  * API endpoints pour le système d'abonnement
@@ -41,9 +40,7 @@ export const SubscriptionAPI = {
    * Récupérer les détails d'un plan
    */
   getPlan: async (id: string): Promise<SubscriptionPlan> => {
-    const response = await httpClient.get<ApiResponse<SubscriptionPlan>>(
-      `/subscription-plans/${id}`
-    );
+    const response = await httpClient.get(`/subscription-plans/${id}`);
     return response.data.data;
   },
 
@@ -68,9 +65,7 @@ export const SubscriptionAPI = {
    * Récupérer le statut d'abonnement de son organisation
    */
   getSubscriptionStatus: async (): Promise<SubscriptionStatusResponse> => {
-    const response = await httpClient.get<SubscriptionStatusResponse>(
-      "/billing/status"
-    );
+    const response = await httpClient.get("/billing/status");
     return response;
   },
 
@@ -99,9 +94,7 @@ export const SubscriptionAPI = {
    * Récupérer l'usage actuel de son organisation
    */
   getUsage: async (): Promise<UsageOverview> => {
-    const response = await httpClient.get<ApiResponse<UsageOverview>>(
-      "/organizations/me/usage"
-    );
+    const response = await httpClient.get("/organizations/me/usage");
     return response.data.data;
   },
 
@@ -109,9 +102,7 @@ export const SubscriptionAPI = {
    * Vérifier un quota spécifique
    */
   checkQuota: async (resourceType: string): Promise<QuotaCheck> => {
-    const response = await httpClient.get<ApiResponse<QuotaCheck>>(
-      `/organizations/me/quotas/${resourceType}`
-    );
+    const response = await httpClient.get(`/organizations/me/quotas/${resourceType}`);
     return response.data.data;
   },
 
@@ -119,9 +110,7 @@ export const SubscriptionAPI = {
    * Vérifier une fonctionnalité spécifique
    */
   checkFeature: async (featureName: string): Promise<FeatureCheck> => {
-    const response = await httpClient.get<ApiResponse<FeatureCheck>>(
-      `/organizations/me/features/${featureName}`
-    );
+    const response = await httpClient.get(`/organizations/me/features/${featureName}`);
     return response.data.data;
   },
 
@@ -162,6 +151,6 @@ export const SubscriptionAPI = {
    * Réactiver son abonnement
    */
   reactivateSubscription: async (): Promise<void> => {
-    await httpClient.post("/organizations/me/subscription/reactivate");
+    await httpClient.post("/organizations/me/subscription/reactivate", {});
   },
 };

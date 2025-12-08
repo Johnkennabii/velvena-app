@@ -150,9 +150,9 @@ export function useContractCalculation(options: UseContractCalculationOptions = 
     const account_ttc = total_price_ttc;
     const account_ht = total_price_ht;
 
-    // Acompte suggéré
-    const suggested_deposit_ttc = calculateDeposit(total_price_ttc, depositPercentage);
-    const _suggested_deposit_ht = ttcToHt(suggested_deposit_ttc); // Non utilisé pour l'instant
+    // Acompte suggéré (calculé mais non utilisé dans le return, disponible pour extension future)
+    const _suggested_deposit_ttc = calculateDeposit(total_price_ttc, depositPercentage);
+    void _suggested_deposit_ttc; // Explicitly mark as intentionally unused
 
     // Caution
     const caution_ttc = calculateCaution(total_price_ttc, serviceTypeConfig);

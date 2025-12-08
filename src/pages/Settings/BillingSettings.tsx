@@ -212,14 +212,6 @@ export default function BillingSettings() {
                   <Button variant="primary" onClick={() => setChangePlanModalOpen(true)}>
                     Changer de plan
                   </Button>
-                  {!isTrialActive() && organization.is_active && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setCancelModalOpen(true)}
-                    >
-                      Annuler l'abonnement
-                    </Button>
-                  )}
                 </div>
               </div>
             )}

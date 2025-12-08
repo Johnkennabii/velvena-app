@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Exécuter les vérifications avant le push
+./scripts/pre-push-check.sh

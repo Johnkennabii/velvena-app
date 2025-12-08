@@ -5,7 +5,6 @@ import type {
   UpdateOrganizationInput,
   CreateOrganizationInput,
 } from "../../types/organization";
-import type { ApiResponse } from "../types";
 
 /**
  * API endpoints pour la gestion des organisations
@@ -38,9 +37,7 @@ export const OrganizationAPI = {
    * Récupérer les statistiques de son organisation
    */
   getMyOrganizationStats: async (): Promise<OrganizationStats> => {
-    const response = await httpClient.get<ApiResponse<OrganizationStats>>(
-      "/organizations/me/stats"
-    );
+    const response = await httpClient.get("/organizations/me/stats");
     return response.data.data;
   },
 
@@ -50,10 +47,7 @@ export const OrganizationAPI = {
   createOrganization: async (
     data: CreateOrganizationInput
   ): Promise<Organization> => {
-    const response = await httpClient.post<ApiResponse<Organization>>(
-      "/organizations",
-      data
-    );
+    const response = await httpClient.post("/organizations", data);
     return response.data.data;
   },
 
@@ -65,9 +59,12 @@ export const OrganizationAPI = {
     limit?: number;
     search?: string;
   }): Promise<{ data: Organization[]; total: number }> => {
-    const response = await httpClient.get<
-      ApiResponse<{ data: Organization[]; total: number }>
-    >("/organizations", { params });
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.search) queryParams.append("search", params.search);
+    const query = queryParams.toString();
+    const response = await httpClient.get(`/organizations${query ? `?${query}` : ""}`);
     return response.data.data;
   },
 
@@ -75,9 +72,7 @@ export const OrganizationAPI = {
    * Récupérer une organisation par ID (super-admin uniquement)
    */
   getOrganization: async (id: string): Promise<Organization> => {
-    const response = await httpClient.get<ApiResponse<Organization>>(
-      `/organizations/${id}`
-    );
+    const response = await httpClient.get(`/organizations/${id}`);
     return response.data.data;
   },
 
@@ -88,10 +83,7 @@ export const OrganizationAPI = {
     id: string,
     data: UpdateOrganizationInput
   ): Promise<Organization> => {
-    const response = await httpClient.put<ApiResponse<Organization>>(
-      `/organizations/${id}`,
-      data
-    );
+    const response = await httpClient.put(`/organizations/${id}`, data);
     return response.data.data;
   },
 

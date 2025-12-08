@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "pre-push": "./scripts/pre-push-check.sh",
+    "docker:build": "docker build --build-arg VITE_API_URL=https://api.velvena.fr -t velvena-frontend:latest .",
+    "docker:run": "docker run -d --name velvena-frontend --restart unless-stopped -p 127.0.0.1:4173:80 velvena-frontend:latest",
+    "docker:test": "docker build --build-arg VITE_API_URL=https://api.velvena.fr -t velvena-frontend:test . && echo 'Docker build OK!'"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
