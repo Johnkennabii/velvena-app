@@ -87,7 +87,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.warn("⚠️  Billing status endpoint not available:", error.message);
     }
-  }, [token, user, organization]);
+  }, [token, user]);
 
   /**
    * Initialisation au montage
@@ -120,10 +120,12 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
    * Charger les détails de l'abonnement une fois que l'organisation est chargée
    */
   useEffect(() => {
-    if (organization) {
+    if (organization && token && user) {
       refreshSubscription();
     }
-  }, [organization, refreshSubscription]);
+    // Volontairement sans dépendances pour éviter les boucles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organization?.id]);
 
   /**
    * Mettre à jour l'organisation
