@@ -978,7 +978,9 @@ export default function Catalogue() {
     } finally {
       setContractPackagesLoading(false);
     }
-  }, [contractPackagesLoading, contractPackages.length, notify]);
+    // Ne pas dépendre de contractPackagesLoading pour éviter la boucle infinie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contractPackages.length, notify]);
 
   const handleOpenCreate = useCallback(async () => {
     // Vérifier le quota avant d'ouvrir le drawer de création
@@ -1382,17 +1384,21 @@ export default function Catalogue() {
     [notify, computeFilterUsage],
   );
 
+  // Charger les données de référence au montage uniquement
   useEffect(() => {
     fetchReferenceData();
-  }, [fetchReferenceData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchContractAddons();
-  }, [fetchContractAddons]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchContractPackages();
-  }, [fetchContractPackages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Le chargement automatique des types de contrat est maintenant géré par le hook useDressReferences
 

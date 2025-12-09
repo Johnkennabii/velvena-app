@@ -55,7 +55,9 @@ export function useDressReferences() {
     } finally {
       setReferencesLoading(false);
     }
-  }, [dressTypes.length, notify, referencesLoading]);
+    // Ne pas dépendre de referencesLoading pour éviter la boucle infinie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dressTypes.length, notify]);
 
   /**
    * Charge les types de contrat
@@ -73,12 +75,16 @@ export function useDressReferences() {
     } finally {
       setContractTypesLoading(false);
     }
-  }, [contractTypesLoading, contractTypes.length, notify]);
+    // Ne pas dépendre de contractTypesLoading pour éviter la boucle infinie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contractTypes.length, notify]);
 
-  // Chargement automatique des types de contrat au montage
+  // Chargement automatique des types de contrat au montage (une seule fois)
   useEffect(() => {
     fetchContractTypes();
-  }, [fetchContractTypes]);
+    // Ne dépendre que du montage initial, pas de fetchContractTypes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     // États des références de robes
