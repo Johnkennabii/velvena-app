@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useRef, useEffect, useCallback } from "react";
 import Notification from "../components/ui/notification/Notfication";
 import UpdateNotification from "../components/ui/notification/UpdateNotification";
 
@@ -32,7 +32,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const showSimple = (variant: NotificationVariant, title: string, description?: string) => {
+  const showSimple = useCallback((variant: NotificationVariant, title: string, description?: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setNotification({ type: "simple", variant, title, description });
     setVisible(true);
@@ -41,22 +41,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       setVisible(false);
       setTimeout(() => setNotification(null), 400); // délai pour l'animation de sortie
     }, 3000);
-  };
+  }, []);
 
-  const showReconnect = (title: string, message: string, onReconnect: () => void) => {
+  const showReconnect = useCallback((title: string, message: string, onReconnect: () => void) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setNotification({ type: "custom", title, message, onConfirm: onReconnect });
     setVisible(true);
-  };
+  }, []);
 
-  const notify = (variant: NotificationVariant, title: string, message?: string) => {
+  const notify = useCallback((variant: NotificationVariant, title: string, message?: string) => {
     showSimple(variant, title, message);
-  };
+  }, [showSimple]);
 
-  const hide = () => {
+  const hide = useCallback(() => {
     setVisible(false);
     setTimeout(() => setNotification(null), 400);
-  };
+  }, []);
 
   // nettoyage à la fermeture
   useEffect(() => {
