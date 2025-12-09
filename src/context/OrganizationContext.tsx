@@ -46,7 +46,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error("❌ Erreur lors du chargement de l'organisation:", error);
     }
-  }, [token, user]);
+  }, [token, user?.id]);
 
   /**
    * Charger les statistiques de l'organisation
@@ -60,7 +60,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
       // Endpoint potentiellement non implémenté, ignorer silencieusement
       console.warn("⚠️  Stats endpoint not available:", error.message);
     }
-  }, [token, user]);
+  }, [token, user?.id]);
 
   /**
    * Charger le statut d'abonnement depuis l'API /billing/dashboard (1 seule requête)
@@ -120,7 +120,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
         },
       } as any);
     }
-  }, [token, user]);
+  }, [token, user?.id]);
 
   /**
    * Initialisation au montage - charge l'organisation, les stats ET l'abonnement
@@ -150,10 +150,11 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     init();
-    // Ne dépendre que de token et user pour éviter les boucles
-    // Les fonctions sont stables car elles sont des useCallback
+    // Ne dépendre que de token et user.id pour éviter les boucles
+    // On ne dépend pas de l'objet user entier pour éviter des re-renders inutiles
+    // quand l'objet user change mais que l'ID reste le même
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, user]);
+  }, [token, user?.id]);
 
   /**
    * Mettre à jour l'organisation
