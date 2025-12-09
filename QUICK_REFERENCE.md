@@ -39,7 +39,7 @@ Prix: Fixe, indépendant des jours
 
 ```
 price_per_day_ttc: Utilisé en mode journalier
-price_per_day_ht: Calculé automatiquement
+price_per_day_ht: Calculé automatiquementa
 price_ttc: Prix unitaire (vente)
 price_ht: Prix unitaire (vente)
 ```

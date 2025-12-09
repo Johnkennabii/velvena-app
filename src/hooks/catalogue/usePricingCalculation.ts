@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { PricingRulesAPI } from "../../api/endpoints/pricingRules";
 import type { PriceCalculation } from "../../types/businessLogic";
 
@@ -32,6 +32,9 @@ export function usePricingCalculation({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Tracker la dernière requête pour éviter les doublons
+  const lastRequestRef = useRef<string>("");
+
   const calculate = useCallback(async () => {
     // Ne pas calculer si pas de robe ou dates invalides
     if (!enabled || !dressId || !startDate || !endDate) {
@@ -47,6 +50,15 @@ export function usePricingCalculation({
       return;
     }
 
+    // Créer une clé unique pour cette requête
+    const requestKey = `${dressId}-${startDate.toISOString()}-${endDate.toISOString()}`;
+
+    // Si c'est la même requête que la dernière, ne pas refaire l'appel
+    if (lastRequestRef.current === requestKey) {
+      return;
+    }
+
+    lastRequestRef.current = requestKey;
     setLoading(true);
     setError(null);
 
@@ -65,12 +77,14 @@ export function usePricingCalculation({
     } finally {
       setLoading(false);
     }
-  }, [enabled, dressId, startDate, endDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, dressId, startDate?.getTime(), endDate?.getTime()]);
 
   // Recalculer automatiquement quand les paramètres changent
   useEffect(() => {
     calculate();
-  }, [calculate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, dressId, startDate?.getTime(), endDate?.getTime()]);
 
   return {
     calculation,
