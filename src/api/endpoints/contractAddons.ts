@@ -20,7 +20,10 @@ const normalizeResponse = (res: any): ContractAddon[] => {
 
 export const ContractAddonsAPI = {
   list: async (): Promise<ContractAddon[]> => {
-    const res = await httpClient.get("/contract-addons");
+    const res = await httpClient.get("/contract-addons", {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - données semi-statiques
+    });
     return normalizeResponse(res);
   },
 

@@ -28,7 +28,10 @@ const normalizeObject = (res: any): ContractType => {
 
 export const ContractTypesAPI = {
   list: async (): Promise<ContractType[]> => {
-    const res = await httpClient.get("/contract-types");
+    const res = await httpClient.get("/contract-types", {
+      _enableCache: true,
+      _cacheTTL: 30 * 60 * 1000, // 30 minutes - données très statiques
+    });
     return normalizeArray(res);
   },
   create: async (payload: ContractTypePayload): Promise<ContractType> => {

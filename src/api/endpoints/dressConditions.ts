@@ -30,7 +30,10 @@ const normalizeObject = (res: any): DressCondition => {
 
 export const DressConditionsAPI = {
   list: async (): Promise<DressCondition[]> => {
-    const res = await httpClient.get("/dress-conditions");
+    const res = await httpClient.get("/dress-conditions", {
+      _enableCache: true,
+      _cacheTTL: 30 * 60 * 1000, // 30 minutes - données très statiques
+    });
     return normalizeArray(res);
   },
   create: async (payload: DressConditionPayload): Promise<DressCondition> => {
