@@ -85,12 +85,46 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
 
       setSubscriptionStatus(status);
     } catch (error: any) {
-      console.warn("⚠️  Billing status endpoint not available:", error.message);
+      console.error("⚠️  Erreur lors du chargement de l'abonnement:", error);
+      // En cas d'erreur, définir un plan par défaut permissif pour ne pas bloquer l'utilisateur
+      // Cela permet à l'application de fonctionner même si l'API de billing est indisponible
+      setSubscriptionStatus({
+        plan: {
+          id: 'default',
+          name: 'Plan par défaut',
+          tier: 'standard',
+          features: {
+            inventory_management: true,
+            customer_management: true,
+            contract_generation: true,
+            planning: true,
+            advanced_reporting: true,
+            custom_branding: false,
+            api_access: false,
+            priority_support: false,
+          },
+          limits: {
+            users: 999,
+            dresses: 999,
+            customers: 999,
+            contracts: 999,
+          },
+        },
+        is_active: true,
+        status: 'active',
+        current_usage: {
+          users: 0,
+          dresses: 0,
+          customers: 0,
+          contracts: 0,
+        },
+      } as any);
     }
   }, [token, user]);
 
   /**
-   * Initialisation au montage
+   * Initialisation au montage - charge l'organisation, les stats ET l'abonnement
+   * pour éviter les race conditions dans FeatureGuard
    */
   useEffect(() => {
     const init = async () => {
@@ -106,6 +140,8 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
           refreshOrganization(),
           refreshStats(),
         ]);
+        // Puis charger l'abonnement (nécessite que l'organisation soit chargée)
+        await refreshSubscription();
       } catch (error: any) {
         console.error("❌ Erreur d'initialisation:", error);
       } finally {
@@ -114,18 +150,10 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     init();
-  }, [token, user, refreshOrganization, refreshStats]);
-
-  /**
-   * Charger les détails de l'abonnement une fois que l'organisation est chargée
-   */
-  useEffect(() => {
-    if (organization && token && user) {
-      refreshSubscription();
-    }
-    // Volontairement sans dépendances pour éviter les boucles
+    // Ne dépendre que de token et user pour éviter les boucles
+    // Les fonctions sont stables car elles sont des useCallback
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organization?.id]);
+  }, [token, user]);
 
   /**
    * Mettre à jour l'organisation
