@@ -102,16 +102,16 @@ export const SubscriptionAPI = {
    * Vérifier un quota spécifique
    */
   checkQuota: async (resourceType: string): Promise<QuotaCheck> => {
-    const response = await httpClient.get(`/organizations/me/quotas/${resourceType}`);
-    return response.data.data;
+    const response = await httpClient.get(`/billing/quotas`);
+    return response[resourceType];
   },
 
   /**
    * Vérifier une fonctionnalité spécifique
    */
   checkFeature: async (featureName: string): Promise<FeatureCheck> => {
-    const response = await httpClient.get(`/organizations/me/features/${featureName}`);
-    return response.data.data;
+    const response = await httpClient.get(`/billing/features`);
+    return response[featureName];
   },
 
   /**

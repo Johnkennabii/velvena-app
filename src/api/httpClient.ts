@@ -59,6 +59,7 @@ async function performRequest(path: string, options: CustomRequestInit = {}, ret
   const requestInit: RequestInit = {
     ...cleanOptions,
     headers,
+    credentials: 'include', // ✅ Permet l'envoi des cookies pour CORS
   };
 
   const response = await fetch(`${BASE_URL}${path}`, {

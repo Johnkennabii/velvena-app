@@ -27,6 +27,28 @@ interface FeatureGuardProps {
 }
 
 /**
+ * Mapping des noms techniques vers des noms lisibles en français
+ */
+const FEATURE_LABELS: Record<string, string> = {
+  planning: "Planning et calendrier",
+  dashboard: "Tableau de bord avancé",
+  prospect_management: "Gestion des prospects",
+  contract_generation: "Génération de contrats",
+  electronic_signature: "Signature électronique",
+  inventory_management: "Gestion de l'inventaire",
+  customer_portal: "Portail client",
+  advanced_analytics: "Analyses avancées",
+  export_data: "Export de données",
+  notification_push: "Notifications push",
+  api_access: "Accès API",
+  white_label: "Marque blanche",
+  sms_notifications: "Notifications SMS",
+  priority_support: "Support prioritaire",
+  custom_integrations: "Intégrations personnalisées",
+  dedicated_account_manager: "Gestionnaire de compte dédié",
+};
+
+/**
  * Guard component qui protège les routes en fonction des fonctionnalités de l'abonnement
  *
  * @example
@@ -51,13 +73,14 @@ export function FeatureGuard({
   useEffect(() => {
     // Si la fonctionnalité n'est pas disponible et qu'on doit afficher une notification
     if (!loading && !isAvailable && showNotification) {
+      const featureLabel = FEATURE_LABELS[feature] || feature;
       const message =
         notificationMessage ||
-        `Cette fonctionnalité n'est pas disponible avec votre plan actuel.`;
+        `La fonctionnalité "${featureLabel}" n'est pas disponible avec votre plan actuel. Veuillez mettre à niveau votre abonnement pour y accéder.`;
 
       notify("warning", "Fonctionnalité non disponible", message);
     }
-  }, [loading, isAvailable, showNotification, notificationMessage, notify]);
+  }, [loading, isAvailable, showNotification, notificationMessage, notify, feature]);
 
   // Afficher un loader pendant le chargement des données d'abonnement
   if (loading) {
@@ -108,9 +131,10 @@ export function useFeatureGuard() {
     const isAvailable = hasFeature(feature);
 
     if (!isAvailable) {
+      const featureLabel = FEATURE_LABELS[feature] || feature;
       const message =
         options?.message ||
-        `Cette fonctionnalité n'est pas disponible avec votre plan actuel.`;
+        `La fonctionnalité "${featureLabel}" n'est pas disponible avec votre plan actuel. Veuillez mettre à niveau votre abonnement pour y accéder.`;
 
       notify("warning", "Fonctionnalité non disponible", message);
 
