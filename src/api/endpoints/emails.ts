@@ -177,7 +177,10 @@ export const EmailsAPI = {
    * Récupère la liste des mailboxes avec leurs statistiques
    */
   async getMailboxes(): Promise<Mailbox[]> {
-    const response: MailboxesResponse = await httpClient.get("/mails/mailboxes");
+    const response: MailboxesResponse = await httpClient.get("/mails/mailboxes", {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - statistiques changent dynamiquement
+    });
     return response.data;
   },
 
@@ -186,14 +189,20 @@ export const EmailsAPI = {
    */
   async getInboxEmails(params: { mailbox?: string; limit?: number; offset?: number } = {}): Promise<InboxEmailsResponse> {
     const { mailbox = "inbox", limit = 50, offset = 0 } = params;
-    return httpClient.get(`/mails/${mailbox}?limit=${limit}&offset=${offset}`);
+    return httpClient.get(`/mails/${mailbox}?limit=${limit}&offset=${offset}`, {
+      _enableCache: true,
+      _cacheTTL: 30 * 1000, // 30 secondes - inbox change en temps réel
+    });
   },
 
   /**
    * Récupère la liste des dossiers (Inbox, Sent, Trash, Spam, et sous-dossiers)
    */
   async getFolders(): Promise<EmailFolder[]> {
-    const response: FoldersResponse = await httpClient.get("/mails/folders");
+    const response: FoldersResponse = await httpClient.get("/mails/folders", {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - dossiers changent dynamiquement
+    });
     return response.data;
   },
 
@@ -217,14 +226,20 @@ export const EmailsAPI = {
     if (params.unreadOnly) queryParams.append("unreadOnly", "true");
 
     const query = queryParams.toString();
-    return httpClient.get(`/emails${query ? `?${query}` : ""}`);
+    return httpClient.get(`/emails${query ? `?${query}` : ""}`, {
+      _enableCache: true,
+      _cacheTTL: 30 * 1000, // 30 secondes - liste emails change en temps réel
+    });
   },
 
   /**
    * Récupère le contenu complet d'un email
    */
   async get(id: string, folder: string = "INBOX"): Promise<Email> {
-    return httpClient.get(`/emails/${id}?folder=${folder}`);
+    return httpClient.get(`/emails/${id}?folder=${folder}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - contenu email change dynamiquement
+    });
   },
 
   /**
@@ -277,7 +292,10 @@ export const EmailsAPI = {
    * Récupère un email individuel
    */
   async getEmail(uid: number, mailbox: string): Promise<InboxEmail> {
-    const response = await httpClient.get(`/mails/${mailbox}/${uid}`);
+    const response = await httpClient.get(`/mails/${mailbox}/${uid}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - email individuel change dynamiquement
+    });
     return response.data;
   },
 
@@ -340,6 +358,9 @@ export const EmailsAPI = {
    * Récupère la configuration email de l'utilisateur
    */
   async getConfig(): Promise<EmailConfig> {
-    return httpClient.get("/emails/config");
+    return httpClient.get("/emails/config", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - config change modérément
+    });
   },
 };

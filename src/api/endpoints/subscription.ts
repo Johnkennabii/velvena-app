@@ -16,7 +16,10 @@ export const SubscriptionAPI = {
    */
   listPlans: async (): Promise<SubscriptionPlan[]> => {
     try {
-      const response = await httpClient.get("/billing/plans");
+      const response = await httpClient.get("/billing/plans", {
+        _enableCache: true,
+        _cacheTTL: 5 * 60 * 1000, // 5 minutes - plans changent modérément
+      });
 
       // Gérer différentes structures de réponse
       if (response?.data?.data && Array.isArray(response.data.data)) {
@@ -40,7 +43,10 @@ export const SubscriptionAPI = {
    * Récupérer les détails d'un plan
    */
   getPlan: async (id: string): Promise<SubscriptionPlan> => {
-    const response = await httpClient.get(`/billing/plans/${id}`);
+    const response = await httpClient.get(`/billing/plans/${id}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - plans changent modérément
+    });
     return response.data.data;
   },
 
@@ -57,7 +63,10 @@ export const SubscriptionAPI = {
     features: Record<string, FeatureCheck>;
     subscription: SubscriptionStatusResponse;
   }> => {
-    const response = await httpClient.get("/billing/dashboard");
+    const response = await httpClient.get("/billing/dashboard", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - dashboard change modérément
+    });
     return response;
   },
 
@@ -65,7 +74,10 @@ export const SubscriptionAPI = {
    * Récupérer le statut d'abonnement de son organisation
    */
   getSubscriptionStatus: async (): Promise<SubscriptionStatusResponse> => {
-    const response = await httpClient.get("/billing/status");
+    const response = await httpClient.get("/billing/status", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - statut abonnement change modérément
+    });
     return response;
   },
 
@@ -78,7 +90,10 @@ export const SubscriptionAPI = {
     customers: QuotaCheck;
     contracts: QuotaCheck;
   }> => {
-    const response = await httpClient.get("/billing/quotas");
+    const response = await httpClient.get("/billing/quotas", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - quotas changent modérément
+    });
     return response;
   },
 
@@ -86,7 +101,10 @@ export const SubscriptionAPI = {
    * Récupérer les fonctionnalités disponibles pour son organisation
    */
   getFeatures: async (): Promise<Record<string, FeatureCheck>> => {
-    const response = await httpClient.get("/billing/features");
+    const response = await httpClient.get("/billing/features", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - fonctionnalités changent modérément
+    });
     return response;
   },
 
@@ -94,7 +112,10 @@ export const SubscriptionAPI = {
    * Récupérer l'usage actuel de son organisation
    */
   getUsage: async (): Promise<UsageOverview> => {
-    const response = await httpClient.get("/organizations/me/usage");
+    const response = await httpClient.get("/organizations/me/usage", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - usage change modérément
+    });
     return response.data.data;
   },
 
@@ -102,7 +123,10 @@ export const SubscriptionAPI = {
    * Vérifier un quota spécifique
    */
   checkQuota: async (resourceType: string): Promise<QuotaCheck> => {
-    const response = await httpClient.get(`/billing/quotas`);
+    const response = await httpClient.get(`/billing/quotas`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - quotas changent modérément
+    });
     return response[resourceType];
   },
 
@@ -110,7 +134,10 @@ export const SubscriptionAPI = {
    * Vérifier une fonctionnalité spécifique
    */
   checkFeature: async (featureName: string): Promise<FeatureCheck> => {
-    const response = await httpClient.get(`/billing/features`);
+    const response = await httpClient.get(`/billing/features`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - fonctionnalités changent modérément
+    });
     return response[featureName];
   },
 

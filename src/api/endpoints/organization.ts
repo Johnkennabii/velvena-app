@@ -15,7 +15,11 @@ export const OrganizationAPI = {
    */
   getMyOrganization: async (): Promise<Organization> => {
     const response = await httpClient.get(
-      "/organizations/me"
+      "/organizations/me",
+      {
+        _enableCache: true,
+        _cacheTTL: 5 * 60 * 1000, // 5 minutes - organisation change modérément
+      }
     );
     return response;
   },
@@ -37,7 +41,10 @@ export const OrganizationAPI = {
    * Récupérer les statistiques de son organisation
    */
   getMyOrganizationStats: async (): Promise<OrganizationStats> => {
-    const response = await httpClient.get("/organizations/me/stats");
+    const response = await httpClient.get("/organizations/me/stats", {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - stats changent modérément
+    });
     return response.data.data;
   },
 
@@ -64,7 +71,10 @@ export const OrganizationAPI = {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
     if (params?.search) queryParams.append("search", params.search);
     const query = queryParams.toString();
-    const response = await httpClient.get(`/organizations${query ? `?${query}` : ""}`);
+    const response = await httpClient.get(`/organizations${query ? `?${query}` : ""}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - liste organisations change modérément
+    });
     return response.data.data;
   },
 
@@ -72,7 +82,10 @@ export const OrganizationAPI = {
    * Récupérer une organisation par ID (super-admin uniquement)
    */
   getOrganization: async (id: string): Promise<Organization> => {
-    const response = await httpClient.get(`/organizations/${id}`);
+    const response = await httpClient.get(`/organizations/${id}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - organisation change modérément
+    });
     return response.data.data;
   },
 

@@ -91,7 +91,10 @@ export const PricingRulesAPI = {
       ? `/pricing-rules?service_type_id=${serviceTypeId}`
       : "/pricing-rules";
 
-    const response = await httpClient.get(url);
+    const response = await httpClient.get(url, {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - règles de tarification semi-statiques
+    });
 
     if (response?.data && Array.isArray(response.data)) {
       return {
@@ -114,7 +117,10 @@ export const PricingRulesAPI = {
    * Récupère une règle de tarification par ID
    */
   getById: async (id: string): Promise<PricingRule> => {
-    const response = await httpClient.get(`/pricing-rules/${id}`);
+    const response = await httpClient.get(`/pricing-rules/${id}`, {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - règles de tarification semi-statiques
+    });
 
     if (response?.data && typeof response.data === "object") {
       return normalizePricingRule(response.data);

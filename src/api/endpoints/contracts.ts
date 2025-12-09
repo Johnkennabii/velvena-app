@@ -197,13 +197,19 @@ const extractContractArray = (res: any): ContractFullView[] => {
 
 export const ContractsAPI = {
   listAll: async (): Promise<ContractFullView[]> => {
-    const res = await httpClient.get("/contracts/full-view?include=package");
+    const res = await httpClient.get("/contracts/full-view?include=package", {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+    });
     const entries = extractContractArray(res);
     return entries;
   },
 
   listByCustomer: async (customerId: string): Promise<ContractFullView[]> => {
-    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}&include=package`);
+    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}&include=package`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+    });
     const entries = extractContractArray(res);
     return entries;
   },
@@ -258,7 +264,10 @@ export const ContractsAPI = {
   },
 
   getById: async (contractId: string): Promise<ContractFullView> => {
-    const res = await httpClient.get(`/contracts/${contractId}?include=package`);
+    const res = await httpClient.get(`/contracts/${contractId}?include=package`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+    });
     if (res?.data && typeof res.data === "object") return res.data as ContractFullView;
     return res as ContractFullView;
   },
@@ -269,7 +278,10 @@ export const ContractsAPI = {
   },
 
   getSignatureByToken: async (token: string): Promise<ContractFullView> => {
-    const res = await httpClient.get(`/sign-links/${token}`);
+    const res = await httpClient.get(`/sign-links/${token}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - signature change dynamiquement
+    });
     const responseData = res?.data ?? res;
 
     // Extract sign_link info from response
@@ -419,13 +431,19 @@ export const ContractsAPI = {
     searchParams.set("search", trimmed);
 
     try {
-      const res = await httpClient.get(`/contracts/full-view?${searchParams.toString()}`);
+      const res = await httpClient.get(`/contracts/full-view?${searchParams.toString()}`, {
+        _enableCache: true,
+        _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+      });
       let entries = extractContractArray(res);
       if (!entries.length && trimmed.length >= 3) {
         const exactParams = new URLSearchParams();
         exactParams.set("contract_number", trimmed);
         if (limit > 0) exactParams.set("limit", String(limit));
-        const fallback = await httpClient.get(`/contracts/full-view?${exactParams.toString()}`);
+        const fallback = await httpClient.get(`/contracts/full-view?${exactParams.toString()}`, {
+          _enableCache: true,
+          _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+        });
         entries = extractContractArray(fallback);
       }
       return entries.slice(0, limit);
@@ -436,7 +454,10 @@ export const ContractsAPI = {
   },
 
   list: async (): Promise<{ data: ContractFullView[] }> => {
-    const res = await httpClient.get("/contracts/full-view?include=package");
+    const res = await httpClient.get("/contracts/full-view?include=package", {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+    });
     const entries = extractContractArray(res);
     return { data: entries };
   },
@@ -477,7 +498,10 @@ export const ContractsAPI = {
 
   countByCreator: async (userId: string): Promise<number> => {
     try {
-      const res = await httpClient.get("/contracts/full-view");
+      const res = await httpClient.get("/contracts/full-view", {
+        _enableCache: true,
+        _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
+      });
       const entries = extractContractArray(res);
       // Filter contracts created by the user
       const userContracts = entries.filter(contract => contract.created_by === userId);

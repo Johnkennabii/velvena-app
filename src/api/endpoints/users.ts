@@ -27,7 +27,10 @@ export interface UserListItem {
 
 export const UsersAPI = {
   list: async (): Promise<UserListItem[]> => {
-    const res = await httpClient.get("/users");
+    const res = await httpClient.get("/users", {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - données semi-statiques
+    });
 
     if (Array.isArray(res)) {
       return res as UserListItem[];

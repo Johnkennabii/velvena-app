@@ -199,12 +199,18 @@ export const ProspectsAPI = {
 
     const query = searchParams.toString();
     const url = query ? `/prospects?${query}` : "/prospects";
-    const res = await httpClient.get(url);
+    const res = await httpClient.get(url, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - données prospects changent modérément
+    });
     return normalizeListResponse(res);
   },
 
   getById: async (prospectId: string): Promise<Prospect> => {
-    const res = await httpClient.get(`/prospects/${prospectId}`);
+    const res = await httpClient.get(`/prospects/${prospectId}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - données prospects changent modérément
+    });
     return normalizeObject(res);
   },
 
@@ -239,7 +245,10 @@ export const ProspectsAPI = {
    * Liste toutes les demandes d'un prospect
    */
   listRequests: async (prospectId: string): Promise<ProspectRequest[]> => {
-    const res = await httpClient.get(`/prospects/${prospectId}/requests`);
+    const res = await httpClient.get(`/prospects/${prospectId}/requests`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - demandes prospects changent modérément
+    });
     if (res?.success && Array.isArray(res?.data)) {
       return res.data as ProspectRequest[];
     }
@@ -256,7 +265,10 @@ export const ProspectsAPI = {
    * Récupère une demande spécifique
    */
   getRequest: async (prospectId: string, requestId: string): Promise<ProspectRequest> => {
-    const res = await httpClient.get(`/prospects/${prospectId}/requests/${requestId}`);
+    const res = await httpClient.get(`/prospects/${prospectId}/requests/${requestId}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - demandes prospects changent modérément
+    });
     if (res?.success && res?.data) {
       return res.data as ProspectRequest;
     }

@@ -232,7 +232,10 @@ export const DressesAPI = {
     if (params.color) searchParams.set("color", params.color);
 
     const query = searchParams.toString();
-    const res = await httpClient.get(`/dresses${query ? `?${query}` : ""}`);
+    const res = await httpClient.get(`/dresses${query ? `?${query}` : ""}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - robes changent dynamiquement
+    });
     return normalizeListResponse(res, params.limit);
   },
 
@@ -265,7 +268,10 @@ export const DressesAPI = {
       search.set("pricePerDayMax", String(params.priceMax));
     }
 
-    const res = await httpClient.get(`/dresses/details-view?${search.toString()}`);
+    const res = await httpClient.get(`/dresses/details-view?${search.toString()}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - robes changent dynamiquement
+    });
     return normalizeListResponse(res, params.limit);
   },
 
@@ -326,7 +332,10 @@ export const DressesAPI = {
   },
 
   async getById(dressId: string): Promise<DressDetails> {
-    const res = await httpClient.get(`/dresses/${dressId}`);
+    const res = await httpClient.get(`/dresses/${dressId}`, {
+      _enableCache: true,
+      _cacheTTL: 2 * 60 * 1000, // 2 minutes - robes changent dynamiquement
+    });
     if (res?.data && typeof res.data === "object") {
       return normalizeDress(res.data);
     }
@@ -431,6 +440,8 @@ export const DressesAPI = {
       const search = new URLSearchParams({ start, end });
       const res = await httpClient.get(`/dresses/availability?${search.toString()}`, {
         _skipErrorNotification: true,
+        _enableCache: true,
+        _cacheTTL: 2 * 60 * 1000, // 2 minutes - disponibilité change dynamiquement
       });
       const entries = extractArray(res).map((item) => ({
         id: String(item.id),

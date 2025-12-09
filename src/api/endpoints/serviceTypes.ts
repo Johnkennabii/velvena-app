@@ -62,7 +62,10 @@ export const ServiceTypesAPI = {
    * Liste tous les types de service
    */
   list: async (): Promise<ServiceTypeListResponse> => {
-    const response = await httpClient.get("/service-types");
+    const response = await httpClient.get("/service-types", {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - types de service semi-statiques
+    });
 
     if (response?.data && Array.isArray(response.data)) {
       return {
@@ -85,7 +88,10 @@ export const ServiceTypesAPI = {
    * Récupère un type de service par ID
    */
   getById: async (id: string): Promise<ServiceType> => {
-    const response = await httpClient.get(`/service-types/${id}`);
+    const response = await httpClient.get(`/service-types/${id}`, {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - types de service semi-statiques
+    });
 
     if (response?.data && typeof response.data === "object") {
       return normalizeServiceType(response.data);

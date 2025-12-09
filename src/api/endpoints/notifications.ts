@@ -54,7 +54,10 @@ export const NotificationsAPI = {
    * Récupérer toutes les notifications
    */
   async list(): Promise<NotificationData[]> {
-    const res = await httpClient.get("/notifications");
+    const res = await httpClient.get("/notifications", {
+      _enableCache: true,
+      _cacheTTL: 30 * 1000, // 30 secondes - notifications changent en temps réel
+    });
     if (res?.data && Array.isArray(res.data)) {
       return res.data as NotificationData[];
     }
@@ -68,7 +71,10 @@ export const NotificationsAPI = {
    * Récupérer le nombre de notifications non vues
    */
   async getUnseenCount(): Promise<number> {
-    const res = await httpClient.get("/notifications/unseen-count");
+    const res = await httpClient.get("/notifications/unseen-count", {
+      _enableCache: true,
+      _cacheTTL: 30 * 1000, // 30 secondes - compteur change en temps réel
+    });
     if (res?.count !== undefined) {
       return Number(res.count);
     }

@@ -47,12 +47,18 @@ const normalizeObject = (res: any): ContractPackage => {
 
 export const ContractPackagesAPI = {
   list: async (): Promise<ContractPackage[]> => {
-    const res = await httpClient.get("/contract-packages");
+    const res = await httpClient.get("/contract-packages", {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - données semi-statiques
+    });
     return normalizeArray(res);
   },
 
   getById: async (packageId: string): Promise<ContractPackage> => {
-    const res = await httpClient.get(`/contract-packages/${packageId}`);
+    const res = await httpClient.get(`/contract-packages/${packageId}`, {
+      _enableCache: true,
+      _cacheTTL: 10 * 60 * 1000, // 10 minutes - données semi-statiques
+    });
     return normalizeObject(res);
   },
 

@@ -73,12 +73,18 @@ export const CustomersAPI = {
 
     const query = searchParams.toString();
     const url = query ? `/customers?${query}` : "/customers";
-    const res = await httpClient.get(url);
+    const res = await httpClient.get(url, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - données clients changent modérément
+    });
     return normalizeListResponse(res);
   },
 
   getById: async (customerId: string): Promise<Customer> => {
-    const res = await httpClient.get(`/customers/${customerId}`);
+    const res = await httpClient.get(`/customers/${customerId}`, {
+      _enableCache: true,
+      _cacheTTL: 5 * 60 * 1000, // 5 minutes - données clients changent modérément
+    });
     return normalizeObject(res);
   },
 
