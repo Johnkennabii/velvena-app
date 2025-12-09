@@ -1,9 +1,14 @@
 // src/api/httpClient.ts
+import { apiCache, CacheTTL } from "../utils/apiCache";
+
 const BASE_URL = import.meta.env.VITE_API_URL || "https://api.velvena.fr";
 
 interface CustomRequestInit extends RequestInit {
   _skipAuthRefresh?: boolean;
   _skipErrorNotification?: boolean;
+  _enableCache?: boolean;
+  _cacheTTL?: number;
+  _retryCount?: number;
 }
 
 let logoutFn: (() => void) | null = null;
@@ -33,11 +38,42 @@ export const httpClientInit = (deps: {
   refreshFn = deps.refreshToken ?? null;
 };
 
+/**
+ * Calcule le délai d'attente pour l'exponential backoff
+ */
+function getBackoffDelay(retryCount: number): number {
+  // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+  const baseDelay = 1000;
+  const maxDelay = 16000;
+  const delay = Math.min(baseDelay * Math.pow(2, retryCount), maxDelay);
+  // Ajouter un jitter aléatoire de ±20%
+  const jitter = delay * 0.2 * (Math.random() - 0.5);
+  return delay + jitter;
+}
+
 async function performRequest(path: string, options: CustomRequestInit = {}, retry = true): Promise<any> {
-  const { _skipAuthRefresh, _skipErrorNotification, ...cleanOptions } = options as CustomRequestInit;
+  const {
+    _skipAuthRefresh,
+    _skipErrorNotification,
+    _enableCache,
+    _cacheTTL,
+    _retryCount = 0,
+    ...cleanOptions
+  } = options as CustomRequestInit;
+
   const skipRefresh = Boolean(_skipAuthRefresh);
   const skipErrorNotification = Boolean(_skipErrorNotification);
+  const enableCache = Boolean(_enableCache);
   const isFormData = typeof FormData !== "undefined" && cleanOptions.body instanceof FormData;
+  const isGetRequest = !cleanOptions.method || cleanOptions.method.toUpperCase() === "GET";
+
+  // Vérifier le cache pour les requêtes GET avec cache activé
+  if (isGetRequest && enableCache) {
+    const cached = apiCache.get(path, cleanOptions);
+    if (cached !== null) {
+      return cached;
+    }
+  }
 
   const token = localStorage.getItem("token");
   const hadToken = Boolean(token);
@@ -90,6 +126,16 @@ async function performRequest(path: string, options: CustomRequestInit = {}, ret
     throw new Error("Unauthorized");
   }
 
+  // Gérer les erreurs 503 (rate limiting) avec exponential backoff
+  if (response.status === 503 && _retryCount < 5) {
+    const delay = getBackoffDelay(_retryCount);
+    console.warn(`Rate limit atteint (503). Retry ${_retryCount + 1}/5 dans ${Math.round(delay)}ms`);
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    return performRequest(path, { ...options, _retryCount: _retryCount + 1 }, retry);
+  }
+
   if (!response.ok) {
     const errorText = await response.text();
     const error: any = new Error(errorText);
@@ -108,7 +154,15 @@ async function performRequest(path: string, options: CustomRequestInit = {}, ret
 
   if (response.status === 204) return null;
 
-  return response.json();
+  const data = await response.json();
+
+  // Mettre en cache si demandé (uniquement pour GET)
+  if (isGetRequest && enableCache) {
+    const ttl = _cacheTTL || CacheTTL.MODERATE;
+    apiCache.set(path, data, ttl, cleanOptions);
+  }
+
+  return data;
 }
 
 export async function httpClient(path: string, options: CustomRequestInit = {}) {
