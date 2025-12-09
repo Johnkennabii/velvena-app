@@ -109,7 +109,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     init();
-  }, [token, handleSessionExpired]);
+    // Ne dépendre que de token pour éviter la boucle infinie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   /** 🔐 Connexion */
   const login = async (email: string, password: string) => {
