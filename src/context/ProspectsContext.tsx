@@ -50,17 +50,20 @@ export const ProspectsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Charger les prospects au montage et rafraîchir le count périodiquement
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    // Charger une première fois
+    refreshNewProspectsCount();
+
+    // Rafraîchir le count toutes les 30 secondes
+    const interval = setInterval(() => {
       refreshNewProspectsCount();
+    }, 30000);
 
-      // Rafraîchir le count toutes les 30 secondes
-      const interval = setInterval(() => {
-        refreshNewProspectsCount();
-      }, 30000);
-
-      return () => clearInterval(interval);
-    }
-  }, [user, refreshNewProspectsCount]);
+    return () => clearInterval(interval);
+    // Ne dépendre que de user.id pour éviter la boucle infinie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   return (
     <ProspectsContext.Provider
