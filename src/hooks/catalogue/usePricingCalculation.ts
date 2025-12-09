@@ -16,6 +16,10 @@ interface UsePricingCalculationReturn {
   recalculate: () => Promise<void>;
 }
 
+// Cache global pour les calculs de prix (TTL: 2 minutes)
+const calculationCache = new Map<string, { result: PriceCalculation; timestamp: number }>();
+const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
 /**
  * Hook pour calculer automatiquement le prix d'une robe
  * via l'API /pricing-rules/calculate
@@ -32,8 +36,8 @@ export function usePricingCalculation({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Tracker la dernière requête pour éviter les doublons
-  const lastRequestRef = useRef<string>("");
+  // Tracker la requête en cours pour éviter les doublons
+  const ongoingRequestRef = useRef<string>("");
 
   const calculate = useCallback(async () => {
     // Ne pas calculer si pas de robe ou dates invalides
@@ -53,12 +57,20 @@ export function usePricingCalculation({
     // Créer une clé unique pour cette requête
     const requestKey = `${dressId}-${startDate.toISOString()}-${endDate.toISOString()}`;
 
-    // Si c'est la même requête que la dernière, ne pas refaire l'appel
-    if (lastRequestRef.current === requestKey) {
+    // Vérifier le cache d'abord
+    const cached = calculationCache.get(requestKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      setCalculation(cached.result);
+      setError(null);
       return;
     }
 
-    lastRequestRef.current = requestKey;
+    // Si une requête est déjà en cours pour cette clé, ne pas la refaire
+    if (ongoingRequestRef.current === requestKey) {
+      return;
+    }
+
+    ongoingRequestRef.current = requestKey;
     setLoading(true);
     setError(null);
 
@@ -69,6 +81,12 @@ export function usePricingCalculation({
         end_date: endDate.toISOString().split("T")[0],
       });
 
+      // Stocker dans le cache
+      calculationCache.set(requestKey, {
+        result,
+        timestamp: Date.now(),
+      });
+
       setCalculation(result);
     } catch (err: any) {
       console.error("Erreur calcul prix:", err);
@@ -76,6 +94,7 @@ export function usePricingCalculation({
       setCalculation(null);
     } finally {
       setLoading(false);
+      ongoingRequestRef.current = "";
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, dressId, startDate?.getTime(), endDate?.getTime()]);

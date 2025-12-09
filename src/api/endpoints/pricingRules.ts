@@ -179,7 +179,7 @@ export const PricingRulesAPI = {
 
   /**
    * Calcule le prix d'une robe selon les règles de tarification
-   * Note: Utilise POST mais avec un cache côté client pour éviter les requêtes en boucle
+   * Note: POST endpoint - le cache est géré côté client dans usePricingCalculation
    */
   calculate: async (payload: {
     dress_id: string;
@@ -187,20 +187,7 @@ export const PricingRulesAPI = {
     end_date: string;
     pricing_rule_id?: string;
   }): Promise<any> => {
-    // Utiliser GET avec query params pour bénéficier du cache
-    const params = new URLSearchParams({
-      dress_id: payload.dress_id,
-      start_date: payload.start_date,
-      end_date: payload.end_date,
-    });
-    if (payload.pricing_rule_id) {
-      params.set("pricing_rule_id", payload.pricing_rule_id);
-    }
-
-    const response = await httpClient.get(`/pricing-rules/calculate?${params.toString()}`, {
-      _enableCache: true,
-      _cacheTTL: 2 * 60 * 1000, // 2 minutes - calculs de prix dynamiques
-    });
+    const response = await httpClient.post("/pricing-rules/calculate", payload);
 
     if (response?.data && typeof response.data === "object") {
       return response.data;
