@@ -39,12 +39,12 @@ const formatLimits = (limits: any): string[] => {
 // Fonction pour formater les fonctionnalités d'un plan
 const formatFeatures = (features: any): string[] => {
   const featureLabels: Record<string, string> = {
-    inventory_management: "Gestion d'inventaire",
+    inventory_management: "Gestion catalogue & stock",
     contract_generation: "Génération de contrats",
-    customer_portal: "Portail client",
+    customer_portal: "Gestion client",
     electronic_signature: "Signature électronique",
     prospect_management: "Gestion des prospects",
-    planning: "Planning",
+    planning: "Calendrier",
     dashboard: "Tableau de bord",
     export_data: "Export de données",
     notification_push: "Notifications push",

@@ -100,9 +100,9 @@ export default function BillingSettings() {
                 <div className="mb-6">
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                      {getPlanLabel(organization.subscription_plan)}
+                      {getPlanLabel(subscriptionStatus?.plan?.code || organization.subscription_plan)}
                     </span>
-                    {organization.subscription_plan === "pro" && (
+                    {organization.subscription_plan === "Pro" && (
                       <span className="px-2 py-1 text-xs font-medium rounded bg-brand-500 text-white">
                         Populaire
                       </span>
@@ -192,7 +192,7 @@ export default function BillingSettings() {
                       <div>
                         <p className="text-gray-600 dark:text-gray-400">Plan actuel</p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {getPlanLabel(organization.subscription_plan)}
+                          {getPlanLabel(subscriptionStatus?.plan?.code || organization.subscription_plan)}
                         </p>
                       </div>
                       <div>

@@ -5,6 +5,7 @@ import CardThree from "../../../components/cards/card-with-image/CardThree";
 import StackedBadges from "./StackedBadges";
 import FlyingImage from "../../../components/animations/FlyingImage";
 import { useCart } from "../../../context/CartContext";
+import { useOrganization } from "../../../context/OrganizationContext";
 import { FALLBACK_IMAGE, NEW_BADGE_THRESHOLD_MS } from "../../../constants/catalogue";
 import {
   PencilIcon,
@@ -126,6 +127,7 @@ const DressCard = memo<DressCardProps>(({
   onPublish,
 }) => {
   const { addDress, hasDress } = useCart();
+  const { hasFeature } = useOrganization();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [flyingAnimation, setFlyingAnimation] = useState<{
     imageUrl: string;
@@ -136,6 +138,7 @@ const DressCard = memo<DressCardProps>(({
   } | null>(null);
 
   const isInCart = hasDress(dress.id);
+  const hasContractBuilderFeature = hasFeature('contract_builder');
 
   const handleAddToCart = () => {
     if (isInCart) return;
@@ -247,48 +250,80 @@ const DressCard = memo<DressCardProps>(({
   const actionFooter = (
     <div className="flex flex-col gap-3">
       {/* Bouton principal: Ajouter au panier */}
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={handleAddToCart}
-        disabled={isInCart}
-        className={`
-          w-full rounded-lg border px-4 py-2.5 text-sm font-medium
-          transition-all
-          ${
-            isInCart
-              ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600"
-              : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-900 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+      <div className="group/cartbutton relative">
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={handleAddToCart}
+          disabled={isInCart || !hasContractBuilderFeature}
+          className={`
+            w-full rounded-lg border px-4 py-2.5 text-sm font-medium
+            transition-all
+            ${
+              isInCart || !hasContractBuilderFeature
+                ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600"
+                : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-900 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            }
+          `}
+          aria-label={
+            !hasContractBuilderFeature
+              ? "Fonctionnalité non disponible avec votre abonnement"
+              : isInCart
+              ? "Déjà dans le panier"
+              : "Ajouter au panier"
           }
-        `}
-        aria-label={isInCart ? "Déjà dans le panier" : "Ajouter au panier"}
-      >
-        <span className="flex items-center justify-center gap-2">
-          {isInCart ? (
-            <>
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Déjà dans le panier
-            </>
-          ) : (
-            <>
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                />
-              </svg>
-              Ajouter au panier
-            </>
-          )}
-        </span>
-      </button>
+        >
+          <span className="flex items-center justify-center gap-2">
+            {isInCart ? (
+              <>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Déjà dans le panier
+              </>
+            ) : !hasContractBuilderFeature ? (
+              <>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+                Ajouter au panier
+              </>
+            ) : (
+              <>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  />
+                </svg>
+                Ajouter au panier
+              </>
+            )}
+          </span>
+        </button>
+
+        {/* Tooltip pour la fonctionnalité non disponible */}
+        {!hasContractBuilderFeature && (
+          <div className="pointer-events-none invisible absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-xs -translate-x-1/2 opacity-0 transition-opacity duration-150 group-hover/cartbutton:visible group-hover/cartbutton:opacity-100">
+            <div className="relative">
+              <div className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white shadow-lg dark:bg-gray-100 dark:text-gray-900">
+                Cette fonctionnalité n'est pas disponible avec votre abonnement actuel.
+                Veuillez mettre à niveau pour utiliser le créateur de contrat.
+              </div>
+              <div className="absolute -bottom-1 left-1/2 h-3 w-4 -translate-x-1/2 rotate-45 bg-gray-900 dark:bg-gray-100" />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Actions secondaires */}
       <div className="flex flex-wrap items-center gap-2">

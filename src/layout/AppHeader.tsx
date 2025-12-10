@@ -133,7 +133,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Prospects Icon  --> */}
             {isAdmin && hasFeature("prospect_management") && <ProspectsIcon />}
             {/* <!-- Cart Icon  --> */}
-            {isAdmin && <CartIcon />}
+            { hasFeature("contract_builder") && <CartIcon /> }
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}

@@ -60,14 +60,14 @@ export function FeatureGuard({
   notificationMessage,
   showNotification = true,
 }: FeatureGuardProps) {
-  const { hasFeature, loading } = useOrganization();
+  const { hasFeature, loading, subscriptionStatus } = useOrganization();
   const { notify } = useNotification();
 
   const isAvailable = hasFeature(feature);
 
   useEffect(() => {
     // Si la fonctionnalité n'est pas disponible et qu'on doit afficher une notification
-    if (!loading && !isAvailable && showNotification) {
+    if (!loading && subscriptionStatus && !isAvailable && showNotification) {
       const featureLabel = FEATURE_LABELS[feature] || feature;
       const message =
         notificationMessage ||
@@ -75,10 +75,11 @@ export function FeatureGuard({
 
       notify("warning", "Fonctionnalité non disponible", message);
     }
-  }, [loading, isAvailable, showNotification, notificationMessage, notify, feature]);
+  }, [loading, subscriptionStatus, isAvailable, showNotification, notificationMessage, notify, feature]);
 
   // Afficher un loader pendant le chargement des données d'abonnement
-  if (loading) {
+  // OU si subscriptionStatus n'est pas encore défini (même si loading est false)
+  if (loading || !subscriptionStatus) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -86,7 +87,7 @@ export function FeatureGuard({
     );
   }
 
-  // Si la fonctionnalité n'est pas disponible, rediriger vers la page de fallback
+  // Si la fonctionnalité n'est pas disponible APRÈS le chargement, rediriger vers la page de fallback
   if (!isAvailable) {
     return <Navigate to={fallback} replace />;
   }
