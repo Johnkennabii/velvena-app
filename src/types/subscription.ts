@@ -108,3 +108,31 @@ export interface PricingPlanCard {
   isCurrent?: boolean;
   isPopular?: boolean;
 }
+
+// ========== Stripe Invoices ==========
+
+export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
+
+export interface StripeInvoice {
+  id: string;
+  number: string;
+  status: InvoiceStatus;
+  amount_due: number;
+  amount_paid: number;
+  currency: string;
+  created: string;
+  period_start: string;
+  period_end: string;
+  due_date: string | null;
+  paid: boolean;
+  invoice_pdf: string | null;
+  hosted_invoice_url: string | null;
+  description: string | null;
+}
+
+export interface InvoicesResponse {
+  success: boolean;
+  has_more: boolean;
+  count: number;
+  invoices: StripeInvoice[];
+}

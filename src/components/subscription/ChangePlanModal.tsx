@@ -57,6 +57,7 @@ const formatFeatures = (features: any): string[] => {
 
 export default function ChangePlanModal({ isOpen, onClose, currentPlan, onSuccess }: ChangePlanModalProps) {
   const [selectedPlan, setSelectedPlan] = useState(currentPlan);
+  const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -88,15 +89,41 @@ export default function ChangePlanModal({ isOpen, onClose, currentPlan, onSucces
       return;
     }
 
+    // Trouver le plan sélectionné pour vérifier s'il est gratuit
+    const plan = plans.find(p => p.code === selectedPlan);
+
+    // Si c'est un downgrade vers le plan gratuit, utiliser l'ancienne méthode
+    if (plan && plan.price_monthly === 0) {
+      try {
+        setLoading(true);
+        const result = await SubscriptionAPI.upgradePlan(selectedPlan);
+        notify("success", "Plan changé", result.message);
+        onSuccess();
+        onClose();
+      } catch (error: any) {
+        notify("error", "Erreur", error.message || "Impossible de changer de plan");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       setLoading(true);
-      const result = await SubscriptionAPI.upgradePlan(selectedPlan);
-      notify("success", "Plan changé", result.message);
-      onSuccess();
-      onClose();
+
+      // Créer une session Stripe Checkout pour le changement de plan
+      const { url } = await SubscriptionAPI.createCheckoutSession({
+        plan_code: selectedPlan,
+        billing_interval: billingInterval,
+        success_url: `${window.location.origin}/subscription/success`,
+        cancel_url: `${window.location.origin}/settings/billing`,
+      });
+
+      // Rediriger vers Stripe
+      window.location.href = url;
     } catch (error: any) {
-      notify("error", "Erreur", error.message || "Impossible de changer de plan");
-    } finally {
+      console.error("Erreur lors de la création de la session Checkout:", error);
+      notify("error", "Erreur", error.message || "Impossible de créer la session de paiement");
       setLoading(false);
     }
   };
@@ -104,9 +131,38 @@ export default function ChangePlanModal({ isOpen, onClose, currentPlan, onSucces
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-6xl w-full">
       <div className="p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           Changer de plan
         </h2>
+
+        {/* Billing Period Toggle */}
+        <div className="mb-6 flex justify-center">
+          <div className="inline-flex items-center p-1 bg-gray-200 dark:bg-gray-800 rounded-lg">
+            <button
+              onClick={() => setBillingInterval("month")}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                billingInterval === "month"
+                  ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow"
+                  : "text-gray-600 dark:text-gray-400"
+              }`}
+            >
+              Mensuel
+            </button>
+            <button
+              onClick={() => setBillingInterval("year")}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                billingInterval === "year"
+                  ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow"
+                  : "text-gray-600 dark:text-gray-400"
+              }`}
+            >
+              Annuel
+              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                -17%
+              </span>
+            </button>
+          </div>
+        </div>
 
         {loadingPlans ? (
           <div className="flex items-center justify-center py-12">
@@ -156,10 +212,17 @@ export default function ChangePlanModal({ isOpen, onClose, currentPlan, onSucces
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
                       {plan.description}
                     </p>
-                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                      {plan.price_monthly}€
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                      {billingInterval === "month"
+                        ? (typeof plan.price_monthly === 'number' ? plan.price_monthly : Number(plan.price_monthly))
+                        : Math.round((typeof plan.price_yearly === 'number' ? plan.price_yearly : Number(plan.price_yearly)) / 12)}€
                       <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/mois</span>
                     </div>
+                    {billingInterval === "year" && Number(plan.price_yearly) > 0 && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                        Facturé {typeof plan.price_yearly === 'number' ? plan.price_yearly : Number(plan.price_yearly)}€ par an
+                      </p>
+                    )}
 
                     <ul className="space-y-2">
                       {allFeatures.map((feature, index) => (

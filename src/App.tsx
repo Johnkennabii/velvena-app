@@ -37,6 +37,7 @@ import BillingSettings from "./pages/Settings/BillingSettings";
 import ServiceTypes from "./pages/Settings/ServiceTypes";
 import PricingRules from "./pages/Settings/PricingRules";
 import Pricing from "./pages/Public/Pricing";
+import SubscriptionSuccess from "./pages/Subscription/SubscriptionSuccess";
 
 export default function App() {
   return (
@@ -53,7 +54,16 @@ export default function App() {
         <Route path="/two-step-verification" element={<TwoStepVerification />} />
 
         <Route path="/sign-links/:token" element={<ContractSignPage />} />
-        
+
+        {/* --- Subscription Success (Protected) --- */}
+        <Route
+          path="/subscription/success"
+          element={
+            <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"]}>
+              <SubscriptionSuccess />
+            </ProtectedRoute>
+          }
+        />
 
         {/* --- Dashboard Protected Layout --- */}
         <Route element={<AppLayout />}>

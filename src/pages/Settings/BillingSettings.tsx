@@ -1,16 +1,37 @@
 import { useState } from "react";
-import { FiCheck, FiCreditCard, FiAlertCircle } from "react-icons/fi";
+import { FiCheck, FiCreditCard, FiAlertCircle, FiExternalLink } from "react-icons/fi";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import { useOrganization } from "../../context/OrganizationContext";
+import { useNotification } from "../../context/NotificationContext";
 import UsageOverviewCard from "../../components/subscription/UsageOverviewCard";
 import ChangePlanModal from "../../components/subscription/ChangePlanModal";
+import BillingHistory from "../../components/subscription/BillingHistory";
+import { SubscriptionAPI } from "../../api/endpoints/subscription";
 // import BillingPricingTable from "../../components/subscription/BillingPricingTable"; // Désactivé temporairement
 
 export default function BillingSettings() {
   const { organization, subscriptionStatus, loading, isTrialActive, getTrialDaysRemaining, refreshOrganization, refreshSubscription } = useOrganization();
+  const { notify } = useNotification();
   const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { url } = await SubscriptionAPI.createPortalSession({
+        return_url: window.location.href,
+      });
+
+      // Rediriger vers le Stripe Customer Portal
+      window.location.href = url;
+    } catch (error: any) {
+      console.error("Erreur lors de l'ouverture du portail:", error);
+      notify("error", "Erreur", error.message || "Impossible d'ouvrir le portail de gestion");
+      setPortalLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -113,16 +134,24 @@ export default function BillingSettings() {
                     <>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                          {subscriptionStatus.plan.price_monthly}€
+                          {typeof subscriptionStatus.plan.price_monthly === 'number'
+                            ? subscriptionStatus.plan.price_monthly
+                            : Number(subscriptionStatus.plan.price_monthly)}€
                         </span>
                         <span className="text-gray-600 dark:text-gray-400">/ mois</span>
                       </div>
 
-                      {subscriptionStatus.plan.price_yearly > 0 && (
+                      {Number(subscriptionStatus.plan.price_yearly) > 0 && (
                         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                          ou {subscriptionStatus.plan.price_yearly}€ / an
+                          ou {typeof subscriptionStatus.plan.price_yearly === 'number'
+                            ? subscriptionStatus.plan.price_yearly
+                            : Number(subscriptionStatus.plan.price_yearly)}€ / an
                           <span className="ml-2 text-green-600 dark:text-green-400">
-                            (économisez {Math.round(((subscriptionStatus.plan.price_monthly * 12 - subscriptionStatus.plan.price_yearly) / (subscriptionStatus.plan.price_monthly * 12)) * 100)}%)
+                            (économisez {(() => {
+                              const monthly = Number(subscriptionStatus.plan.price_monthly);
+                              const yearly = Number(subscriptionStatus.plan.price_yearly);
+                              return Math.round(((monthly * 12 - yearly) / (monthly * 12)) * 100);
+                            })()}%)
                           </span>
                         </p>
                       )}
@@ -210,6 +239,43 @@ export default function BillingSettings() {
                   <Button variant="primary" onClick={() => setChangePlanModalOpen(true)}>
                     Changer de plan
                   </Button>
+
+                  {/* Customer Portal Button - Only show for paid plans */}
+                  {subscriptionStatus?.plan && subscriptionStatus.plan.price_monthly > 0 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleManageSubscription}
+                      disabled={portalLoading}
+                    >
+                      {portalLoading ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Chargement...
+                        </span>
+                      ) : (
+                        <>
+                          <FiCreditCard className="mr-2" />
+                          Gérer mon abonnement
+                          <FiExternalLink className="ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
@@ -248,19 +314,7 @@ export default function BillingSettings() {
           </div>
 
           {/* Billing History */}
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Historique de facturation
-              </h2>
-            </div>
-
-            <div className="p-6">
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center py-8">
-                Aucune facture pour le moment
-              </p>
-            </div>
-          </div>
+          <BillingHistory />
         </div>
 
         {/* Sidebar */}

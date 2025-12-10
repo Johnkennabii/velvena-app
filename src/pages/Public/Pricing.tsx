@@ -5,12 +5,17 @@ import Button from "../../components/ui/button/Button";
 import { SubscriptionAPI } from "../../api/endpoints/subscription";
 import type { SubscriptionPlan } from "../../types/subscription";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
 
 export default function Pricing() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user, token } = useAuth();
+  const { notify } = useNotification();
 
   useEffect(() => {
     const loadPlans = async () => {
@@ -27,7 +32,9 @@ export default function Pricing() {
   }, []);
 
   const getPrice = (plan: SubscriptionPlan) => {
-    return billingPeriod === "monthly" ? plan.price_monthly : plan.price_yearly / 12;
+    const monthly = typeof plan.price_monthly === 'number' ? plan.price_monthly : Number(plan.price_monthly);
+    const yearly = typeof plan.price_yearly === 'number' ? plan.price_yearly : Number(plan.price_yearly);
+    return billingPeriod === "monthly" ? monthly : yearly / 12;
   };
 
   const featureLabels: Record<string, string> = {
@@ -42,6 +49,39 @@ export default function Pricing() {
     notification_push: "Notifications push",
     contract_builder: "Fonction de créateur de contrat",
     dashboard: "Tableau de bord",
+  };
+
+  const handleSubscribe = async (plan: SubscriptionPlan) => {
+    // Si l'utilisateur n'est pas connecté, rediriger vers l'inscription
+    if (!user || !token) {
+      navigate("/signup");
+      return;
+    }
+
+    // Si c'est le plan gratuit, rediriger vers le dashboard
+    if (plan.price_monthly === 0) {
+      navigate("/");
+      return;
+    }
+
+    setCheckoutLoading(plan.id);
+
+    try {
+      // Créer une session Stripe Checkout
+      const { url } = await SubscriptionAPI.createCheckoutSession({
+        plan_code: plan.code,
+        billing_interval: billingPeriod === "monthly" ? "month" : "year",
+        success_url: `${window.location.origin}/subscription/success`,
+        cancel_url: `${window.location.origin}/pricing`,
+      });
+
+      // Rediriger vers Stripe
+      window.location.href = url;
+    } catch (error: any) {
+      console.error("Erreur lors de la création de la session Checkout:", error);
+      notify("error", "Erreur", error.message || "Une erreur est survenue lors de la création de la session de paiement");
+      setCheckoutLoading(null);
+    }
   };
 
   if (loading) {
@@ -149,9 +189,36 @@ export default function Pricing() {
                 <Button
                   variant={isPopular ? "primary" : "outline"}
                   className="w-full mb-6"
-                  onClick={() => navigate("/signup")}
+                  onClick={() => handleSubscribe(plan)}
+                  disabled={checkoutLoading !== null}
                 >
-                  {plan.price_monthly === 0 ? "Commencer gratuitement" : "Commencer l'essai"}
+                  {checkoutLoading === plan.id ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Chargement...
+                    </span>
+                  ) : plan.price_monthly === 0 ? (
+                    "Commencer gratuitement"
+                  ) : plan.trial_days > 0 ? (
+                    `Essai gratuit ${plan.trial_days} jours`
+                  ) : (
+                    "S'abonner"
+                  )}
                 </Button>
 
                 {/* Limits */}

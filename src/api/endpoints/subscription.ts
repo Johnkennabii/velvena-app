@@ -5,6 +5,7 @@ import type {
   UsageOverview,
   QuotaCheck,
   FeatureCheck,
+  InvoicesResponse,
 } from "../../types/subscription";
 
 /**
@@ -179,5 +180,47 @@ export const SubscriptionAPI = {
    */
   reactivateSubscription: async (): Promise<void> => {
     await httpClient.post("/organizations/me/subscription/reactivate", {});
+  },
+
+  // ========== Stripe Integration ==========
+
+  /**
+   * Récupérer la configuration Stripe (clé publique)
+   */
+  getStripeConfig: async (): Promise<{ publishableKey: string }> => {
+    const response = await httpClient.get("/billing/config");
+    return response;
+  },
+
+  /**
+   * Créer une session Stripe Checkout
+   */
+  createCheckoutSession: async (params: {
+    plan_code: string;
+    billing_interval: 'month' | 'year';
+    success_url: string;
+    cancel_url: string;
+  }): Promise<{ url: string; session_id: string }> => {
+    const response = await httpClient.post("/billing/create-checkout-session", params);
+    return response;
+  },
+
+  /**
+   * Créer une session Stripe Customer Portal
+   */
+  createPortalSession: async (params: {
+    return_url: string;
+  }): Promise<{ url: string }> => {
+    const response = await httpClient.post("/billing/create-portal-session", params);
+    return response;
+  },
+
+  /**
+   * Récupérer l'historique des factures Stripe
+   */
+  getInvoices: async (params?: { limit?: number }): Promise<InvoicesResponse> => {
+    const queryParams = params?.limit ? `?limit=${params.limit}` : '';
+    const response = await httpClient.get(`/billing/invoices${queryParams}`);
+    return response;
   },
 };
