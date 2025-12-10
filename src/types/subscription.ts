@@ -36,15 +36,9 @@ export interface SubscriptionFeatures {
   electronic_signature: boolean;
   inventory_management: boolean;
   customer_portal: boolean;
-  advanced_analytics: boolean;
   export_data: boolean;
   notification_push: boolean;
-  api_access: boolean;
-  white_label?: boolean;
-  sms_notifications?: boolean;
-  priority_support?: boolean;
-  custom_integrations?: boolean;
-  dedicated_account_manager?: boolean;
+  contract_builder: boolean;
 }
 
 export interface QuotaCheck {

@@ -143,16 +143,14 @@ export default function BillingSettings() {
                           prospect_management: "Gestion des prospects",
                           contract_generation: "Génération de contrats",
                           electronic_signature: "Signature électronique",
-                          inventory_management: "Gestion d'inventaire",
-                          customer_portal: "Portail client",
+                          inventory_management: "Gestion catalogue & stock",
+                          customer_portal: "Gestion client",
                           advanced_analytics: "Analytics avancées",
                           export_data: "Export de données",
-                          api_access: "Accès API",
-                          white_label: "Marque blanche",
-                          sms_notifications: "Notifications SMS",
-                          priority_support: "Support prioritaire",
-                          custom_integrations: "Intégrations personnalisées",
-                          dedicated_account_manager: "Account manager dédié",
+                          planning: "Calendrier",
+                          notification_push: "Notifications push",
+                          contract_builder: "Fonction de créateur de contrat",
+                          dashboard: "Tableau de bord",
                         };
                         return (
                           <div key={key} className="flex items-center gap-2">
@@ -221,7 +219,7 @@ export default function BillingSettings() {
           <ChangePlanModal
             isOpen={changePlanModalOpen}
             onClose={() => setChangePlanModalOpen(false)}
-            currentPlan={organization?.subscription_plan || "free"}
+            currentPlan={subscriptionStatus?.plan?.code || "free"}
             onSuccess={() => {
               refreshOrganization();
               refreshSubscription();

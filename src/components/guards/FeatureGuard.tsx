@@ -30,22 +30,17 @@ interface FeatureGuardProps {
  * Mapping des noms techniques vers des noms lisibles en français
  */
 const FEATURE_LABELS: Record<string, string> = {
-  planning: "Planning et calendrier",
-  dashboard: "Tableau de bord avancé",
   prospect_management: "Gestion des prospects",
   contract_generation: "Génération de contrats",
   electronic_signature: "Signature électronique",
-  inventory_management: "Gestion de l'inventaire",
-  customer_portal: "Portail client",
-  advanced_analytics: "Analyses avancées",
+  inventory_management: "Gestion catalogue & stock",
+  customer_portal: "Gestion client",
+  advanced_analytics: "Analytics avancées",
   export_data: "Export de données",
+  planning: "Calendrier",
   notification_push: "Notifications push",
-  api_access: "Accès API",
-  white_label: "Marque blanche",
-  sms_notifications: "Notifications SMS",
-  priority_support: "Support prioritaire",
-  custom_integrations: "Intégrations personnalisées",
-  dedicated_account_manager: "Gestionnaire de compte dédié",
+  contract_builder: "Fonction de créateur de contrat",
+  dashboard: "Tableau de bord",
 };
 
 /**

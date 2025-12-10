@@ -58,22 +58,17 @@ export default function BillingPricingTable({ currentPlan, onSelectPlan }: Billi
 
   const getFeatureLabel = (key: string): string => {
     const featureLabels: Record<string, string> = {
-      planning: "Planning",
-      dashboard: "Dashboard",
       prospect_management: "Gestion des prospects",
       contract_generation: "Génération de contrats",
       electronic_signature: "Signature électronique",
-      inventory_management: "Gestion d'inventaire",
-      customer_portal: "Portail client",
+      inventory_management: "Gestion catalogue & stock",
+      customer_portal: "Gestion client",
       advanced_analytics: "Analytics avancées",
       export_data: "Export de données",
+      planning: "Calendrier",
       notification_push: "Notifications push",
-      api_access: "Accès API",
-      white_label: "Marque blanche",
-      sms_notifications: "Notifications SMS",
-      priority_support: "Support prioritaire",
-      custom_integrations: "Intégrations personnalisées",
-      dedicated_account_manager: "Account manager dédié",
+      contract_builder: "Fonction de créateur de contrat",
+      dashboard: "Tableau de bord",
     };
     return featureLabels[key] || key;
   };
