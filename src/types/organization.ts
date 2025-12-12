@@ -15,6 +15,12 @@ export interface Organization {
   logo_url?: string;
   website?: string;
   description?: string;
+  // Legal/Manager information
+  siret?: string;
+  manager_gender?: 'M' | 'F' | null;
+  manager_firstname?: string;
+  manager_lastname?: string;
+  manager_title?: string;
   settings?: OrganizationSettings | null;
   business_rules?: BusinessRules;
   subscription_plan: string; // "free", "basic", "pro", "enterprise"
@@ -90,6 +96,11 @@ export interface UpdateOrganizationInput {
   postal_code?: string;
   country?: string;
   logo_url?: string;
+  siret?: string;
+  manager_gender?: 'M' | 'F' | null;
+  manager_firstname?: string;
+  manager_lastname?: string;
+  manager_title?: string;
   settings?: OrganizationSettings | null;
 }
 
@@ -98,6 +109,11 @@ export interface CreateOrganizationInput {
   slug: string;
   email: string;
   phone?: string;
+  siret?: string;
+  manager_gender?: 'M' | 'F';
+  manager_firstname?: string;
+  manager_lastname?: string;
+  manager_title?: string;
   subscription_plan_id?: string;
   settings?: OrganizationSettings;
 }

@@ -18,6 +18,11 @@ export default function OrganizationSettings() {
     city: "",
     postal_code: "",
     country: "",
+    siret: "",
+    manager_gender: null,
+    manager_firstname: "",
+    manager_lastname: "",
+    manager_title: "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -32,14 +37,20 @@ export default function OrganizationSettings() {
         city: organization.city || "",
         postal_code: organization.postal_code || "",
         country: organization.country || "",
+        siret: organization.siret || "",
+        manager_gender: organization.manager_gender || null,
+        manager_firstname: organization.manager_firstname || "",
+        manager_lastname: organization.manager_lastname || "",
+        manager_title: organization.manager_title || "",
       });
     }
   }, [organization]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const value = e.target.value;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value === "" ? null : value,
     }));
   };
 
@@ -133,6 +144,78 @@ export default function OrganizationSettings() {
                     value={formData.phone || ""}
                     onChange={handleChange}
                     placeholder="+33 1 23 45 67 89"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Legal Information */}
+            <div>
+              <h2 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-4">
+                Informations légales
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>SIRET</Label>
+                  <Input
+                    name="siret"
+                    value={formData.siret || ""}
+                    onChange={handleChange}
+                    placeholder="123 456 789 00010"
+                    maxLength={14}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Numéro d'immatriculation de l'entreprise</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Manager Information */}
+            <div>
+              <h2 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-4">
+                Informations du gérant
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Civilité</Label>
+                  <select
+                    name="manager_gender"
+                    value={formData.manager_gender || ""}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="">Sélectionner</option>
+                    <option value="M">Monsieur</option>
+                    <option value="F">Madame</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Titre/Fonction</Label>
+                  <Input
+                    name="manager_title"
+                    value={formData.manager_title || ""}
+                    onChange={handleChange}
+                    placeholder="Gérant(e)"
+                  />
+                </div>
+
+                <div>
+                  <Label>Prénom</Label>
+                  <Input
+                    name="manager_firstname"
+                    value={formData.manager_firstname || ""}
+                    onChange={handleChange}
+                    placeholder="Jean"
+                  />
+                </div>
+
+                <div>
+                  <Label>Nom</Label>
+                  <Input
+                    name="manager_lastname"
+                    value={formData.manager_lastname || ""}
+                    onChange={handleChange}
+                    placeholder="Dupont"
                   />
                 </div>
               </div>
