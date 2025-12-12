@@ -58,7 +58,10 @@ export default function ContractSignPage() {
         console.log("✅ Contrat récupéré:", {
           status: response.status,
           signed_at: response.signed_at,
-          signature_reference: response.signature_reference
+          signature_reference: response.signature_reference,
+          template_id: response.template_id,
+          has_rendered_template: !!response.rendered_template,
+          rendered_template_length: response.rendered_template?.length || 0
         });
       } catch (err: any) {
         console.error("Impossible de récupérer le contrat à signer :", err);
@@ -646,11 +649,21 @@ export default function ContractSignPage() {
           </section>
         ) : null}
 
-        {contract.contract_type?.name?.toLowerCase().includes("forfait") ||
-        contract.contract_type?.name?.toLowerCase().includes("negafa") ? (
-          <ContractTemplateNegafa />
+        {/* Afficher le template rendu si disponible, sinon utiliser les composants par défaut */}
+        {contract.rendered_template ? (
+          <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
+            <div
+              dangerouslySetInnerHTML={{ __html: contract.rendered_template }}
+            />
+          </section>
         ) : (
-          <ContractTemplateLocation />
+          // Fallback sur les anciens composants si pas de template rendu
+          contract.contract_type?.name?.toLowerCase().includes("forfait") ||
+          contract.contract_type?.name?.toLowerCase().includes("negafa") ? (
+            <ContractTemplateNegafa />
+          ) : (
+            <ContractTemplateLocation />
+          )
         )}
 
         {/* <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">

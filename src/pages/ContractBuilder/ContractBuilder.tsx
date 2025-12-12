@@ -15,6 +15,7 @@ import { ContractAddonsAPI } from "../../api/endpoints/contractAddons";
 import { CustomersAPI, type Customer, type CustomerPayload } from "../../api/endpoints/customers";
 import { ContractsAPI, type ContractCreatePayload, type ContractAddon, type ContractFullView } from "../../api/endpoints/contracts";
 import { DressesAPI } from "../../api/endpoints/dresses";
+import { ContractTemplatesAPI, type ContractTemplate } from "../../api/endpoints/contractTemplates";
 import { useNotification } from "../../context/NotificationContext";
 
 const toNumber = (value: number | string): number => {
@@ -61,6 +62,7 @@ export default function ContractBuilder() {
   const [contractTypes, setContractTypes] = useState<ContractType[]>([]);
   const [packages, setPackages] = useState<ContractPackage[]>([]);
   const [addons, setAddons] = useState<ContractAddon[]>([]);
+  const [defaultTemplate, setDefaultTemplate] = useState<ContractTemplate | null>(null);
 
   const [selectedTypeId, setSelectedTypeId] = useState<string>("");
   const [selectedPackageId, setSelectedPackageId] = useState<string>("");
@@ -158,6 +160,46 @@ export default function ContractBuilder() {
 
     checkAvailability();
   }, [startDate, endDate, items]);
+
+  // Load default template when contract type changes
+  useEffect(() => {
+    if (!selectedTypeId) {
+      setDefaultTemplate(null);
+      return;
+    }
+
+    const loadDefaultTemplate = async () => {
+      try {
+        const templates = await ContractTemplatesAPI.list({
+          contract_type_id: selectedTypeId,
+          is_active: true,
+        });
+
+        console.log('📋 Templates disponibles pour ce type:', templates);
+
+        // Priorité 1: Template marqué comme "par défaut" ET actif
+        const defaultTpl = templates.find((t) => t.is_default && t.is_active);
+
+        // Priorité 2: Premier template actif
+        const firstActive = templates.find((t) => t.is_active);
+
+        // Priorité 3: N'importe quel template
+        const selected = defaultTpl || firstActive || templates[0] || null;
+
+        console.log('✅ Template sélectionné:', selected?.name || 'Aucun', {
+          is_default: selected?.is_default,
+          is_active: selected?.is_active,
+        });
+
+        setDefaultTemplate(selected);
+      } catch (error) {
+        console.error("Erreur lors du chargement du template par défaut:", error);
+        setDefaultTemplate(null);
+      }
+    };
+
+    loadDefaultTemplate();
+  }, [selectedTypeId]);
 
   // Customer search
   const handleCustomerSearch = useCallback(async () => {
@@ -398,10 +440,17 @@ export default function ContractBuilder() {
         cautionPaidHTValue,
       });
 
+      console.log('🚀 Création du contrat avec:', {
+        contract_type_id: selectedTypeId,
+        template_id: defaultTemplate?.id || null,
+        template_name: defaultTemplate?.name || 'Aucun'
+      });
+
       const payload: ContractCreatePayload = {
         contract_number: contractNumber,
         customer_id: selectedCustomer!.id,
         contract_type_id: selectedTypeId,
+        template_id: defaultTemplate?.id || null,
         start_datetime: startDate!.toISOString(),
         end_datetime: endDate!.toISOString(),
         deposit_payment_method: paymentMethod,
@@ -567,6 +616,7 @@ export default function ContractBuilder() {
                   isDailyContract={isDailyContract}
                   packageIncludedAddons={packageIncludedAddons}
                   optionalAddons={optionalAddons}
+                  defaultTemplate={defaultTemplate}
                   onTypeChange={setSelectedTypeId}
                   onPackageChange={setSelectedPackageId}
                   onAddonsChange={handleAddonToggle}

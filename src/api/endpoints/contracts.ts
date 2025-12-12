@@ -109,6 +109,8 @@ export interface ContractFullView {
     id: string;
     name: string;
   } | null;
+  template_id?: string | null;
+  rendered_template?: string | null;
   package?: {
     id: string;
     name: string;
@@ -140,6 +142,7 @@ export interface ContractCreatePayload {
   contract_number: string;
   customer_id: string;
   contract_type_id?: string | null;
+  template_id?: string | null;
   start_datetime: string;
   end_datetime: string;
   deposit_payment_method?: string | null;
