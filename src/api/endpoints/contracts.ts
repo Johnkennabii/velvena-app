@@ -200,7 +200,7 @@ const extractContractArray = (res: any): ContractFullView[] => {
 
 export const ContractsAPI = {
   listAll: async (): Promise<ContractFullView[]> => {
-    const res = await httpClient.get("/contracts/full-view?include=package", {
+    const res = await httpClient.get("/contracts/full-view", {
       _enableCache: true,
       _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
     });
@@ -209,7 +209,7 @@ export const ContractsAPI = {
   },
 
   listByCustomer: async (customerId: string): Promise<ContractFullView[]> => {
-    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}&include=package`, {
+    const res = await httpClient.get(`/contracts/full-view?customer_id=${customerId}`, {
       _enableCache: true,
       _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
     });
@@ -267,7 +267,7 @@ export const ContractsAPI = {
   },
 
   getById: async (contractId: string): Promise<ContractFullView> => {
-    const res = await httpClient.get(`/contracts/${contractId}?include=package`, {
+    const res = await httpClient.get(`/contracts/${contractId}`, {
       _enableCache: true,
       _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
     });
@@ -457,7 +457,7 @@ export const ContractsAPI = {
   },
 
   list: async (): Promise<{ data: ContractFullView[] }> => {
-    const res = await httpClient.get("/contracts/full-view?include=package", {
+    const res = await httpClient.get("/contracts/full-view", {
       _enableCache: true,
       _cacheTTL: 2 * 60 * 1000, // 2 minutes - contrats changent dynamiquement
     });
