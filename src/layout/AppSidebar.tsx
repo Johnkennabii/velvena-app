@@ -102,6 +102,7 @@ const navItems: NavItem[] = [
       { name: "Options", path: "/gestion/contract-addons", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
       { name: "Forfaits", path: "/gestion/contract-package", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
       { name: "Types de contrat", path: "/gestion/contract-types", requiredRoles: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "Templates de contrat", path: "/gestion/contract-templates", requiredRoles: ["SUPER_ADMIN", "ADMIN","MANAGER"] },
       { name: "Référence robe", isLabel: true, requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
       { name: "Types de robe", path: "/gestion/dress-types", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
       { name: "Tailles de robe", path: "/gestion/dress-sizes", requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"] },
@@ -272,7 +273,7 @@ const supportItems: NavItem[] = [
     icon: <MailIcon />,
     name: "Email",
     path: "/inbox",
-    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
     new: true,
   },
   {

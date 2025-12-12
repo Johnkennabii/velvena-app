@@ -48,6 +48,7 @@ const formatFeatures = (features: any): string[] => {
     dashboard: "Tableau de bord",
     export_data: "Export de données",
     notification_push: "Notifications push",
+    contract_builder: "Créateur de contrat",
   };
 
   return Object.entries(features)

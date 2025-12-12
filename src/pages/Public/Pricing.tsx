@@ -47,7 +47,7 @@ export default function Pricing() {
     export_data: "Export de données",
     planning: "Calendrier",
     notification_push: "Notifications push",
-    contract_builder: "Fonction de créateur de contrat",
+    contract_builder: "Créateur de contrat",
     dashboard: "Tableau de bord",
   };
 

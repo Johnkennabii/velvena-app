@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
-import { useAuth } from "../context/AuthContext";
 import { useOrganization } from "../context/OrganizationContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
@@ -15,9 +14,7 @@ import { useAppName } from "../hooks/useAppName";
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
-  const { hasRole } = useAuth();
   const { hasFeature } = useOrganization();
-  const isAdmin = hasRole("ADMIN","SUPER_ADMIN");
   const appName = useAppName();
 
 
@@ -131,7 +128,7 @@ const AppHeader: React.FC = () => {
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Prospects Icon  --> */}
-            {isAdmin && hasFeature("prospect_management") && <ProspectsIcon />}
+            {hasFeature("prospect_management") && <ProspectsIcon />}
             {/* <!-- Cart Icon  --> */}
             { hasFeature("contract_builder") && <CartIcon /> }
             {/* <!-- Dark Mode Toggler --> */}

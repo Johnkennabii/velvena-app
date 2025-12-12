@@ -20,6 +20,7 @@ import UserList from "./pages/Users/UserList";
 import ContractAddons from "./pages/Gestion/ContractAddons";
 import ContractPackages from "./pages/Gestion/ContractPackages";
 import ContractTypes from "./pages/Gestion/ContractTypes";
+import ContractTemplates from "./pages/Gestion/ContractTemplates";
 import DressTypes from "./pages/Gestion/DressTypes";
 import DressSizes from "./pages/Gestion/DressSizes";
 import DressConditions from "./pages/Gestion/DressConditions";
@@ -222,6 +223,16 @@ export default function App() {
             element={
               <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN"]}>
                 <ContractTypes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gestion/contract-templates"
+            element={
+              <ProtectedRoute roles={["SUPER_ADMIN", "ADMIN","MANAGER"
+                
+              ]}>
+                <ContractTemplates />
               </ProtectedRoute>
             }
           />

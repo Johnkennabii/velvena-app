@@ -8,6 +8,7 @@ import { useNotification } from "../../context/NotificationContext";
 import UsageOverviewCard from "../../components/subscription/UsageOverviewCard";
 import ChangePlanModal from "../../components/subscription/ChangePlanModal";
 import BillingHistory from "../../components/subscription/BillingHistory";
+import CancelSubscriptionModal from "../../components/subscription/CancelSubscriptionModal";
 import { SubscriptionAPI } from "../../api/endpoints/subscription";
 // import BillingPricingTable from "../../components/subscription/BillingPricingTable"; // Désactivé temporairement
 
@@ -15,7 +16,9 @@ export default function BillingSettings() {
   const { organization, subscriptionStatus, loading, isTrialActive, getTrialDaysRemaining, refreshOrganization, refreshSubscription } = useOrganization();
   const { notify } = useNotification();
   const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [reactivating, setReactivating] = useState(false);
 
   const handleManageSubscription = async () => {
     setPortalLoading(true);
@@ -30,6 +33,21 @@ export default function BillingSettings() {
       console.error("Erreur lors de l'ouverture du portail:", error);
       notify("error", "Erreur", error.message || "Impossible d'ouvrir le portail de gestion");
       setPortalLoading(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    setReactivating(true);
+    try {
+      await SubscriptionAPI.reactivateSubscription();
+      notify("success", "Abonnement réactivé", "Votre abonnement a été réactivé avec succès");
+      refreshSubscription();
+      refreshOrganization();
+    } catch (error: any) {
+      console.error("Erreur lors de la réactivation:", error);
+      notify("error", "Erreur", error.message || "Impossible de réactiver l'abonnement");
+    } finally {
+      setReactivating(false);
     }
   };
 
@@ -178,7 +196,7 @@ export default function BillingSettings() {
                           export_data: "Export de données",
                           planning: "Calendrier",
                           notification_push: "Notifications push",
-                          contract_builder: "Fonction de créateur de contrat",
+                          contract_builder: "Créateur de contrat",
                           dashboard: "Tableau de bord",
                         };
                         return (
@@ -209,6 +227,36 @@ export default function BillingSettings() {
                             <> Il vous reste <strong>{getTrialDaysRemaining()} jours</strong>.</>
                           )}
                         </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Cancellation Warning - Si résiliation programmée */}
+                {subscriptionStatus?.status === 'active' && subscriptionStatus?.subscription_ends_at && (
+                  <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 mb-6">
+                    <div className="flex items-start gap-3">
+                      <FiAlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                          ⚠️ Résiliation programmée
+                        </p>
+                        <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                          Votre abonnement <strong>{subscriptionStatus.plan?.name}</strong> sera résilié le{" "}
+                          <strong>{formatDate(subscriptionStatus.subscription_ends_at)}</strong>.
+                          Vous pouvez encore profiter de toutes les fonctionnalités jusqu'à cette date.
+                        </p>
+                        <div className="mt-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleReactivate}
+                            disabled={reactivating}
+                            className="text-xs"
+                          >
+                            {reactivating ? "Réactivation..." : "Annuler la résiliation"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -276,6 +324,33 @@ export default function BillingSettings() {
                       )}
                     </Button>
                   )}
+
+                  {/* Cancel Button - Only show for paid plans not already cancelled */}
+                  {(() => {
+                    const isPaidPlan = subscriptionStatus?.plan && subscriptionStatus.plan.price_monthly > 0;
+                    const isActiveOrTrial = subscriptionStatus?.status === 'active' || subscriptionStatus?.status === 'trial';
+                    const notCancelled = !subscriptionStatus?.subscription_ends_at;
+
+                    console.log("🔍 Cancel button conditions:", {
+                      hasPlan: !!subscriptionStatus?.plan,
+                      priceMonthly: subscriptionStatus?.plan?.price_monthly,
+                      status: subscriptionStatus?.status,
+                      subscriptionEndsAt: subscriptionStatus?.subscription_ends_at,
+                      isPaidPlan,
+                      isActiveOrTrial,
+                      notCancelled,
+                      shouldShow: isPaidPlan && isActiveOrTrial && notCancelled
+                    });
+
+                    return isPaidPlan && isActiveOrTrial && notCancelled ? (
+                      <Button
+                        variant="danger"
+                        onClick={() => setCancelModalOpen(true)}
+                      >
+                        Annuler mon abonnement
+                      </Button>
+                    ) : null;
+                  })()}
                 </div>
               </div>
             )}
@@ -292,6 +367,20 @@ export default function BillingSettings() {
             }}
           />
 
+          {/* Cancel Subscription Modal */}
+          {subscriptionStatus?.plan && (
+            <CancelSubscriptionModal
+              isOpen={cancelModalOpen}
+              onClose={() => setCancelModalOpen(false)}
+              currentPlan={subscriptionStatus.plan}
+              subscriptionEndsAt={subscriptionStatus.subscription_ends_at}
+              onSuccess={() => {
+                refreshOrganization();
+                refreshSubscription();
+              }}
+            />
+          )}
+
           {/* Payment Method */}
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -305,11 +394,50 @@ export default function BillingSettings() {
 
             <div className="p-6">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Aucun moyen de paiement enregistré
+                Gérez vos moyens de paiement de manière sécurisée via le portail Stripe.
+                Vous pourrez ajouter, modifier ou supprimer vos cartes bancaires.
               </p>
-              <Button variant="outline">
-                Ajouter une carte
-              </Button>
+              {subscriptionStatus?.plan && subscriptionStatus.plan.price_monthly > 0 ? (
+                <Button
+                  variant="outline"
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                >
+                  {portalLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Chargement...
+                    </span>
+                  ) : (
+                    <>
+                      <FiCreditCard className="mr-2" />
+                      Gérer mes moyens de paiement
+                      <FiExternalLink className="ml-2" />
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Souscrivez à un plan payant pour ajouter un moyen de paiement.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

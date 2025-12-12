@@ -168,20 +168,6 @@ export const SubscriptionAPI = {
     });
   },
 
-  /**
-   * Annuler son abonnement
-   */
-  cancelSubscription: async (): Promise<void> => {
-    await httpClient.delete("/organizations/me/subscription");
-  },
-
-  /**
-   * Réactiver son abonnement
-   */
-  reactivateSubscription: async (): Promise<void> => {
-    await httpClient.post("/organizations/me/subscription/reactivate", {});
-  },
-
   // ========== Stripe Integration ==========
 
   /**
@@ -221,6 +207,22 @@ export const SubscriptionAPI = {
   getInvoices: async (params?: { limit?: number }): Promise<InvoicesResponse> => {
     const queryParams = params?.limit ? `?limit=${params.limit}` : '';
     const response = await httpClient.get(`/billing/invoices${queryParams}`);
+    return response;
+  },
+
+  /**
+   * Annuler l'abonnement Stripe
+   */
+  cancelSubscription: async (params: { immediately: boolean }): Promise<{ success: boolean; message: string }> => {
+    const response = await httpClient.post("/billing/cancel-subscription", params);
+    return response;
+  },
+
+  /**
+   * Réactiver un abonnement annulé (annuler la résiliation programmée)
+   */
+  reactivateSubscription: async (): Promise<{ success: boolean; message: string }> => {
+    const response = await httpClient.post("/billing/reactivate-subscription", {});
     return response;
   },
 };

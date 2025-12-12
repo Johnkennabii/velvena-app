@@ -397,7 +397,7 @@ const DressCard = memo<DressCardProps>(({
           </button>
         </IconTooltip>
       ) : null}
-      {canPublish ? (
+      {canPublish && isAdmin? (
         <IconTooltip title={dress.published_post ? "Dépublier" : "Publier"}>
           <button
             type="button"

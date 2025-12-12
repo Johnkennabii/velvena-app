@@ -2,7 +2,7 @@ export default function ContractTemplateNegafa() {
   return (
     <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm">
       <article className="space-y-4 text-sm leading-relaxed text-gray-700">
-        <h2 className="text-lg font-semibold text-gray-900">Contrat de prestation “Négafa”</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Contrat de prestation forfaitaire “Négafa”</h2>
 
         <p><strong>Entre les soussignés :</strong></p>
         <p>
