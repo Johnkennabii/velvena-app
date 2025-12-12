@@ -8,6 +8,9 @@ import type {
   ValidateTemplateResponse,
 } from "../../types/contractTemplate";
 
+// Re-export types for convenience
+export type { ContractTemplate } from "../../types/contractTemplate";
+
 /**
  * API endpoints pour la gestion des templates de contrats
  */

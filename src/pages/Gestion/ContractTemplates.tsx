@@ -6,7 +6,6 @@ import { Modal } from "../../components/ui/modal";
 import { TemplateEditor } from "../../components/contractTemplates/TemplateEditor";
 import { TemplatesList } from "../../components/contractTemplates/TemplatesList";
 import { ContractTypesAPI, type ContractType } from "../../api/endpoints/contractTypes";
-import type { ContractTemplate } from "../../types/contractTemplate";
 
 /**
  * Page de gestion des templates de contrats

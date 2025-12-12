@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
 
 interface TemplateToolbarProps {
   onInsert: (text: string) => void;
@@ -154,7 +153,9 @@ export function TemplateToolbar({ onInsert }: TemplateToolbarProps) {
         {categories.map((category) => (
           <div key={category.name}>
             <button
-              ref={(el) => (buttonRefs.current[category.name] = el)}
+              ref={(el) => {
+                buttonRefs.current[category.name] = el;
+              }}
               onClick={() => toggleCategory(category.name)}
               className={`dropdown-toggle flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 openCategory === category.name

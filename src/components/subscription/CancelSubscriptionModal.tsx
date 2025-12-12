@@ -42,7 +42,7 @@ export default function CancelSubscriptionModal({
   const handleCancel = async () => {
     setLoading(true);
     try {
-      const result = await SubscriptionAPI.cancelSubscription({ immediately });
+      await SubscriptionAPI.cancelSubscription({ immediately });
 
       notify(
         "success",
