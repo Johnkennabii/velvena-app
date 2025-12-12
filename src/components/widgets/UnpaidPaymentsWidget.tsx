@@ -92,54 +92,77 @@ export default function UnpaidPaymentsWidget({
       const response = await ContractsAPI.list();
       const allContracts = response.data || [];
 
+      console.log('📊 Widget Paiements - Contrats récupérés:', allContracts.length);
+
       const now = new Date();
       const unpaidList: UnpaidContract[] = [];
 
       for (const contract of allContracts) {
-        const accountTTC = parseFloat(String(contract.account_ttc || 0));
-        const accountPaidTTC = parseFloat(String(contract.account_paid_ttc || 0));
-        const cautionTTC = parseFloat(String(contract.caution_ttc || 0));
-        const cautionPaidTTC = parseFloat(String(contract.caution_paid_ttc || 0));
+        try {
+          // Vérifier que les données essentielles existent
+          if (!contract.start_datetime) {
+            console.warn('⚠️ Contrat sans date de début:', contract.id);
+            continue;
+          }
 
-        const remainingAccount = accountTTC - accountPaidTTC;
-        const remainingCaution = cautionTTC - cautionPaidTTC;
+          const accountTTC = parseFloat(String(contract.account_ttc || 0));
+          const accountPaidTTC = parseFloat(String(contract.account_paid_ttc || 0));
+          const cautionTTC = parseFloat(String(contract.caution_ttc || 0));
+          const cautionPaidTTC = parseFloat(String(contract.caution_paid_ttc || 0));
 
-        // Filtrer uniquement les contrats avec des paiements manquants
-        if (remainingAccount > 0 || remainingCaution > 0) {
-          const startDate = new Date(contract.start_datetime);
-          const daysUntilStart = Math.floor((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          const urgency = getUrgencyLevel(daysUntilStart);
+          const remainingAccount = accountTTC - accountPaidTTC;
+          const remainingCaution = cautionTTC - cautionPaidTTC;
 
-          // Récupérer les infos du client (format plat ou objet imbriqué)
-          const firstname = contract.customer_firstname || contract.customer?.firstname || "";
-          const lastname = contract.customer_lastname || contract.customer?.lastname || "";
-          const customerName = `${firstname} ${lastname}`.trim() || "Non défini";
-          const customerEmail = contract.customer_email || contract.customer?.email || "Non défini";
-          const customerPhone = contract.customer_phone || contract.customer?.phone || "Non défini";
+          // Filtrer uniquement les contrats avec des paiements manquants
+          if (remainingAccount > 0 || remainingCaution > 0) {
+            const startDate = new Date(contract.start_datetime);
 
-          unpaidList.push({
-            id: contract.id,
-            contract_number: contract.contract_number || "N/A",
-            customer_name: customerName,
-            customer_email: customerEmail,
-            customer_phone: customerPhone,
-            start_datetime: contract.start_datetime,
-            end_datetime: contract.end_datetime,
-            account_ttc: accountTTC,
-            account_paid_ttc: accountPaidTTC,
-            caution_ttc: cautionTTC,
-            caution_paid_ttc: cautionPaidTTC,
-            remaining_account: remainingAccount,
-            remaining_caution: remainingCaution,
-            days_until_start: daysUntilStart,
-            urgency,
-          });
+            // Vérifier que la date est valide
+            if (isNaN(startDate.getTime())) {
+              console.warn('⚠️ Date de début invalide pour contrat:', contract.id, contract.start_datetime);
+              continue;
+            }
+
+            const daysUntilStart = Math.floor((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            const urgency = getUrgencyLevel(daysUntilStart);
+
+            // Récupérer les infos du client (format plat ou objet imbriqué)
+            const firstname = contract.customer_firstname || contract.customer?.firstname || "";
+            const lastname = contract.customer_lastname || contract.customer?.lastname || "";
+            const customerName = `${firstname} ${lastname}`.trim() || "Non défini";
+            const customerEmail = contract.customer_email || contract.customer?.email || "Non défini";
+            const customerPhone = contract.customer_phone || contract.customer?.phone || "Non défini";
+
+            unpaidList.push({
+              id: contract.id,
+              contract_number: contract.contract_number || "N/A",
+              customer_name: customerName,
+              customer_email: customerEmail,
+              customer_phone: customerPhone,
+              start_datetime: contract.start_datetime,
+              end_datetime: contract.end_datetime,
+              account_ttc: accountTTC,
+              account_paid_ttc: accountPaidTTC,
+              caution_ttc: cautionTTC,
+              caution_paid_ttc: cautionPaidTTC,
+              remaining_account: remainingAccount,
+              remaining_caution: remainingCaution,
+              days_until_start: daysUntilStart,
+              urgency,
+            });
+          }
+        } catch (contractError) {
+          console.error('❌ Erreur lors du traitement du contrat:', contract.id, contractError);
+          // Continue avec le prochain contrat au lieu de tout casser
         }
       }
 
+      console.log('💰 Paiements en attente trouvés:', unpaidList.length);
       setContracts(unpaidList);
-    } catch (err) {
-      console.error("Error fetching unpaid contracts:", err);
+    } catch (err: any) {
+      console.error("❌ Error fetching unpaid contracts:", err);
+      console.error("   Status:", err?.response?.status);
+      console.error("   Message:", err?.message);
       setError("Erreur lors du chargement des paiements en attente");
     } finally {
       setLoading(false);
