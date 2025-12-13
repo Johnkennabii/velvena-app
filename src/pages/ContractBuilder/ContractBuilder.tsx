@@ -481,6 +481,9 @@ export default function ContractBuilder() {
       // Fetch the full contract details
       const fullContract = await ContractsAPI.getById(created.id);
 
+      // Dispatch event pour propager la création du contrat
+      window.dispatchEvent(new CustomEvent("contract-created", { detail: fullContract }));
+
       // Clear cart and open drawer
       clearCart();
       setCustomerDrawer({

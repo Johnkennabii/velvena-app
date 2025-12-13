@@ -905,6 +905,26 @@ export default function Customers() {
     };
   }, []);
 
+  // Écouter les événements de création de contrat pour mise à jour en temps réel
+  useEffect(() => {
+    const handleContractCreated = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const newContract = customEvent.detail as ContractFullView;
+
+      // Ajouter le nouveau contrat au début de la liste viewContracts
+      // uniquement si le drawer est ouvert et que c'est pour ce client
+      if (viewOpen && viewCustomer && newContract.customer_id === viewCustomer.id) {
+        setViewContracts((prev) => [newContract, ...prev]);
+      }
+    };
+
+    window.addEventListener("contract-created", handleContractCreated);
+
+    return () => {
+      window.removeEventListener("contract-created", handleContractCreated);
+    };
+  }, [viewOpen, viewCustomer]);
+
   const getUserFullName = useCallback(
     (userId: string | null | undefined): string => {
       if (!userId) return "-";
@@ -2090,7 +2110,7 @@ export default function Customers() {
 
     try {
       setCreating(true);
-      await CustomersAPI.create({
+      const newCustomer = await CustomersAPI.create({
         firstname: createForm.firstname.trim(),
         lastname: createForm.lastname.trim(),
         email: createForm.email.trim(),
@@ -2103,14 +2123,27 @@ export default function Customers() {
       });
       notify("success", "Client créé", "Le client a été ajouté.");
       setCreateOpen(false);
-      const refreshed = await CustomersAPI.list({
-        search: searchInput.trim() || undefined,
-        page: 1,
-        limit,
-      });
-      setCustomerData(refreshed);
-      setPage(1);
-      setSearchQuery(searchInput.trim());
+
+      // Optimisation: Ajouter le client au début de la liste au lieu de tout recharger
+      setCustomerData((prevData) => ({
+        data: [newCustomer, ...prevData.data],
+        total: prevData.total + 1,
+        page: prevData.page,
+        limit: prevData.limit,
+      }));
+
+      // Si on n'est pas sur la première page, revenir à la première page
+      if (page !== 1) {
+        setPage(1);
+        // Dans ce cas, on doit recharger pour avoir la bonne pagination
+        const refreshed = await CustomersAPI.list({
+          search: searchInput.trim() || undefined,
+          page: 1,
+          limit,
+        });
+        setCustomerData(refreshed);
+        setSearchQuery(searchInput.trim());
+      }
     } catch (error) {
       console.error("❌ Création client :", error);
       notify("error", "Erreur", "Impossible de créer le client.");
