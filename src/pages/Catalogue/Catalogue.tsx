@@ -2090,8 +2090,17 @@ export default function Catalogue() {
         }
       }
 
-      await fetchDresses(1, filters);
-      setPage(1);
+      // Optimisation: Ajouter la robe au début de la liste au lieu de tout recharger
+      setDresses((prevDresses) => [finalDress, ...prevDresses]);
+      setTotal((prevTotal) => prevTotal + 1);
+
+      // Si on n'est pas sur la première page, revenir à la première page
+      if (page !== 1) {
+        setPage(1);
+        // Dans ce cas, on doit recharger pour avoir la bonne pagination
+        await fetchDresses(1, filters);
+      }
+
       notify("success", "Robe créée", `${finalDress.name} a été ajoutée au catalogue.`);
       resetCreateState();
       setCreateDrawerOpen(false);
