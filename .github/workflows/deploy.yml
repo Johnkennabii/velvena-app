@@ -136,6 +136,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          debug: true
           script: |
             # Configuration
             IMAGE_NAME="${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:latest"
@@ -170,6 +171,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          debug: true
           script: |
             echo "⏳ Waiting for container to be ready..."
             sleep 10
