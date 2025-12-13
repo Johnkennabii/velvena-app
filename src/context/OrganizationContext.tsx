@@ -83,6 +83,13 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
         contracts: quotas.contracts,
       };
 
+      console.log('📋 Subscription status loaded:', {
+        planName: status.plan?.name,
+        planCode: status.plan?.code,
+        features: status.plan?.features,
+        status: status.status
+      });
+
       setSubscriptionStatus(status);
     } catch (error: any) {
       console.error("⚠️  Erreur lors du chargement de l'abonnement:", error);
@@ -246,8 +253,18 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
    */
   const hasFeature = useCallback(
     (featureName: string): boolean => {
-      if (!subscriptionStatus || !subscriptionStatus.plan) return false;
-      return subscriptionStatus.plan.features[featureName as keyof typeof subscriptionStatus.plan.features] === true;
+      if (!subscriptionStatus || !subscriptionStatus.plan) {
+        console.warn(`🔒 hasFeature("${featureName}"): subscriptionStatus or plan not available`, {
+          subscriptionStatus,
+          hasPlan: !!subscriptionStatus?.plan
+        });
+        return false;
+      }
+      const hasIt = subscriptionStatus.plan.features[featureName as keyof typeof subscriptionStatus.plan.features] === true;
+      console.log(`🔑 hasFeature("${featureName}"):`, hasIt, {
+        features: subscriptionStatus.plan.features
+      });
+      return hasIt;
     },
     [subscriptionStatus]
   );

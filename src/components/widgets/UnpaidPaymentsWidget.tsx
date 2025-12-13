@@ -185,23 +185,43 @@ export default function UnpaidPaymentsWidget({
     try {
       setMarkingPaid({ contractId, type: "account" });
 
+      const contract = contracts.find((c) => c.id === contractId);
+      if (!contract) return;
+
       if (onMarkAccountAsPaid) {
         await onMarkAccountAsPaid(contractId);
       } else {
         // Fallback vers l'API directe si pas de callback fourni
-        const contract = contracts.find((c) => c.id === contractId);
-        if (contract) {
-          await ContractsAPI.update(contractId, {
-            account_paid_ttc: contract.account_ttc,
-          });
-        }
+        await ContractsAPI.update(contractId, {
+          account_paid_ttc: contract.account_ttc,
+        });
       }
 
-      // Rafraîchir la liste
-      await fetchUnpaidContracts();
+      // Optimisation: Retirer immédiatement le contrat de la liste si totalement payé
+      // Sinon, mettre à jour les montants restants
+      setContracts((prev) => {
+        const updatedContract = prev.find((c) => c.id === contractId);
+        if (!updatedContract) return prev;
+
+        const newRemainingCaution = updatedContract.remaining_caution;
+
+        // Si plus rien à payer, retirer de la liste
+        if (newRemainingCaution <= 0) {
+          return prev.filter((c) => c.id !== contractId);
+        }
+
+        // Sinon, mettre à jour le contrat
+        return prev.map((c) =>
+          c.id === contractId
+            ? { ...c, account_paid_ttc: c.account_ttc, remaining_account: 0 }
+            : c
+        );
+      });
     } catch (err) {
       console.error("Error marking account as paid:", err);
       alert("Erreur lors de la mise à jour du paiement de l'acompte");
+      // En cas d'erreur, rafraîchir pour être sûr
+      await fetchUnpaidContracts();
     } finally {
       setMarkingPaid(null);
     }
@@ -211,23 +231,43 @@ export default function UnpaidPaymentsWidget({
     try {
       setMarkingPaid({ contractId, type: "caution" });
 
+      const contract = contracts.find((c) => c.id === contractId);
+      if (!contract) return;
+
       if (onMarkCautionAsPaid) {
         await onMarkCautionAsPaid(contractId);
       } else {
         // Fallback vers l'API directe si pas de callback fourni
-        const contract = contracts.find((c) => c.id === contractId);
-        if (contract) {
-          await ContractsAPI.update(contractId, {
-            caution_paid_ttc: contract.caution_ttc,
-          });
-        }
+        await ContractsAPI.update(contractId, {
+          caution_paid_ttc: contract.caution_ttc,
+        });
       }
 
-      // Rafraîchir la liste
-      await fetchUnpaidContracts();
+      // Optimisation: Retirer immédiatement le contrat de la liste si totalement payé
+      // Sinon, mettre à jour les montants restants
+      setContracts((prev) => {
+        const updatedContract = prev.find((c) => c.id === contractId);
+        if (!updatedContract) return prev;
+
+        const newRemainingAccount = updatedContract.remaining_account;
+
+        // Si plus rien à payer, retirer de la liste
+        if (newRemainingAccount <= 0) {
+          return prev.filter((c) => c.id !== contractId);
+        }
+
+        // Sinon, mettre à jour le contrat
+        return prev.map((c) =>
+          c.id === contractId
+            ? { ...c, caution_paid_ttc: c.caution_ttc, remaining_caution: 0 }
+            : c
+        );
+      });
     } catch (err) {
       console.error("Error marking caution as paid:", err);
       alert("Erreur lors de la mise à jour du paiement de la caution");
+      // En cas d'erreur, rafraîchir pour être sûr
+      await fetchUnpaidContracts();
     } finally {
       setMarkingPaid(null);
     }

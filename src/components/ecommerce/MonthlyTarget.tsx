@@ -1,14 +1,10 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useState, useEffect } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { MoreDotIcon } from "../../icons";
 import { ContractsAPI } from "../../api/endpoints/contracts";
 import { formatNumber } from "../../utils/formatters";
 
 export default function MonthlyTarget() {
-  const [isOpen, setIsOpen] = useState(false);
   const [targetAmount, setTargetAmount] = useState(0); // Mois dernier
   const [revenueAmount, setRevenueAmount] = useState(0); // Mois en cours
   const [todayAmount, setTodayAmount] = useState(0); // Aujourd'hui
@@ -138,13 +134,6 @@ export default function MonthlyTarget() {
     labels: ["Progrès"],
   };
 
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
   const formatCurrency = (amount: number) => {
     return formatNumber(amount, 0) + " €";
   };
@@ -160,38 +149,13 @@ export default function MonthlyTarget() {
   return (
     <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-11 dark:bg-gray-900 sm:px-6 sm:pt-6">
-        <div className="flex justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Objectif Mensuel
-            </h3>
-            <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-              Basé sur la date de création des contrats
-            </p>
-          </div>
-          <div className="relative inline-block">
-            <button className="dropdown-toggle" onClick={toggleDropdown}>
-              <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
-            </button>
-            <Dropdown
-              isOpen={isOpen}
-              onClose={closeDropdown}
-              className="w-40 p-2"
-            >
-              <DropdownItem
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                Voir plus
-              </DropdownItem>
-              <DropdownItem
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                Supprimer
-              </DropdownItem>
-            </Dropdown>
-          </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Objectif Mensuel
+          </h3>
+          <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
+            Basé sur la date de création des contrats
+          </p>
         </div>
         <div className="relative ">
           <div className="max-h-[330px]" id="chartDarkStyle">

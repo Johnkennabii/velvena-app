@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
     icon: <HiOutlineUserGroup />,
     name: "Prospects",
     path: "/prospects",
-    requiredRoles: ["SUPER_ADMIN", "ADMIN"],
+    requiredRoles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "COLLABORATOR"],
     requiredFeature: "prospect_management",
   },
   {
