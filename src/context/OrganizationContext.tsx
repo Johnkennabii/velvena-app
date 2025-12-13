@@ -87,34 +87,35 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
         planName: status.plan?.name,
         planCode: status.plan?.code,
         features: status.plan?.features,
-        status: status.status
+        status: status.status,
+        prospect_management: status.plan?.features?.prospect_management
       });
 
       setSubscriptionStatus(status);
     } catch (error: any) {
       console.error("⚠️  Erreur lors du chargement de l'abonnement:", error);
-      // En cas d'erreur, définir un plan par défaut permissif pour ne pas bloquer l'utilisateur
-      // Cela permet à l'application de fonctionner même si l'API de billing est indisponible
+      // En cas d'erreur, définir un plan par défaut restrictif (équivalent Free)
+      // pour ne pas donner accès à des fonctionnalités non autorisées
       setSubscriptionStatus({
         plan: {
           id: 'default',
-          name: 'Plan par défaut',
-          code: 'default',
-          description: 'Plan par défaut en cas d\'erreur API',
+          name: 'Plan Free (par défaut)',
+          code: 'free',
+          description: 'Plan par défaut en cas d\'erreur API - équivalent Free',
           price_monthly: 0,
           price_yearly: 0,
           trial_days: 0,
           features: {
-            planning: true,
-            dashboard: true,
-            prospect_management: true,
+            planning: false,
+            dashboard: false,
+            prospect_management: false, // Uniquement Enterprise
             contract_generation: true,
-            electronic_signature: true,
+            electronic_signature: false,
             inventory_management: true,
             customer_portal: true,
-            export_data: true,
-            notification_push: true,
-            contract_builder: true,
+            export_data: false,
+            notification_push: false,
+            contract_builder: false,
           },
           limits: {
             users: 999,
