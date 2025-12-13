@@ -358,7 +358,7 @@ const ContractCard = ({
               </svg>
               <span>{formatDateTimeShort(contract.start_datetime)} → {formatDateTimeShort(contract.end_datetime)}</span>
             </div>
-            {(contract.package?.name || contract.contract_type_name === "Forfait") && (
+            {(contract.package?.name || contract.contract_type?.name === "Forfait" || contract.contract_type_name === "Forfait") && (
               <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -451,7 +451,7 @@ const ContractCard = ({
         <div className="grid gap-4 border-t border-gray-200 pt-4 dark:border-gray-800 md:grid-cols-3">
           <div className="space-y-1">
             <p className="text-xs text-gray-500 dark:text-gray-400">Type de contrat</p>
-            <p className="text-sm font-medium text-gray-900 dark:text-white">{contract.contract_type_name || "-"}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{contract.contract_type?.name || contract.contract_type_name || "-"}</p>
           </div>
           <div className="space-y-1">
             <p className="text-xs text-gray-500 dark:text-gray-400">Méthode de paiement</p>
@@ -2711,7 +2711,7 @@ export default function Customers() {
                       {contractEditDrawer.contract?.contract_number ?? "-"}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {contractEditDrawer.contract?.contract_type_name ?? "Contrat de location"}
+                      {contractEditDrawer.contract?.contract_type?.name ?? contractEditDrawer.contract?.contract_type_name ?? "Contrat de location"}
                     </p>
                   </div>
                 </div>
